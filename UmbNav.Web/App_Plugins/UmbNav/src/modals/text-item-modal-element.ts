@@ -101,7 +101,7 @@ export class UmbNavModalElement extends
                                    slot="editor"
                                    id="umbnav-text-item"
                                    rows=10
-                                   .value=${this.data?.name}
+                                   .value=${this.data?.name ?? ''}
                                    @input=${this.#contentChange}
                                    required
                                    ${umbBindToValidation(this)}

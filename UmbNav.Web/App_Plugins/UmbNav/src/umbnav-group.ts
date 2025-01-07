@@ -78,18 +78,18 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
     }
 
     @state()
-    public get enableTextItems(): Boolean {
-        return <Boolean>this.config.find(item => item.alias === 'enableTextItems')?.value ?? false;
+    public get enableTextItems(): boolean {
+        return <boolean>this.config.find(item => item.alias === 'enableTextItems')?.value ?? false;
     }
 
     @state()
-    public get enableMediaPicker(): Boolean {
-        return <Boolean>this.config?.find(item => item.alias === 'allowImageIcon')?.value ?? false;
+    public get enableMediaPicker(): boolean {
+        return <boolean>this.config?.find(item => item.alias === 'allowImageIcon')?.value ?? false;
     }
 
     @state()
-    public get enableVisibility(): Boolean {
-        return <Boolean>this.config?.find(item => item.alias === 'allowDisplay')?.value ?? false;
+    public get enableVisibility(): boolean {
+        return <boolean>this.config?.find(item => item.alias === 'allowDisplay')?.value ?? false;
     }
 
     public set value(value: ModelEntryType[]) {
@@ -557,15 +557,15 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                                 html`
                                     <uui-button-inline-create
                                             @click=${() => this.newNode(item.key)}></uui-button-inline-create>
-                                    <umbnav-item name=${item.name} key=${item.key} class=""
-                                                 description="${item.description}"
+                                    <umbnav-item name=${item.name ?? '' } key="${item.key ?? '' }" class=""
+                                                 description="${item.description ?? '' }"
                                                  .expanded=${ this._expandAll || item.key != null && this.expandedItems.includes(item.key)}
-                                                 .hasImage="${item.image && item.image.length > 0}"
+                                                 .hasImage=${Boolean(item.image?.length)}
                                                  .enableMediaPicker=${this.enableMediaPicker}
                                                  .enableVisibility=${this.enableVisibility}
-                                                 .hideLoggedIn=${item.hideLoggedIn}
-                                                 .hideLoggedOut=${item.hideLoggedOut}
-                                                 icon="${item.icon}"
+                                                 .hideLoggedIn=${!!item.hideLoggedIn}
+                                                 .hideLoggedOut=${!!item.hideLoggedOut}
+                                                 icon="${item.icon ?? '' }"
                                                  ?unpublished=${!item.published && item.itemType === "document"}
                                                  @toggle-children-event=${this.toggleNode}
                                                  @edit-node-event=${this.toggleLinkPickerEvent}
