@@ -41,6 +41,7 @@ export class UmbNavModalElement extends
                 icon: 'icon-tag',
                 itemType: 'title',
                 udi: null,
+                contentKey: null,
                 anchor: null,
                 published: true,
                 children: []};
