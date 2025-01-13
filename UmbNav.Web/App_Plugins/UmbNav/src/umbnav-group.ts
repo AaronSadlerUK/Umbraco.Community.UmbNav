@@ -13,7 +13,7 @@ import {DocumentService, MediaService} from '@umbraco-cms/backoffice/external/ba
 import {UMBNAV_TEXT_ITEM_MODAL} from "./modals/text-item-modal-token.ts";
 import { UMBNAV_VISIBILITY_ITEM_MODAL } from "./modals/visibility-item-modal-token.ts";
 import { UMBNAV_SETTINGS_ITEM_MODAL } from "./modals/settings-item-modal-token.ts";
-import {ImageItem, ModelEntryType} from "./umbnav.token.ts";
+import {Guid, ImageItem, ModelEntryType} from "./umbnav.token.ts";
 
 @customElement('umbnav-group')
 export class UmbNavGroup extends UmbElementMixin(LitElement) {
@@ -78,18 +78,18 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
     }
 
     @state()
-    public get enableTextItems(): Boolean {
-        return <Boolean>this.config.find(item => item.alias === 'enableTextItems')?.value ?? false;
+    public get enableTextItems(): boolean {
+        return <boolean>this.config.find(item => item.alias === 'enableTextItems')?.value ?? false;
     }
 
     @state()
-    public get enableMediaPicker(): Boolean {
-        return <Boolean>this.config?.find(item => item.alias === 'allowImageIcon')?.value ?? false;
+    public get enableMediaPicker(): boolean {
+        return <boolean>this.config?.find(item => item.alias === 'allowImageIcon')?.value ?? false;
     }
 
     @state()
-    public get enableVisibility(): Boolean {
-        return <Boolean>this.config?.find(item => item.alias === 'allowDisplay')?.value ?? false;
+    public get enableVisibility(): boolean {
+        return <boolean>this.config?.find(item => item.alias === 'allowDisplay')?.value ?? false;
     }
 
     public set value(value: ModelEntryType[]) {
@@ -166,14 +166,14 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
             if (!umbNavItem) return;
 
-            const selectedUdis = umbNavItem?.image?.map(x => x.udi);
+            const selectedIds = umbNavItem?.image?.map(x => x.key).filter(x => x);
 
             const modalHandler = this.#modalContext?.open(this, UMB_MEDIA_PICKER_MODAL, {
                 data: {
                     multiple: false,
                 },
                 value: {
-                    selection: selectedUdis ? selectedUdis : [],
+                    selection: selectedIds ? selectedIds : [],
                 },
             });
 
@@ -181,7 +181,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             if (!modalHandler) return;
             if (!result) return;
 
-            const convertedImages = result.selection?.map(udi => this.convertToImageType(udi));
+            const convertedImages = result.selection?.map(id => this.convertToImageType(id as Guid));
 
             let menuItem = {
                 ...umbNavItem,
@@ -195,11 +195,11 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         }
     }
 
-    toggleSettingsEvent(event: CustomEvent<{ key: string | null | undefined }>) {
+    toggleSettingsEvent(event: CustomEvent<{ key: Guid | null | undefined }>) {
         this.toggleSettingsModal(event.detail.key);
     }
 
-    async toggleSettingsModal(key: string | null | undefined) {
+    async toggleSettingsModal(key: Guid | null | undefined) {
         let item: ModelEntryType = {
             key: key,
             name: '',
@@ -207,6 +207,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             icon: 'icon-tag',
             published: true,
             udi: null,
+            contentKey: null,
             url: null,
             anchor: null,
             description: null,
@@ -238,11 +239,11 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         this.updateItem(item);
     }
 
-    toggleVisibilityEvent(event: CustomEvent<{ key: string | null | undefined }>) {
+    toggleVisibilityEvent(event: CustomEvent<{ key: Guid | null | undefined }>) {
         this.toggleVisibilityModal(event.detail.key);
     }
 
-    async toggleVisibilityModal(key: string | null | undefined) {
+    async toggleVisibilityModal(key: Guid | null | undefined) {
         let item: ModelEntryType = {
             key: key,
             name: '',
@@ -250,6 +251,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             icon: 'icon-tag',
             published: true,
             udi: null,
+            contentKey: null,
             url: null,
             anchor: null,
             description: null,
@@ -280,7 +282,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         this.updateItem(item);
     }
 
-    toggleLinkPickerEvent(event: CustomEvent<{ key: string | null | undefined }>) {
+    toggleLinkPickerEvent(event: CustomEvent<{ key: Guid | null | undefined }>) {
         if (this.value.find(item => item.key === event.detail.key && item.itemType === "title")) {
             this.toggleTextModal(event.detail.key);
         } else {
@@ -288,20 +290,8 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         }
     }
 
-    async toggleTextModal(key: string | null | undefined) {
-        let item: ModelEntryType = {
-            key: key,
-            name: '',
-            itemType: 'title',
-            icon: 'icon-tag',
-            published: true,
-            udi: null,
-            url: null,
-            anchor: null,
-            description: null,
-            children: []
-        }
-
+    async toggleTextModal(key: Guid | null | undefined) {
+        let item: ModelEntryType | undefined ;
         if (key != null) {
             item = this.findItemByKey(key, this.value) as ModelEntryType;
         }
@@ -310,7 +300,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             data: {
                 key: key,
                 headline: 'Add text item',
-                name: item.name
+                name: item?.name ?? ''
             }
         });
 
@@ -326,12 +316,12 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         if (this.value.find(item => item.key === key)) {
             this.updateItem(menuItem);
         } else {
-            menuItem.key = uuidv4().replace(/-/g, '');
+            menuItem.key = uuidv4() as Guid;
             this.addItem(menuItem);
         }
     }
 
-    async toggleLinkPicker(key: string | null | undefined, siblingKey?: string | null | undefined) {
+    async toggleLinkPicker(key: Guid | null | undefined, siblingKey?: string | null | undefined) {
 
         try {
             let item: UmbLinkPickerLink = {
@@ -472,30 +462,34 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             type: item.itemType,
             target: item.target,
             published: item.published,
-            unique: item.udi,
+            unique: item.contentKey,
             queryString: item.anchor
         };
     }
 
-    convertToUmbNavLink(item: UmbLinkPickerLink, key: string | null | undefined): ModelEntryType {
+    convertToUmbNavLink(item: UmbLinkPickerLink, key: Guid | null | undefined): ModelEntryType {
+        const linkId = item.unique != null && item.unique.length > 0 ? item.unique as Guid : null;
+        key ??= uuidv4() as Guid;
         return {
-            key: key ?? uuidv4().replace(/-/g, ''),
+            key: key,
             name: item.name,
             url: item.url,
             icon: item.icon,
             itemType: item.type,
             target: item.target,
             published: item.published,
-            udi: item.unique != null && item.unique.length > 0 ? item.unique : null,
+            udi: `umb://document/${key.replace(/-/g, '')}`,
+            contentKey: linkId,
             anchor: item.queryString,
             description: item.url,
             children: []
         };
     }
 
-    convertToImageType(image: string): ImageItem {
+    convertToImageType(image: Guid): ImageItem {
         return {
-            udi: image
+            key: image,
+            udi: `umb://media/${image.replace(/-/g, '')}`,
         };
     }
 
@@ -557,15 +551,15 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                                 html`
                                     <uui-button-inline-create
                                             @click=${() => this.newNode(item.key)}></uui-button-inline-create>
-                                    <umbnav-item name=${item.name} key=${item.key} class=""
-                                                 description="${item.description}"
+                                    <umbnav-item name=${item.name ?? '' } key="${item.key ?? '' }" class=""
+                                                 description="${item.description ?? '' }"
                                                  .expanded=${ this._expandAll || item.key != null && this.expandedItems.includes(item.key)}
-                                                 .hasImage="${item.image && item.image.length > 0}"
+                                                 .hasImage=${Boolean(item.image?.length)}
                                                  .enableMediaPicker=${this.enableMediaPicker}
                                                  .enableVisibility=${this.enableVisibility}
-                                                 .hideLoggedIn=${item.hideLoggedIn}
-                                                 .hideLoggedOut=${item.hideLoggedOut}
-                                                 icon="${item.icon}"
+                                                 .hideLoggedIn=${!!item.hideLoggedIn}
+                                                 .hideLoggedOut=${!!item.hideLoggedOut}
+                                                 icon="${item.icon ?? '' }"
                                                  ?unpublished=${!item.published && item.itemType === "document"}
                                                  @toggle-children-event=${this.toggleNode}
                                                  @edit-node-event=${this.toggleLinkPickerEvent}

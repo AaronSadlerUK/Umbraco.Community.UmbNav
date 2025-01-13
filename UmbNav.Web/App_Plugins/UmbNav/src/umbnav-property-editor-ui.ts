@@ -2,6 +2,7 @@ import {UmbTextStyles} from '@umbraco-cms/backoffice/style';
 import {css, html, customElement, LitElement, property, state} from '@umbraco-cms/backoffice/external/lit';
 import {
     UmbPropertyEditorConfigCollection,
+    UmbPropertyEditorConfigProperty,
     UmbPropertyEditorUiElement,
     UmbPropertyValueChangeEvent
 } from "@umbraco-cms/backoffice/property-editor";
@@ -11,7 +12,7 @@ import type {UmbNavGroup} from './umbnav-group.js';
 import {ModelEntryType} from "./umbnav.token.ts";
 
 @customElement('umbnav-property-editor-ui')
-export class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin(LitElement) implements UmbPropertyEditorUiElement {
+export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin(LitElement) implements UmbPropertyEditorUiElement {
     @property()
     value: ModelEntryType[] = [];
 
@@ -50,7 +51,7 @@ export class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin(LitElem
                 ` : ''}
                 <umbnav-group
                         .expandAll=${this.expandAll}
-                        .config=${this.config}
+                        .config=${this.config ?? [] as Array<UmbPropertyEditorConfigProperty>}
                         .value=${this.value === undefined ? [] : this.value}
                         @toggle-expandall-event=${this.toggleAllNodesEvent}
                         @change=${this.onChange}></umbnav-group>
@@ -71,6 +72,6 @@ export class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin(LitElem
 
 declare global {
     interface HTMLElementTagNameMap {
-        'umbnav-sorter-property-editor-ui': UmbNavSorterPropertyEditorUIElement;
+        'umbnav-property-editor-ui': UmbNavSorterPropertyEditorUIElement;
     }
 }
