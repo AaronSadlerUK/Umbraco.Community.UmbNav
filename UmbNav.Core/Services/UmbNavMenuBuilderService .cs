@@ -2,7 +2,6 @@
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Web;
-using Umbraco.Cms.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using UmbNav.Core.Abstractions;
@@ -81,7 +80,7 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
                 }
                 if (item.ImageArray != null && item.ImageArray.Any())
                 {
-                    item.Image = _publishedMediaCache.GetById(item.ImageArray[0].Id);
+                    item.Image = GetImageUrl(item.ImageArray[0]);
                 }
 
                 if (children != null && children.Any())
@@ -123,5 +122,15 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
         }
 
         return Guid.Empty;
+    }
+
+    private IPublishedContent? GetImageUrl(ImageItem image)
+    {
+        var key = image.Udi?.Guid ?? image.Key;
+        if (image.Key != Guid.Empty)
+        {
+            return _publishedMediaCache.GetById(image.Key);
+        }
+        return null;
     }
 }

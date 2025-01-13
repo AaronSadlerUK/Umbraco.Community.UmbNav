@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Infrastructure.Serialization;
 
 namespace UmbNav.Core.Models;
 
@@ -27,6 +28,7 @@ public class UmbNavItem
     public UmbNavItemType ItemType { get; set; }
 
     [JsonPropertyName("udi")]
+    [JsonConverter(typeof(JsonUdiConverter))]
     [Obsolete("Use Contentkey instead")]
     public GuidUdi? Udi { get; set; }
 

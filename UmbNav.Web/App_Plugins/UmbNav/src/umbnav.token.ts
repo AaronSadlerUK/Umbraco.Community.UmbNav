@@ -1,6 +1,6 @@
 
 export type Guid = '' |`${string}-${string}-${string}-${string}-${string}`;
-export type GuidId = '' | `umb://document/${string}`
+export type GuidUdi = '' | `umb://document/${string}` | `umb://media/${string}`
 export type UmbNavLinkPickerLinkType = 'document' | 'external' | 'media' | 'title';
 export type ModelEntryType = {
     key: Guid | null | undefined,
@@ -9,7 +9,7 @@ export type ModelEntryType = {
     url: string | null | undefined,
     icon: string | null | undefined,
     itemType: UmbNavLinkPickerLinkType | null | undefined,
-    udi: GuidId | null | undefined,
+    udi: GuidUdi | null | undefined,
     anchor: string | null | undefined,
     published: boolean | null | undefined,
     naviHide?: boolean | null | undefined,
@@ -28,5 +28,6 @@ export type ModelEntryType = {
 }
 
 export type ImageItem = {
-    id: Guid,
+    udi: GuidUdi,
+    key: Guid,
 }

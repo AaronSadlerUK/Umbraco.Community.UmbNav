@@ -6,7 +6,7 @@ using UmbNav.Core.PropertyEditors;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors;
 
-namespace UmbNav.Core.ValueConverters;
+namespace UmbNav.Core.Converters;
 
 public class UmbNavValueConverter : PropertyValueConverterBase
 {
@@ -34,7 +34,6 @@ public class UmbNavValueConverter : PropertyValueConverterBase
         }
 
         var configuration = propertyType.DataType.ConfigurationAs<UmbNavConfiguration>() ?? new UmbNavConfiguration();
-
         try
         {
             var items = JsonSerializer.Deserialize<IEnumerable<UmbNavItem>>(inter.ToString()!) ?? [];

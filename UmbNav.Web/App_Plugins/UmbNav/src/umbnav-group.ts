@@ -166,7 +166,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
             if (!umbNavItem) return;
 
-            const selectedIds = umbNavItem?.image?.map(x => x.id);
+            const selectedIds = umbNavItem?.image?.map(x => x.key).filter(x => x);
 
             const modalHandler = this.#modalContext?.open(this, UMB_MEDIA_PICKER_MODAL, {
                 data: {
@@ -181,7 +181,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             if (!modalHandler) return;
             if (!result) return;
 
-            const convertedImages = result.selection?.map(id => this.convertToImageType(id));
+            const convertedImages = result.selection?.map(id => this.convertToImageType(id as Guid));
 
             let menuItem = {
                 ...umbNavItem,
@@ -469,15 +469,16 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
     convertToUmbNavLink(item: UmbLinkPickerLink, key: Guid | null | undefined): ModelEntryType {
         const linkId = item.unique != null && item.unique.length > 0 ? item.unique as Guid : null;
+        key ??= uuidv4() as Guid;
         return {
-            key: key ?? uuidv4() as Guid,
+            key: key,
             name: item.name,
             url: item.url,
             icon: item.icon,
             itemType: item.type,
             target: item.target,
             published: item.published,
-            udi: undefined,
+            udi: `umb://document/${key.replace(/-/g, '')}`,
             contentKey: linkId,
             anchor: item.queryString,
             description: item.url,
@@ -485,9 +486,10 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         };
     }
 
-    convertToImageType(image: string): ImageItem {
+    convertToImageType(image: Guid): ImageItem {
         return {
-            id: image as Guid
+            key: image,
+            udi: `umb://media/${image.replace(/-/g, '')}`,
         };
     }
 
