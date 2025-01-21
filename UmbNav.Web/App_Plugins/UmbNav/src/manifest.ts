@@ -92,7 +92,7 @@ const umbNavPropertyEditorUiManifest: ManifestPropertyEditorUi = {
 export const styledTextSchema : ManifestPropertyEditorSchema = {
     type: 'propertyEditorSchema',
     name: 'UmbNav Schema',
-    alias: 'Umbraco.Community.UmbNav',
+    alias: 'umbnav.editor.schema',
     meta: {
         defaultPropertyEditorUiAlias: 'Umbraco.Plain.Json'
     }
