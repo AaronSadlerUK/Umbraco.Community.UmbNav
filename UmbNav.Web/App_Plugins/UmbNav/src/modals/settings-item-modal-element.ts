@@ -1,4 +1,4 @@
-import {css, customElement, html, state, when} from '@umbraco-cms/backoffice/external/lit';
+import {css, customElement, html, ifDefined, state, when} from '@umbraco-cms/backoffice/external/lit';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
 import {type UUIBooleanInputEvent, UUIInputEvent} from "@umbraco-cms/backoffice/external/uui";
 import {UmbTextStyles} from '@umbraco-cms/backoffice/style';
@@ -88,7 +88,7 @@ export class UmbNavModalElement extends
 
     override render() {
         return html`
-			<umb-body-layout headline=${this.data?.headline}>
+			<umb-body-layout headline=${ifDefined(this.data?.headline)}>
 				<uui-box>
                     ${when(
                         this.enableCustomCssClasses,
@@ -124,7 +124,7 @@ export class UmbNavModalElement extends
 						<uui-input
 							slot="editor"
                             label="Custom CSS Classes"
-                            .value=${this.data?.customCssClasses}
+                            .value=${this.data?.customCssClasses ?? ''}
                             @input=${this.#contentChange} />
 						</uui-input>
 					</umb-property-layout>
