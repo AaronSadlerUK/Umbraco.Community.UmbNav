@@ -1,0 +1,13 @@
+@using UmbNav.Core.Extensions
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    var site = Model.Root<Home>();
+}
+
+@if (site?.MainNavigation != null)
+{
+    foreach (var umbNavItem in site.MainNavigation)
+    {
+        <a class="nav-link @(UmbracoContext?.PublishedRequest?.PublishedContent != null && umbNavItem.IsActive(UmbracoContext.PublishedRequest.PublishedContent) ? "nav-link--active" : null)" href="@umbNavItem.Url()">@umbNavItem.Name</a>
+    }   
+}

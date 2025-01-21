@@ -12,7 +12,7 @@ public class UmbNavItem
     public Guid Key { get; set; }
 
     [JsonPropertyName("name")]
-    public string? Name { get; set; }
+    public required string Name { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
