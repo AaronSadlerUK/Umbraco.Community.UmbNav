@@ -154,6 +154,14 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual string HeroHeader => this.Value<string>(_publishedValueFallback, "heroHeader");
 
 		///<summary>
+		/// Main Navigation
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.1.2+559c6c9")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("mainNavigation")]
+		public virtual global::System.Collections.Generic.IEnumerable<global::UmbNav.Core.Models.UmbNavItem> MainNavigation => this.Value<global::System.Collections.Generic.IEnumerable<global::UmbNav.Core.Models.UmbNavItem>>(_publishedValueFallback, "mainNavigation");
+
+		///<summary>
 		/// Logo: Optional. If you add a logo it'll be used in the upper left corner instead of the site name. Make sure to use a transparent logo for best results
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "15.1.2+559c6c9")]
