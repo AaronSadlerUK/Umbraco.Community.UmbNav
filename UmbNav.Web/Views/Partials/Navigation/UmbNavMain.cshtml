@@ -26,7 +26,8 @@
             }
             else
             {
-                <a class="nav-link @(UmbracoContext?.PublishedRequest?.PublishedContent != null && umbNavItem.IsActive(UmbracoContext?.PublishedRequest?.PublishedContent) ? "nav-link--active" : null)" href="@umbNavItem.Url()">@umbNavItem.Name</a>
+                @* <a class="nav-link @(UmbracoContext?.PublishedRequest?.PublishedContent != null && umbNavItem.IsActive(UmbracoContext?.PublishedRequest?.PublishedContent) ? "nav-link--active" : null)" href="@umbNavItem.Url()">@umbNavItem.Name</a> *@
+                <umbnavitem menu-item="umbNavItem" class="nav-link" active-class="nav-link--active"></umbnavitem>
             }
         }
     </div>
