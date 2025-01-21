@@ -3,6 +3,9 @@
   "private": true,
   "version": "4.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0 <21.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -11,7 +14,7 @@
   },
   "dependencies": {
     "lit": "^3.1.2",
-    "uuid": "^10.0.0"
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "@umbraco-cms/backoffice": "^15.1.2",
