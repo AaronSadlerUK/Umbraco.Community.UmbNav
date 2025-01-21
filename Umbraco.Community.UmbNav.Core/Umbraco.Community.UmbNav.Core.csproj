@@ -6,6 +6,25 @@
     <Nullable>enable</Nullable>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Umbraco.Community.UmbNav.Core</PackageId>
+    <Product>Umbraco.Community.UmbNav.Core</Product>
+    <Title>Umbraco.Community.UmbNav.Core</Title>
+    <RootNamespace>Umbraco.Community.UmbNav.Core</RootNamespace>
+    <Description>Drag and drop menu editor for Umbraco V15+</Description>
+    <PackageTags>umbraco;umbraco-marketplace;UmbNav;MegaNav;</PackageTags>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Version>$(Version)</Version>
+    <Authors>Aaron Sadler</Authors>
+    <Copyright>© $([System.DateTime]::Now.ToString(`yyyy`)) Aaron Sadler</Copyright>
+    <PackageProjectUrl>https://github.com/AaronSadlerUK/Umbraco.Community.UmbNav</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AaronSadlerUK/Umbraco.Community.UmbNav</RepositoryUrl>
+    <PackageIcon>UmbNav-Logo.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="Umbraco.Cms.Web.Common" Version="15.1.2" />
