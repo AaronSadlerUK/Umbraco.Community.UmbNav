@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
         <Configurations>Debug;Release</Configurations>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     </PropertyGroup>
 
     <PropertyGroup>
