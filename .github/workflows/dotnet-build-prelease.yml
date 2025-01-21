@@ -68,17 +68,17 @@ jobs:
       - name: Build UmbCheckout.Shared
         run: dotnet pack ./Umbraco.Community.UmbNav.Core/Umbraco.Community.UmbNav.Core.csproj --no-restore -c ${{env.CONFIG}} --output ${{env.OUT_FOLDER}} /p:version=${{steps.gitversion.outputs.nuGetVersionV2}}
 
-      - name: Push to GitHub Nuget Repo
-        if: ${{ github.event_name != 'pull_request' }}
-        run: |
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/umbhost/index.json --api-key ${{ github.token }}
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/umbhost/index.json --api-key ${{ github.token }}
+      # - name: Push to GitHub Nuget Repo
+      #   if: ${{ github.event_name != 'pull_request' }}
+      #   run: |
+      #     dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/umbhost/index.json --api-key ${{ github.token }}
+      #     dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/umbhost/index.json --api-key ${{ github.token }}
 
-      - name: Push to Nuget Repo
-        if: ${{ github.event_name != 'pull_request' }}
-        run: |
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+      # - name: Push to Nuget Repo
+      #   if: ${{ github.event_name != 'pull_request' }}
+      #   run: |
+      #     dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+      #     dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
 
       - name: Create Release
         uses: "softprops/action-gh-release@v0.1.15"
