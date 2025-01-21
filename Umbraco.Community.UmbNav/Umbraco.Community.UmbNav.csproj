@@ -19,7 +19,7 @@
         <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
         <Version>$(Version)</Version>
         <Authors>Aaron Sadler</Authors>
-        <Copyright>2025 © Aaron Sadler</Copyright>
+        <Copyright>© $([System.DateTime]::Now.ToString(`yyyy`)) Aaron Sadler</Copyright>
         <PackageProjectUrl>https://github.com/AaronSadlerUK/Umbraco.Community.UmbNav</PackageProjectUrl>
         <RepositoryUrl>https://github.com/AaronSadlerUK/Umbraco.Community.UmbNav</RepositoryUrl>
         <PackageIcon>UmbNav-Logo.png</PackageIcon>
