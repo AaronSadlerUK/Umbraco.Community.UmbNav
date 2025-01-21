@@ -7,6 +7,7 @@
         <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
         <Configurations>Debug;Release</Configurations>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -41,6 +42,19 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Umbraco.Community.UmbNav.Core\Umbraco.Community.UmbNav.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="..\UmbNav-Logo.png">
+        <Pack>True</Pack>
+        <PackagePath></PackagePath>
+        <Link>UmbNav-Logo.png</Link>
+      </None>
+        <None Include="..\README.md">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+            <Link>README.md</Link>
+        </None>
     </ItemGroup>
 
 </Project>

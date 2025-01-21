@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -28,5 +29,18 @@
   
   <ItemGroup>
     <PackageReference Include="Umbraco.Cms.Web.Common" Version="15.1.2" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="..\UmbNav-Logo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+      <Link>UmbNav-Logo.png</Link>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+      <Link>README.md</Link>
+    </None>
   </ItemGroup>
 </Project>
