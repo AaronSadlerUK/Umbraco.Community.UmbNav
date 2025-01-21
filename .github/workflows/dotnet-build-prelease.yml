@@ -27,7 +27,7 @@ jobs:
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.12.0
         with:
-          versionSpec: '6.0.x'
+          versionSpec: '5.x'
 
       - name: Checkout
         uses: actions/checkout@v3
