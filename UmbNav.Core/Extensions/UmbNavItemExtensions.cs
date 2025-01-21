@@ -121,7 +121,7 @@ namespace UmbNav.Core.Extensions
 
         public static bool IsActive(this UmbNavItem item, IPublishedContent currentPage, bool checkAncestors = false)
         {
-            if (item.Key == currentPage.Key)
+            if (item.ContentKey == currentPage.Key)
             {
                 return true;
             }

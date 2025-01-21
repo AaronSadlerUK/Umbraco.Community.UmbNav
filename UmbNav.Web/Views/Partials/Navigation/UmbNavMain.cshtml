@@ -12,7 +12,7 @@
             if(umbNavItem.Children != null && umbNavItem.Children.Any())
             {
                 <div class="dropdown">
-                    <button class="dropbtn nav-link">@umbNavItem.Name
+                    <button class="dropbtn nav-link @(UmbracoContext?.PublishedRequest?.PublishedContent != null && umbNavItem.IsActive(UmbracoContext?.PublishedRequest?.PublishedContent) ? "nav-link--active" : null)">@umbNavItem.Name
                         <i class="fa fa-caret-down"></i>
                     </button>
                     <div class="dropdown-content">
