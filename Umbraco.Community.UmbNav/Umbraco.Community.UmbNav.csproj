@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
+        <Configurations>Debug;Release</Configurations>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageId>Umbraco.Community.UmbNav</PackageId>
+        <Product>Umbraco.Community.UmbNav</Product>
+        <Title>Umbraco.Community.UmbNav</Title>
+        <RootNamespace>Umbraco.Community.UmbNav</RootNamespace>
+        <Description>Drag and drop menu editor for Umbraco V15+</Description>
+        <PackageTags>umbraco;umbraco-marketplace;UmbNav;MegaNav;</PackageTags>
+        <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+        <Version>$(Version)</Version>
+        <Authors>Aaron Sadler</Authors>
+        <Copyright>2025 © Aaron Sadler</Copyright>
+        <PackageProjectUrl>https://github.com/AaronSadlerUK/Umbraco.Community.UmbNav</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/AaronSadlerUK/Umbraco.Community.UmbNav</RepositoryUrl>
+        <PackageIcon>UmbNav-Logo.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="App_Plugins\UmbNav\**\*.*">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\App_Plugins\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Umbraco.Community.UmbNav.Core\Umbraco.Community.UmbNav.Core.csproj" />
+    </ItemGroup>
+
+</Project>
