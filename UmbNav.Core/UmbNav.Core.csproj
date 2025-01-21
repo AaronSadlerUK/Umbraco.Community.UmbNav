@@ -7,6 +7,6 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="15.0.0" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="15.1.2" />
   </ItemGroup>
 </Project>

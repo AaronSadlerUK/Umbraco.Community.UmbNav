@@ -32,13 +32,12 @@ public class UmbNavValueConverter : PropertyValueConverterBase
         {
             return Enumerable.Empty<UmbNavItem>();
         }
-
-        var configuration = propertyType.DataType.ConfigurationAs<UmbNavConfiguration>() ?? new UmbNavConfiguration();
+        
         try
         {
             var items = JsonSerializer.Deserialize<IEnumerable<UmbNavItem>>(inter.ToString()!) ?? [];
 
-            return _umbNavMenuBuilderService.BuildMenu(items, 0, configuration.HideNoopener, configuration.HideNoreferrer);
+            return _umbNavMenuBuilderService.BuildMenu(items, 0, HideNoopener(propertyType), HideNoreferrer(propertyType));
         }
         catch (Exception ex)
         {
@@ -47,4 +46,11 @@ public class UmbNavValueConverter : PropertyValueConverterBase
 
         return Enumerable.Empty<UmbNavItem>();
     }
+    
+    private static bool HideNoopener(IPublishedPropertyType propertyType) =>
+        propertyType.DataType.ConfigurationAs<UmbNavConfiguration>()?.HideNoopener ?? false;
+    
+    private static bool HideNoreferrer(IPublishedPropertyType propertyType) =>
+        propertyType.DataType.ConfigurationAs<UmbNavConfiguration>()?.HideNoreferrer ?? false;
+
 }
