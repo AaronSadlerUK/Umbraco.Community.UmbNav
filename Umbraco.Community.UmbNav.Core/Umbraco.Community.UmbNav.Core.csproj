@@ -16,7 +16,6 @@
     <Description>Drag and drop menu editor for Umbraco V15+</Description>
     <PackageTags>umbraco;umbraco-marketplace;UmbNav;MegaNav;</PackageTags>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <Version>$(Version)</Version>
     <Authors>Aaron Sadler</Authors>
     <Copyright>© $([System.DateTime]::Now.ToString(`yyyy`)) Aaron Sadler</Copyright>
     <PackageProjectUrl>https://github.com/AaronSadlerUK/Umbraco.Community.UmbNav</PackageProjectUrl>
@@ -25,6 +24,9 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <FileVersion>4.0.0.0</FileVersion>
+    <VersionPrefix>4.0.0</VersionPrefix>
   </PropertyGroup>
   
   <ItemGroup>
