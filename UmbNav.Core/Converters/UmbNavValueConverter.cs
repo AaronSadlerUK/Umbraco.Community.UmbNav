@@ -36,8 +36,11 @@ public class UmbNavValueConverter : PropertyValueConverterBase
         try
         {
             var items = JsonSerializer.Deserialize<IEnumerable<UmbNavItem>>(inter.ToString()!) ?? [];
+            
+            var hideNoopener = HideNoopener(propertyType);
+            var hideNoreferrer = HideNoreferrer(propertyType);
 
-            return _umbNavMenuBuilderService.BuildMenu(items, 0, HideNoopener(propertyType), HideNoreferrer(propertyType));
+            return _umbNavMenuBuilderService.BuildMenu(items, 0, hideNoopener, hideNoreferrer);
         }
         catch (Exception ex)
         {
