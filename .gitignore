@@ -386,3 +386,4 @@ MigrationBackup/
 **/umbraco/Logs/
 
 **/umbraco/mediacache/
+UmbNav.Web/App_Plugins/UmbNav/dist

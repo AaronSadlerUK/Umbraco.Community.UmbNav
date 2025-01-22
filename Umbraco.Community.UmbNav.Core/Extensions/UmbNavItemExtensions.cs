@@ -9,7 +9,6 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
 {
     public static class UmbNavItemExtensions
     {
-        [Obsolete("I see your using Umbraco V15+, Why not use the TagHelper <umbnavitem> instead.")]
         public static IHtmlContent GetLinkHtml(this UmbNavItem item, string? cssClass = null, string? id = null, string? culture = null, UrlMode mode = UrlMode.Default, string labelTagName = "span", object? htmlAttributes = null, string? activeClass = null)
         {
             var htmlAttributesConverted = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
@@ -82,7 +81,6 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
             return tagBuilder;
         }
 
-        [Obsolete("I see your using Umbraco V15+, Why not use the TagHelper <umbnavitem> instead.")]
         public static IHtmlContent GetItemHtml(this UmbNavItem item, string? cssClass = null, string? id = null, string? culture = null, UrlMode mode = UrlMode.Default, string labelTagName = "span", object? htmlAttributes = null, string? activeClass = null)
         {
             return GetLinkHtml(item, cssClass, id, culture, mode, labelTagName, htmlAttributes, activeClass);
