@@ -2,6 +2,6 @@
 {
     public class UmbNavAppSettings
     {
-        public bool DisableTelemetry { get; set; }
+        public bool DisableTelemetry { get; set; } = false;
     }
 }
