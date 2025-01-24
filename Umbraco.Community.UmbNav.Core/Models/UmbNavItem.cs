@@ -78,7 +78,6 @@ public class UmbNavItem
     public string? CustomClasses { get; set; }
 
     [JsonIgnore]
-    [Obsolete("If you need to check ancestors, use the IsActive() extension instead")]
     public bool IsActive { get; set; }
 
     [JsonPropertyName("hideLoggedIn")]

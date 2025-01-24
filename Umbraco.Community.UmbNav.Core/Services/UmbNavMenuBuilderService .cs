@@ -58,11 +58,12 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
                     children = item.Children.ToList();
                 }
 
-                if ((item.ContentKey ?? item.Udi?.Guid) is Guid contentKey && contentKey != Guid.Empty)
+                if (item.ContentKey.HasValue)
                 {
-                    IPublishedContent? umbracoContent = umbracoContent = item.ItemType == UmbNavItemType.Media ?
-                            _publishedMediaCache.GetById(contentKey)
-                            : _publishedContentCache.GetById(contentKey);
+                    var contentKey = item.ContentKey.Value;
+                    IPublishedContent? umbracoContent = item.ItemType == UmbNavItemType.Media ?
+                        _publishedMediaCache.GetById(contentKey)
+                        : _publishedContentCache.GetById(contentKey);
                     string? currentCulture = umbracoContent?.GetCultureFromDomains();
 
                     if (umbracoContent != null)
@@ -83,7 +84,7 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
                     item.Image = GetImageUrl(item.ImageArray[0]);
                 }
 
-                if (children != null && children.Any())
+                if (children.Any())
                 {
                     var childItems = BuildMenu(children, level + 1).ToList();
                     if (!children.Equals(childItems))
@@ -126,7 +127,6 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
 
     private IPublishedContent? GetImageUrl(ImageItem image)
     {
-        var key = image.Udi?.Guid ?? image.Key;
         if (image.Key != Guid.Empty)
         {
             return _publishedMediaCache.GetById(image.Key);

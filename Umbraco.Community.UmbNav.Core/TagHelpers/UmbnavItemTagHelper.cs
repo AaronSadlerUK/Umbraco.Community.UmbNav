@@ -9,14 +9,14 @@ namespace Umbraco.Community.UmbNav.Core.TagHelpers
 {
     public class UmbnavitemTagHelper : TagHelper
     {
-        public UmbNavItem MenuItem { get; set; }
+        public required UmbNavItem MenuItem { get; set; }
         public UrlMode Mode { get; set; }
-        public string Culture { get; set; }
+        public string? Culture { get; set; }
         public string LabelTagName { get; set; } = "span";
-        public string ActiveClass { get; set; }
+        public string? ActiveClass { get; set; }
         public bool IsActiveAncestorCheck { get; set; } = false;
-        public IPublishedContent CurrentPage { get; set; } = null;
-        private bool IsLabel { get { return MenuItem.ItemType == UmbNavItemType.Title; } }
+        public IPublishedContent? CurrentPage { get; set; } = null;
+        private bool IsLabel => MenuItem?.ItemType == UmbNavItemType.Title;
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
