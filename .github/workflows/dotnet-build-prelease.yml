@@ -32,10 +32,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Display full file structure
-        run: |
-          echo Full folder and file structure:
-          cmd /c "dir /s"
+      # - name: Display full file structure
+      #   run: |
+      #     echo Full folder and file structure:
+      #     cmd /c "dir /s"
 
       - uses: actions/setup-node@v4
         with:
@@ -72,7 +72,7 @@ jobs:
 
       - uses: microsoft/variable-substitution@v1 
         with:
-          files: './Umbraco.Community.UmbNav/Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/umbraco-package.json'
+          files: './Umbraco.Community.UmbNav/Umbraco.Community.UmbNav/Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/umbraco-package.json'
         env:
           version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
       
