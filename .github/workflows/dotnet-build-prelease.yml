@@ -45,7 +45,7 @@ jobs:
       - run: npm ci
         working-directory: ./Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/
 
-      - run: npm build
+      - run: npm run build
         working-directory: ./Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/
 
       - name: Retrieve cache
