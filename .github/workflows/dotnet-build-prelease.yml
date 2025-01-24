@@ -73,6 +73,13 @@ jobs:
           file:  Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/umbraco-package.json
           field: version
           value: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+
+      - name: Update package.json version
+        uses: jossef/action-set-json-field@v2.2
+        with:
+          file:  Umbraco.Community.UmbNav/package.json
+          field: version
+          value: ${{ steps.gitversion.outputs.semVer }}
       
       # ------------------------
       # actual builds / packages 
