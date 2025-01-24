@@ -40,13 +40,13 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: ./Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/package-lock.json
+          cache-dependency-path: ./Umbraco.Community.UmbNav/package-lock.json
           
       - run: npm ci
-        working-directory: ./Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/
+        working-directory: ./Umbraco.Community.UmbNav/
 
       - run: npm run build
-        working-directory: ./Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/
+        working-directory: ./Umbraco.Community.UmbNav/
 
       - name: Retrieve cache
         uses: actions/cache@v3
