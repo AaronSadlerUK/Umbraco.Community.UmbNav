@@ -32,17 +32,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Include="App_Plugins\UmbNav\**\*.*">
-            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-        </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="wwwroot\App_Plugins\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Umbraco.Community.UmbNav.Core\Umbraco.Community.UmbNav.Core.csproj" />
     </ItemGroup>
 
