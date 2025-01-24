@@ -72,11 +72,12 @@ jobs:
           echo "FullSemVer: ${{ steps.gitversion.outputs.nuGetVersionV2 }}"
 
 
-      - uses: microsoft/variable-substitution@v1 
+      - name: Update package.json version
+        uses: jossef/action-set-json-field@v2.2
         with:
-          files: './Umbraco.Community.UmbNav/Umbraco.Community.UmbNav/Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/umbraco-package.json'
-        env:
-          version: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+          file: ./Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/umbraco-package.json
+          field: version
+          value: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
       
       # ------------------------
       # actual builds / packages 
