@@ -32,12 +32,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Display file structure
+      - name: Display full file structure
         run: |
-          echo "Root folder structure:"
-          ls -al
-          echo "Subfolder structure (example for src):"
-          ls -al src
+          echo Full folder and file structure:
+          dir /s
 
       - uses: actions/setup-node@v4
         with:
