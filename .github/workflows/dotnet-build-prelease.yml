@@ -18,6 +18,17 @@ jobs:
 
     steps:
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: ./Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/package-lock.json
+      - run: npm ci
+        working-directory: ./Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/
+
+      - run: npm build
+        working-directory: ./Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/
+
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
