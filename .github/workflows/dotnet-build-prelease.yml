@@ -35,7 +35,7 @@ jobs:
       - name: Display full file structure
         run: |
           echo Full folder and file structure:
-          dir /s
+          cmd /c "dir /s"
 
       - uses: actions/setup-node@v4
         with:
