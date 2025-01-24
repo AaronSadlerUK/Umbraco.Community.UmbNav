@@ -7,7 +7,7 @@
             "name": "UmbNav Bundle",
             "alias": "UmbNav.Bundle",
             "type": "bundle",
-            "js": "/App_Plugins/UmbNav/client.js"
+            "js": "/App_Plugins/UmbNav/dist/client.js"
         }
     ]
 }
