@@ -34,11 +34,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Display full file structure
-        run: |
-          echo Full folder and file structure:
-          cmd /c "dir /s"
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -72,7 +67,7 @@ jobs:
           echo "FullSemVer: ${{ steps.gitversion.outputs.nuGetVersionV2 }}"
 
 
-      - name: Update package.json version
+      - name: Update umbraco-package.json version
         uses: jossef/action-set-json-field@v2.2
         with:
           file:  Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/umbraco-package.json
