@@ -6,7 +6,7 @@ export default defineConfig({
             entry: "src/index.ts", // your web component source file
             formats: ["es"],
         },
-        outDir: "./dist", // all compiled files will be placed here
+        outDir: "./wwwroot/App_Plugins/UmbNav/", // all compiled files will be placed here
         emptyOutDir: true,
         sourcemap: true,
         rollupOptions: {
