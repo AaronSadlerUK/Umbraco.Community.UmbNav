@@ -117,11 +117,23 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
             return item.Url ?? "#";
         }
 
-        public static bool IsActive(this UmbNavItem item, IPublishedContent currentPage, bool checkAncestors = false)
+        public static bool IsActive(this UmbNavItem item, IPublishedContent currentPage, bool checkAncestors = false, int? minLevel = null)
         {
-            if (item.ContentKey == currentPage.Key)
+            var contentKey = item.ContentKey ?? item.Content?.Key;
+            
+            if (contentKey is null || currentPage is null) return false;
+            
+            var key = currentPage.Key;
+            
+            if (contentKey == key)
             {
                 return true;
+            }
+            
+            if (minLevel.HasValue && currentPage.Level > minLevel)
+            {
+                return currentPage.Ancestors().Any(x => x.Level >= minLevel
+                                                        && x.Key == contentKey.GetValueOrDefault());
             }
 
             if (checkAncestors)
