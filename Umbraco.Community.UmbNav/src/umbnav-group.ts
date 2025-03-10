@@ -3,16 +3,16 @@ import {css, customElement, html, LitElement, property, repeat, state} from '@um
 import {UmbElementMixin} from '@umbraco-cms/backoffice/element-api';
 import {UmbSorterController} from '@umbraco-cms/backoffice/sorter';
 import {UMB_LINK_PICKER_MODAL, UmbLinkPickerLink} from '@umbraco-cms/backoffice/multi-url-picker';
-import { UMB_MEDIA_PICKER_MODAL } from '@umbraco-cms/backoffice/media';
+import {UMB_MEDIA_PICKER_MODAL} from '@umbraco-cms/backoffice/media';
 import './umbnav-item.ts';
 import UmbNavItem from './umbnav-item.ts';
 import {UMB_MODAL_MANAGER_CONTEXT, UmbModalManagerContext,} from '@umbraco-cms/backoffice/modal';
 import {v4 as uuidv4} from 'uuid';
-import {UmbPropertyValueChangeEvent, UmbPropertyEditorConfigProperty} from "@umbraco-cms/backoffice/property-editor";
+import {UmbPropertyEditorConfigProperty, UmbPropertyValueChangeEvent} from "@umbraco-cms/backoffice/property-editor";
 import {DocumentService, MediaService} from '@umbraco-cms/backoffice/external/backend-api';
 import {UMBNAV_TEXT_ITEM_MODAL} from "./modals/text-item-modal-token.ts";
-import { UMBNAV_VISIBILITY_ITEM_MODAL } from "./modals/visibility-item-modal-token.ts";
-import { UMBNAV_SETTINGS_ITEM_MODAL } from "./modals/settings-item-modal-token.ts";
+import {UMBNAV_VISIBILITY_ITEM_MODAL} from "./modals/visibility-item-modal-token.ts";
+import {UMBNAV_SETTINGS_ITEM_MODAL} from "./modals/settings-item-modal-token.ts";
 import {Guid, ImageItem, ModelEntryType} from "./umbnav.token.ts";
 
 @customElement('umbnav-group')
@@ -37,6 +37,16 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             this.requestUpdate('value', oldValue);
             this.#dispatchChangeEvent();
         },
+        onRequestMove: ({item}) => {
+            if (this.maxDepth === 0) {
+                return true;
+            }
+
+            if (item.children) {
+                return this.depth + this.#calculateTotalDepth(item.children) <= this.maxDepth;
+            }
+
+            return this.depth <= this.maxDepth;  }
     });
 
     @state()
@@ -52,6 +62,17 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
     @property({type: Boolean, reflect: true})
     nested: boolean = false;
+
+    @property({type: Number, reflect: true})
+    depth: number = 0;
+
+    @state()
+    disallowed: boolean = false;
+
+    @state()
+    public get maxDepth(): number {
+        return <number>this.config?.find(item => item.alias === 'maxDepth')?.value ?? 0;
+    }
 
     @property({type: Boolean, reflect: true})
     public get expandAll(): boolean {
@@ -104,6 +125,15 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (_instance) => {
             this.#modalContext = _instance;
         });
+    }
+
+    #calculateTotalDepth(children: ModelEntryType[]): number {
+        if (!children || children.length === 0) {
+            return 0;
+        }
+        return children.reduce((total, child) => {
+            return total + 1 + this.#calculateTotalDepth(child.children);
+        }, 0);
     }
 
     removeItem = (event: CustomEvent<{ key: string }>) => {
@@ -569,9 +599,10 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                                                  @remove-node-event=${this.removeItem}>
                                         <umbnav-group
                                                 ?nested=${true}
-                                                class="${this.expandAll || item.key != null && this.expandedItems.includes(item.key) ? 'expanded' : 'collapsed'}"
+                                                class="${this.expandAll || item.key != null && this.expandedItems.includes(item.key) ? 'expanded' : 'collapsed'} ${this.disallowed ? 'disallowed' : ''}"
                                                 .config=${this.config}
                                                 .value=${item.children}
+                                                .depth=${this.depth + 1}
                                                 @change=${(e: Event) => {
                                                     item = {...item, children: (e.target as UmbNavGroup).value};
                                                     this.updateItem(item);
@@ -641,6 +672,32 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             .add-menuitem-button {
                 padding-top: 1px;
                 padding-bottom: 3px;
+            }
+
+            .disallowed {
+                cursor: not-allowed;
+                background: red;
+            }
+
+            :host([disallow-drop])::before {
+                content: '';
+                position: absolute;
+                z-index: 1;
+                inset: 0;
+                border: 2px solid var(--uui-color-danger);
+                border-radius: calc(var(--uui-border-radius) * 2);
+                pointer-events: none;
+            }
+
+            :host([disallow-drop])::after {
+                content: '';
+                position: absolute;
+                z-index: 1;
+                inset: 0;
+                border-radius: calc(var(--uui-border-radius) * 2);
+                background-color: var(--uui-color-danger);
+                opacity: 0.2;
+                pointer-events: none;
             }
         `,
     ];

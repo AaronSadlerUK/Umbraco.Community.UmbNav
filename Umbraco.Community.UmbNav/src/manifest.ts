@@ -54,7 +54,13 @@ const umbNavPropertyEditorUiManifest: ManifestPropertyEditorUi = {
                      label : "Hide noreferrer Toggle",
                      description : "Hide the ability to toggle noreferrer",
                      propertyEditorUiAlias : "Umb.PropertyEditorUi.Toggle"
-                }
+                },
+                 {
+                     alias : "maxDepth",
+                     label : "Max Depth",
+                     description : "The maximum number of levels in the navigation",
+                     propertyEditorUiAlias : "Umb.PropertyEditorUi.Integer"
+                 }
             ],
              defaultData : [
                 {
@@ -84,7 +90,11 @@ const umbNavPropertyEditorUiManifest: ManifestPropertyEditorUi = {
                 {
                      alias : "hideNoreferrer",
                      value : false
-                }
+                },
+                 {
+                     alias : "maxDepth",
+                     value : 0
+                 }
             ]
         }
     }
