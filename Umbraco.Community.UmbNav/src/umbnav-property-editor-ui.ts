@@ -19,6 +19,9 @@ export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin
     @property({ attribute: false })
     config: UmbPropertyEditorConfigCollection | undefined;
 
+    @property()
+    depth: number = 0;
+
     @state()
     public get enableToggleAllButton(): Boolean {
         return <Boolean>this.config?.find(item => item.alias === 'enableToggleAllButton')?.value ?? false;
@@ -53,6 +56,7 @@ export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin
                         .expandAll=${this.expandAll}
                         .config=${this.config ?? [] as Array<UmbPropertyEditorConfigProperty>}
                         .value=${this.value === undefined ? [] : this.value}
+                        .depth=${this.depth}
                         @toggle-expandall-event=${this.toggleAllNodesEvent}
                         @change=${this.onChange}></umbnav-group>
             </div>
