@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms" Version="15.1.2" />
+    <PackageReference Include="Umbraco.Cms" Version="15.4.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
     <ProjectReference Include="..\Umbraco.Community.UmbNav.Core\Umbraco.Community.UmbNav.Core.csproj" />
     <PackageReference Include="Umbraco.TheStarterKit" Version="15.0.0" />
-    <PackageReference Include="uSync" Version="15.1.1" />
+    <PackageReference Include="uSync" Version="15.1.6" />
     <ProjectReference Include="..\Umbraco.Community.UmbNav\Umbraco.Community.UmbNav.csproj" />
     <RuntimeHostConfigurationOption Include="System.Globalization.AppLocalIcu" Value="72.1.0.3" Condition="$(RuntimeIdentifier.StartsWith('linux')) or $(RuntimeIdentifier.StartsWith('win')) or ('$(RuntimeIdentifier)' == '' and !$([MSBuild]::IsOSPlatform('osx')))" />
   </ItemGroup>
