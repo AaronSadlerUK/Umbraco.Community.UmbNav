@@ -4,7 +4,7 @@
   "version": "4.0.0",
   "type": "module",
   "engines": {
-    "node": ">=20.0.0 <21.0.0"
+    "node": ">=22.0.0 <23.0.0"
   },
   "scripts": {
     "dev": "vite",
@@ -13,12 +13,12 @@
     "watch": "vite build --watch"
   },
   "dependencies": {
-    "lit": "^3.1.2",
-    "uuid": "^11.0.5"
+    "lit": "^3.3.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@umbraco-cms/backoffice": "^15.3.1",
+    "@umbraco-cms/backoffice": "~15.3.1",
     "typescript": "^5.2.2",
-    "vite": "^5.4.12"
+    "vite": "^5.4.19"
   }
 }
