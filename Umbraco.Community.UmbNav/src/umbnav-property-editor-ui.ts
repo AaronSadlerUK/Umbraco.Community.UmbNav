@@ -1,5 +1,6 @@
 import {UmbTextStyles} from '@umbraco-cms/backoffice/style';
 import {css, html, customElement, LitElement, property, state} from '@umbraco-cms/backoffice/external/lit';
+import {v4 as uuidv4} from 'uuid';
 import {
     UmbPropertyEditorConfigCollection,
     UmbPropertyEditorConfigProperty,
@@ -9,7 +10,7 @@ import {
 import {UmbElementMixin} from "@umbraco-cms/backoffice/element-api";
 import './umbnav-group.js';
 import type {UmbNavGroup} from './umbnav-group.js';
-import {ModelEntryType} from "./umbnav.token.ts";
+import {ModelEntryType, Guid} from "./umbnav.token.ts";
 
 @customElement('umbnav-property-editor-ui')
 export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin(LitElement) implements UmbPropertyEditorUiElement {
@@ -29,6 +30,17 @@ export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin
 
     @state()
     expandAll: boolean = false;
+
+    firstUpdated() {
+        // Only assign keys if they're missing, once
+        if (Array.isArray(this.value)) {
+            const updatedValue = this.value.map(item => ({
+                ...item,
+                key: item.key ?? (uuidv4() as Guid),
+            }));
+            this.value = updatedValue;
+        }
+    }
 
     private onChange(e: Event) {
         this.value = (e.target as UmbNavGroup).value;
