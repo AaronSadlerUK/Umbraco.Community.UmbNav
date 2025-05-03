@@ -313,7 +313,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
     }
 
     toggleLinkPickerEvent(event: CustomEvent<{ key: Guid | null | undefined }>) {
-        if (this.value.find(item => item.key === event.detail.key && item.itemType === "title")) {
+        if (this.value.find(item => item.key === event.detail.key && (item.itemType === "title" || item.itemType === 'nolink'))) {
             this.toggleTextModal(event.detail.key);
         } else {
             this.toggleLinkPicker(event.detail.key);
@@ -330,7 +330,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             data: {
                 key: key,
                 headline: 'Add text item',
-                name: item?.name ?? ''
+                name: item?.name ?? item?.title ?? ''
             }
         });
 
@@ -581,7 +581,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                                 html`
                                     <uui-button-inline-create
                                             @click=${() => this.newNode(item.key)}></uui-button-inline-create>
-                                    <umbnav-item name=${item.name ?? '' } key="${item.key ?? '' }" class=""
+                                    <umbnav-item name=${item.name ?? item.title ?? '' } key="${item.key ?? '' }" class=""
                                                  description="${item.description ?? '' }"
                                                  .expanded=${ this._expandAll || item.key != null && this.expandedItems.includes(item.key)}
                                                  .hasImage=${Boolean(item.image?.length)}
