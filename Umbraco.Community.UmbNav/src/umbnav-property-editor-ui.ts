@@ -37,6 +37,8 @@ export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin
             const updatedValue = this.value.map(item => ({
                 ...item,
                 key: item.key ?? (uuidv4() as Guid),
+                unique: item.udi != null && (item.udi.startsWith('umb://document/') || item.udi.startsWith('umb://media/')) ? item.key : undefined,
+                itemType: item.udi != null && item.udi.startsWith('umb://document/') ? 'document' : item.itemType
             }));
             this.value = updatedValue;
         }
