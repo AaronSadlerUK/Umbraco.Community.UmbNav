@@ -492,7 +492,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             type: item.itemType,
             target: item.target,
             published: item.published,
-            unique: item.contentKey,
+            unique: item.contentKey ?? item.key,
             queryString: item.anchor
         };
     }
