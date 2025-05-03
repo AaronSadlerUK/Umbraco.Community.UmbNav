@@ -373,6 +373,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                 data: {
                     config: {},
                     index: null,
+                    isNew: item.unique == null || item.unique.length === 0,
                 },
                 value: {
                     link: item
