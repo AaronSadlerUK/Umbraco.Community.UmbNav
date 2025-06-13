@@ -288,7 +288,9 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             children: [],
             customClasses: '',
             hideLoggedIn: false,
-            hideLoggedOut: false
+            hideLoggedOut: false,
+            noopener: '',
+            noreferrer: ''
         }
 
         if (key != null) {
@@ -513,6 +515,8 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             contentKey: linkId,
             anchor: item.queryString,
             description: item.url,
+            noopener: '',
+            noreferrer: '',
             children: []
         };
     }

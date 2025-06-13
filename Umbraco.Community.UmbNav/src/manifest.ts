@@ -85,11 +85,11 @@ const umbNavPropertyEditorUiManifest: ManifestPropertyEditorUi = {
                 },
                 {
                      alias : "hideNoopener",
-                     value : null
+                     value : false
                 },
                 {
                      alias : "hideNoreferrer",
-                     value: null
+                     value: false
                 },
                  {
                      alias : "maxDepth",
