@@ -95,7 +95,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
     @property({type: Array, attribute: false})
     public get value(): ModelEntryType[] {
-        return this._value ?? [];
+        return this._value || [];
     }
 
     @state()
