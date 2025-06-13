@@ -70,8 +70,8 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
                     {
                         item.Content = umbracoContent;
                         umbracoContent.Key.Equals(currentPublishedContentKey).IfTrue(() => item.IsActive = true);
-                        removeNoopener.IfTrue(() => item.Noopener = null);
-                        removeNoreferrer.IfTrue(() => item.Noreferrer = null);
+                        item.Noopener = removeNoopener || string.IsNullOrEmpty(item.Noopener) ? default : item.Noopener;
+                        item.Noreferrer = removeNoreferrer || string.IsNullOrEmpty(item.Noreferrer) ? default : item.Noreferrer;
                         string.IsNullOrWhiteSpace(item.Name).IfTrue(() => umbracoContent.Name(currentCulture));
                     }
                     else
