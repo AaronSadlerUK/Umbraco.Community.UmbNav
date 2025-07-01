@@ -8,13 +8,14 @@ import './umbnav-item.ts';
 import UmbNavItem from './umbnav-item.ts';
 import {UMB_MODAL_MANAGER_CONTEXT, UmbModalManagerContext,} from '@umbraco-cms/backoffice/modal';
 import {v4 as uuidv4} from 'uuid';
-import {UmbPropertyEditorConfigProperty, UmbPropertyValueChangeEvent} from "@umbraco-cms/backoffice/property-editor";
+import {UmbPropertyEditorConfigProperty} from "@umbraco-cms/backoffice/property-editor";
 import {DocumentService, MediaService} from '@umbraco-cms/backoffice/external/backend-api';
 import {UMBNAV_TEXT_ITEM_MODAL} from "./modals/text-item-modal-token.ts";
 import {UMBNAV_VISIBILITY_ITEM_MODAL} from "./modals/visibility-item-modal-token.ts";
 import {UMBNAV_SETTINGS_ITEM_MODAL} from "./modals/settings-item-modal-token.ts";
 import {Guid, ImageItem, ModelEntryType} from "./umbnav.token.ts";
 import { tryExecute } from '@umbraco-cms/backoffice/resources';
+import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 
 @customElement('umbnav-group')
 export class UmbNavGroup extends UmbElementMixin(LitElement) {
@@ -526,7 +527,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
     }
 
     #dispatchChangeEvent() {
-        this.dispatchEvent(new UmbPropertyValueChangeEvent());
+        this.dispatchEvent(new UmbChangeEvent());
     }
 
     newNode(siblingKey?: string | null | undefined): void {
