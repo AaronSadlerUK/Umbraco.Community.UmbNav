@@ -501,6 +501,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
     }
 
     convertToUmbNavLink(item: UmbLinkPickerLink, key: Guid | null | undefined): ModelEntryType {
+        var menuItem =this.value.find(item => item.key === key)
         const linkId = item.unique != null && item.unique.length > 0 ? item.unique as Guid : null;
         key ??= uuidv4() as Guid;
         return {
@@ -516,7 +517,13 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             contentKey: linkId,
             anchor: item.queryString,
             description: item.url,
-            children: []
+            customClasses: menuItem?.customClasses ?? '',
+            hideLoggedIn: menuItem?.hideLoggedIn ?? false,
+            hideLoggedOut: menuItem?.hideLoggedOut ?? false,
+            noReferrer: menuItem?.noreferrer ?? false,
+            noOpener: menuItem?.noopener ?? false,
+            image: menuItem?.image?.map(image => this.convertToImageType(image.key)) ?? [],
+            children: menuItem?.children ?? []
         };
     }
 
