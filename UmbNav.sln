@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSite.V15", "TestSite.V15\TestSite.V15.csproj", "{E8A26311-41CC-4062-81F9-F131AC2047B8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSite.V16", "TestSite.V16\TestSite.V16.csproj", "{E8A26311-41CC-4062-81F9-F131AC2047B8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.Community.UmbNav.Core", "Umbraco.Community.UmbNav.Core\Umbraco.Community.UmbNav.Core.csproj", "{34D23528-4DB2-47BB-96AB-E2CA64A593B0}"
 EndProject
