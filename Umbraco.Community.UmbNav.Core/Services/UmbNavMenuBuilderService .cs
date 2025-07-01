@@ -86,7 +86,7 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
 
                 if (children.Any())
                 {
-                    var childItems = BuildMenu(children, level + 1).ToList();
+                    var childItems = BuildMenu(children, level + 1, removeNoopener, removeNoreferrer).ToList();
                     if (!children.Equals(childItems))
                     {
                         children = childItems;
