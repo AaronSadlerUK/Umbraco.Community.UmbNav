@@ -494,7 +494,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             // @ts-ignore
             type: item.itemType,
             target: item.target,
-            published: item.published,
+            published: item.itemType === 'document' ? item.published : true,
             unique: item.contentKey ?? item.key,
             queryString: item.anchor
         };
@@ -599,7 +599,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                                                  .hideLoggedIn=${!!item.hideLoggedIn}
                                                  .hideLoggedOut=${!!item.hideLoggedOut}
                                                  icon="${item.icon ?? '' }"
-                                                 ?unpublished=${!item.published && item.itemType === "document"}
+                                                 ?unpublished=${item.published === false && item.itemType === "document"}
                                                  @toggle-children-event=${this.toggleNode}
                                                  @edit-node-event=${this.toggleLinkPickerEvent}
                                                  @add-image-event=${this.toggleMediaPickerEvent}
