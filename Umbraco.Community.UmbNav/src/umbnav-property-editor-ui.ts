@@ -4,23 +4,23 @@ import {v4 as uuidv4} from 'uuid';
 import {
     UmbPropertyEditorConfigCollection,
     UmbPropertyEditorConfigProperty,
-    UmbPropertyEditorUiElement,
-    UmbPropertyValueChangeEvent
+    UmbPropertyEditorUiElement
 } from "@umbraco-cms/backoffice/property-editor";
 import {UmbElementMixin} from "@umbraco-cms/backoffice/element-api";
 import './umbnav-group.js';
 import type {UmbNavGroup} from './umbnav-group.js';
 import {ModelEntryType, Guid} from "./umbnav.token.ts";
+import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 
 @customElement('umbnav-property-editor-ui')
 export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin(LitElement) implements UmbPropertyEditorUiElement {
-    @property()
+    @property({ type: Array })
     value: ModelEntryType[] = [];
 
     @property({ attribute: false })
     config: UmbPropertyEditorConfigCollection | undefined;
 
-    @property()
+    @property({ type: Number })
     depth: number = 0;
 
     @state()
@@ -46,7 +46,7 @@ export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin
 
     private onChange(e: Event) {
         this.value = (e.target as UmbNavGroup).value;
-        this.dispatchEvent(new UmbPropertyValueChangeEvent());
+        this.dispatchEvent(new UmbChangeEvent());
     }
 
     toggleAllNodes() {
