@@ -510,8 +510,9 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             icon: item.icon,
             itemType: item.type,
             target: item.target,
-            published: item.published,
-            udi: `umb://document/${key.replace(/-/g, '')}`,
+            published: item.type === 'document' ? item.published : true,
+            // @ts-ignore
+            udi: item.type === 'external' ? '' : `umb://${item.type}/${key.replace(/-/g, '')}`,
             contentKey: linkId,
             anchor: item.queryString,
             description: item.url,
