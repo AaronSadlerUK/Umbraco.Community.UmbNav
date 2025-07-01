@@ -14,6 +14,7 @@ import {UMBNAV_TEXT_ITEM_MODAL} from "./modals/text-item-modal-token.ts";
 import {UMBNAV_VISIBILITY_ITEM_MODAL} from "./modals/visibility-item-modal-token.ts";
 import {UMBNAV_SETTINGS_ITEM_MODAL} from "./modals/settings-item-modal-token.ts";
 import {Guid, ImageItem, ModelEntryType} from "./umbnav.token.ts";
+import { tryExecute } from '@umbraco-cms/backoffice/resources';
 
 @customElement('umbnav-group')
 export class UmbNavGroup extends UmbElementMixin(LitElement) {
@@ -535,20 +536,26 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
     async #getDocument(entityKey: string | undefined | null) {
         if (!entityKey) return;
-        // Should this be done here or in the action file?
-        const data = await DocumentService.getDocumentById({id: entityKey});
+        //TODO Handle error
+        const { data, error } = await tryExecute(this, DocumentService.getDocumentById({ path: { id: entityKey } }));
+        if (error) {
+            console.error('Error fetching document:', error);
+			return;
+		}
         if (!data) return;
-        //TODO How do we ensure we get the correct variant?
         return data;
 
     }
 
     async #getMedia(entityKey: string | undefined | null) {
         if (!entityKey) return;
-        // Should this be done here or in the action file?
-        const data = await MediaService.getMediaById({id: entityKey});
+        //TODO Handle error
+        const { data, error } = await tryExecute(this, MediaService.getMediaById({ path: { id: entityKey } }));
+        if (error) {
+            console.error('Error fetching media:', error);
+			return;
+		}
         if (!data) return;
-        //TODO How do we ensure we get the correct variant?
         return data;
 
     }
