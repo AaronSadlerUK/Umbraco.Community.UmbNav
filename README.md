@@ -3,7 +3,7 @@
 ![Umbraco Cloud Badge](https://img.shields.io/badge/Works%20on-Umbraco%20Cloud-3544b1)
 
 
-UmbNav adds a drag and drop menu builder to the Umbraco V10 backoffice.
+UmbNav adds a drag and drop menu builder to the Umbraco Belissima V16+ backoffice.
 
 ## Getting started
 
