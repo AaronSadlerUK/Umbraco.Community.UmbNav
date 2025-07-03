@@ -31,7 +31,7 @@ https://github.com/AaronSadlerUK/Our.Umbraco.UmbNav
 
 ### Installation
 
-UmbNav is available from [NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbNav, or as a manual download directly from GitHub.
+UmbNav is available from [NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbNav), or as a manual download directly from GitHub.
 
 #### NuGet package repository
 To [install UI from NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbNav), run the following command in your instance of Visual Studio.
