@@ -9,9 +9,10 @@ UmbNav adds a drag and drop menu builder to the Umbraco V10 backoffice.
 
 ## Getting started
 
-UmbNav V2.X only supports Umbraco 10+
+UmbNav V4.X only supports Umbraco 16+
 
-Use UmbNav V1.X for Umbraco V8 and V9
+For Umbraco versions 13 and below please see the repository linked below:
+https://github.com/AaronSadlerUK/Our.Umbraco.UmbNav
 
 ### Features
 
@@ -32,22 +33,16 @@ Use UmbNav V1.X for Umbraco V8 and V9
 
 ### Installation
 
-UmbNav is available from [NuGet](https://www.nuget.org/packages/Our.Umbraco.UmbNav.Web), or as a manual download directly from GitHub.
-
-**The deprecation of using Ids between V1 and V2 is a breaking change, so if you are using Ids then you will required to rebuild your menu after upgrading**
+UmbNav is available from [NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbNav, or as a manual download directly from GitHub.
 
 #### NuGet package repository
-To [install UI from NuGet](https://www.nuget.org/packages/Our.Umbraco.UmbNav.Web), run the following command in your instance of Visual Studio.
+To [install UI from NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbNav), run the following command in your instance of Visual Studio.
 
-    PM> Install-Package Our.Umbraco.UmbNav.Web
+    PM> Install-Package Umbraco.Community.UmbNav
 	
-To [install Core from NuGet](https://www.nuget.org/packages/Our.Umbraco.UmbNav.Core), run the following command in your instance of Visual Studio.
+To [install Core from NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbNav.Core), run the following command in your instance of Visual Studio.
 
-    PM> Install-Package Our.Umbraco.UmbNav.Core
-
-To [install API from NuGet](https://www.nuget.org/packages/Our.Umbraco.UmbNav.Api), run the following command in your instance of Visual Studio.
-
-    PM> Install-Package Our.Umbraco.UmbNav.Api
+    PM> Install-Package Umbraco.Community.UmbNav.Core
 
 ## Umbraco Cloud Supported
 
@@ -57,31 +52,18 @@ UmbNav fully supports Umbraco Cloud including the content synchroniser, it has b
 
 After installing the package, you will have a new property editor called UmbNav in the Umbraco backoffice, typically this would get added to your sites "Site Settings" or "Home" node.
 
-Check out the integration guide [integration guide](docs/integration-guide.md) to learn how to embed the package in your site.
-
-### Screenshots
-
-![](https://raw.githubusercontent.com/AaronSadlerUK/Our.Umbraco.UmbNav/develop/Screenshots/UmbNav.1.jpeg)
-
-![](https://raw.githubusercontent.com/AaronSadlerUK/Our.Umbraco.UmbNav/develop/Screenshots/UmbNav.2.jpeg)
-
-![](https://raw.githubusercontent.com/AaronSadlerUK/Our.Umbraco.UmbNav/develop/Screenshots/UmbNav.3.jpeg)
-
-![](https://raw.githubusercontent.com/AaronSadlerUK/Our.Umbraco.UmbNav/develop/Screenshots/UmbNav.4.jpeg)
-
-![](https://raw.githubusercontent.com/AaronSadlerUK/Our.Umbraco.UmbNav/develop/Screenshots/UmbNav.5.jpeg)
-
+Check out the [documentation](https://umbnavdocs.aaronsadler.dev/) to learn how to embed the package in your site.
 
 ### Contribution guidelines
 
 To raise a new bug, create an issue on the GitHub repository. To fix a bug or add new features, fork the repository and send a pull request with your changes. Feel free to add ideas to the repository's issues list if you would to discuss anything related to the package.
 
 ### Who do I talk to?
-This project is maintained by [Aaron Sadler](https://aaronsadler.uk) and contributors. If you have any questions about the project please contact me through [Twitter](https://twitter.com/AaronSadlerUK), or by raising an issue on GitHub.
+This project is maintained by [Aaron Sadler](https://aaronsadler.uk) and contributors.
 
 ## License
 
-Copyright &copy; 2022 [UmbHost Limited](https://umbhost.net), and other contributors
+Copyright &copy; 2025 [UmbHost Limited](https://umbhost.net), and other contributors
 
 Licensed under the MIT License.
 
