@@ -9,12 +9,15 @@ export interface UmbNavSettingsItemModalData {
     noreferrer: string | null | undefined;
     noopener: string | null | undefined;
     key: string | null | undefined;
+    includeChildNodes: boolean | null | undefined;
+    itemType: string | null | undefined;
 }
 
 export type UmbNavSettingsItem = {
     customCssClasses: string | null | undefined;
-    noReferrer: string | null | undefined;
-    noOpener: string | null | undefined;
+    noreferrer: string | null | undefined;
+    noopener: string | null | undefined;
+    includeChildNodes: boolean | null | undefined;
 }
 
 export const UMBNAV_SETTINGS_ITEM_MODAL = new UmbModalToken<UmbNavSettingsItemModalData, UmbNavSettingsItem>(

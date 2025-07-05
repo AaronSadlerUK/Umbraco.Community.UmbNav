@@ -29,6 +29,8 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
     hideLoggedOut: boolean = false;
     @property({ type: Boolean, reflect: true })
     enableVisibility: boolean = false;
+    @property({ type: Boolean, reflect: true })
+    hideIncludesChildNodes: boolean = false;
 
     // TODO: Does it make any different to have this as a property?
     @property({ type: Boolean, reflect: true, attribute: 'drag-placeholder' })
@@ -82,7 +84,7 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
                     <div class="column">
                         <div id="name">
                             <span class="name" @click=${() => this.editNode(this.key)}>${this.name}</span>
-                            
+                            ${this.hideIncludesChildNodes && this.hideIncludesChildNodes ? html` <span class="umbnav-badge">Includes Child Nodes</span>` : ''}
                             ${this.enableMediaPicker ? html`<span class="image" @click=${() => this.addImage(this.key)}>${this.hasImage ? html`<umb-icon name="picture"></umb-icon>` : ''}</span>` : ''}
                             ${this.enableVisibility && this.hideLoggedOut ? html`<span class="image" @click=${() => this.toggleVisibility(this.key)}>${this.hideLoggedOut ? html`<umb-icon name="lock"></umb-icon>` : ''}</span>` : ''}
                             ${this.enableVisibility && this.hideLoggedIn ? html`<span class="image" @click=${() => this.toggleVisibility(this.key)}>${this.hideLoggedIn ? html`<umb-icon name="icon-unlocked"></umb-icon>` : ''}</span>` : ''}
@@ -91,7 +93,6 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
                             ${this.description}
                         </div>
                     </div>
-                    <!-- <span class="umbnav-badge">Includes Child Nodes</span> -->
                 </div>
                 <div id="buttons">
                     <uui-action-bar>

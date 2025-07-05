@@ -24,6 +24,7 @@ export type ModelEntryType = {
     customClasses?: string | null | undefined,
     hideLoggedIn?: boolean | null | undefined,
     hideLoggedOut?: boolean | null | undefined,
+    includeChildNodes?: boolean | null | undefined,
     noopener?: string | null | undefined,
     noreferrer?: string | null | undefined
 };

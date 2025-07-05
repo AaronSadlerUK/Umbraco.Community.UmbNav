@@ -111,6 +111,20 @@ export const UmbNavItemStyles = [
                 border: 1px dashed red;
                 opacity: 0.8;
             }
+            .umbnav-badge {
+                background-color: #337ab7;
+                display: inline;
+                padding: .3em .6em;
+                font-size: 75%;
+                font-weight: 700;
+                line-height: 1;
+                color: #fff;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: baseline;
+                border-radius: .25em;
+                margin-left: var(--uui-size-space-3)
+            }
 
             slot:not([key]) {
                 // go on new line:

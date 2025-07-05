@@ -60,6 +60,12 @@ const umbNavPropertyEditorUiManifest: ManifestPropertyEditorUi = {
                      label : "#umbnav_settingsMaxDepthLabel",
                      description : "{#umbnav_settingsMaxDepthDescription}",
                      propertyEditorUiAlias : "Umb.PropertyEditorUi.Integer"
+                 },
+               {
+                     alias : "hideIncludeChildren",
+                     label : "#umbnav_settingsHideIncludeChildrenLabel",
+                     description : "{#umbnav_settingsHideIncludeChildrenDescription}",
+                     propertyEditorUiAlias : "Umb.PropertyEditorUi.Toggle"
                  }
             ],
              defaultData : [

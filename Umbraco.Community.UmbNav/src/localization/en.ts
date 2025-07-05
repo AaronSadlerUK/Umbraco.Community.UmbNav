@@ -32,5 +32,7 @@ export default {
         settingsHideNoreferrerDescription: 'Hide the ability to toggle noreferrer.',
         settingsMaxDepthLabel: 'Max Depth',
         settingsMaxDepthDescription: 'The maximum depth of the navigation tree.'
+        settingsItemModalIncludeChildNodesGroupLabel: 'Include Child Nodes',
+        settingsItemModalIncludeChildNodesLabel: 'Include Child Nodes',
     }
 } as UmbLocalizationDictionary;

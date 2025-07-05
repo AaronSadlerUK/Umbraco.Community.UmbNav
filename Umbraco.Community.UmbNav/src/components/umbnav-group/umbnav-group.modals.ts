@@ -81,14 +81,16 @@ export async function openSettingsModal(
                 config: config,
                 customCssClasses: item.customClasses ?? '',
                 noopener: item.noopener ?? '',
-                noreferrer: item.noreferrer ?? ''
+                noreferrer: item.noreferrer ?? '',
+                includeChildNodes: item.includeChildNodes ?? false,
+                itemType: item.itemType ?? ''
             }
         });
 
         const data = await modalHandler?.onSubmit().catch(() => undefined);
         if (!modalHandler || !data) return;
 
-        return { ...item, customClasses: data.customCssClasses, noreferrer: data.noReferrer, noopener: data.noOpener };
+        return { ...item, customClasses: data.customCssClasses, noreferrer: data.noreferrer, noopener: data.noopener, includeChildNodes: data.includeChildNodes };
     } catch (error) {
         console.error('Error in openSettingsModal:', error);
         return;
