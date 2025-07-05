@@ -62,9 +62,6 @@ public class UmbNavItem
     [JsonIgnore]
     public int Level { get; set; }
 
-    [JsonPropertyName("expanded")]
-    public bool Expanded { get; set; }
-
     [JsonPropertyName("target")]
     public string? Target { get; set; }
 
