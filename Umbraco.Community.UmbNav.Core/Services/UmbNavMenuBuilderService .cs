@@ -51,10 +51,6 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
                 var children = new List<UmbNavItem>();
                 if (item.Children != null && item.Children.Any())
                 {
-                    foreach (var child in item.Children)
-                    {
-                        child.Parent = item;
-                    }
                     children = item.Children.ToList();
                 }
 
@@ -69,6 +65,7 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
                     if (umbracoContent != null)
                     {
                         item.Content = umbracoContent;
+                        item.Url = umbracoContent.Url();
                         umbracoContent.Key.Equals(currentPublishedContentKey).IfTrue(() => item.IsActive = true);
                         removeNoopener.IfTrue(() => item.Noopener = null);
                         removeNoreferrer.IfTrue(() => item.Noreferrer = null);

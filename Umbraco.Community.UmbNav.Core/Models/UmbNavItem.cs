@@ -14,14 +14,8 @@ public class UmbNavItem
     [JsonPropertyName("name")]
     public required string Name { get; set; }
 
-    [JsonPropertyName("description")]
-    public string? Description { get; set; }
-
     [JsonPropertyName("url")]
     public string? Url { get; set; }
-
-    [JsonPropertyName("icon")]
-    public string? Icon { get; set; }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
     [JsonPropertyName("itemType")]
@@ -41,25 +35,13 @@ public class UmbNavItem
     [JsonPropertyName("published")]
     public bool Published { get; set; }
 
-    [JsonPropertyName("naviHide")]
-    public bool NaviHide { get; set; }
-
-    [JsonPropertyName("culture")]
-    public string? Culture { get; set; }
-
-    [JsonPropertyName("id")]
-    public int Id { get; set; }
-
     [JsonPropertyName("children")]
     public IEnumerable<UmbNavItem>? Children { get; set; }
 
     [JsonIgnore]
-    public UmbNavItem? Parent { get; set; }
-
-    [JsonIgnore]
     public IPublishedContent? Content { get; set; }
 
-    [JsonIgnore]
+    [JsonPropertyName("level")]
     public int Level { get; set; }
 
     [JsonPropertyName("target")]

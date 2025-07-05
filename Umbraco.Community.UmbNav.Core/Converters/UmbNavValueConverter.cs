@@ -2,13 +2,14 @@
 using System.Text.Json;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors;
+using Umbraco.Cms.Core.PropertyEditors.DeliveryApi;
 using Umbraco.Community.UmbNav.Core.Abstractions;
 using Umbraco.Community.UmbNav.Core.Models;
 using Umbraco.Community.UmbNav.Core.PropertyEditors;
 
 namespace Umbraco.Community.UmbNav.Core.Converters;
 
-public class UmbNavValueConverter : PropertyValueConverterBase
+public class UmbNavValueConverter : PropertyValueConverterBase, IDeliveryApiPropertyValueConverter
 {
     private readonly IUmbNavMenuBuilderService _umbNavMenuBuilderService;
     private readonly ILogger<UmbNavValueConverter> _logger;
@@ -30,13 +31,19 @@ public class UmbNavValueConverter : PropertyValueConverterBase
     {
         if (inter == null)
         {
+            _logger.LogWarning("No intermediate value found on property {PropertyAlias}.", propertyType.Alias);
             return Enumerable.Empty<UmbNavItem>();
         }
-        
+
         try
         {
-            var items = JsonSerializer.Deserialize<IEnumerable<UmbNavItem>>(inter.ToString()!) ?? [];
-            
+            var items = JsonSerializer.Deserialize<IEnumerable<UmbNavItem>>(inter.ToString()!)?.ToArray() ?? [];
+            if (items.Length == 0)
+            {
+                _logger.LogWarning("Failed to deserialize UmbNav items on property {PropertyAlias}.", propertyType.Alias);
+                return null;
+            }
+
             var hideNoopener = HideNoopener(propertyType);
             var hideNoreferrer = HideNoreferrer(propertyType);
             var hideIncludeChildren = HideIncludeChildren(propertyType);
@@ -45,7 +52,7 @@ public class UmbNavValueConverter : PropertyValueConverterBase
         }
         catch (Exception ex)
         {
-            _logger.LogError("Failed to convert UmbNav {ex}", ex);
+            _logger.LogError(ex, "Error converting UmbNav intermediate value on property {PropertyAlias}.", propertyType.Alias);
         }
 
         return Enumerable.Empty<UmbNavItem>();
@@ -59,4 +66,42 @@ public class UmbNavValueConverter : PropertyValueConverterBase
 
     private static bool HideIncludeChildren(IPublishedPropertyType propertyType) =>
         propertyType.DataType.ConfigurationAs<UmbNavConfiguration>()?.HideIncludeChildren ?? false;
+
+    public PropertyCacheLevel GetDeliveryApiPropertyCacheLevel(IPublishedPropertyType propertyType)
+        => PropertyCacheLevel.Elements;
+
+    public Type GetDeliveryApiPropertyValueType(IPublishedPropertyType propertyType)
+        => typeof(IEnumerable<UmbNavItem>);
+
+    public object? ConvertIntermediateToDeliveryApiObject(IPublishedElement owner, IPublishedPropertyType propertyType,
+        PropertyCacheLevel referenceCacheLevel, object? inter, bool preview, bool expanding)
+    {
+        if (inter == null)
+        {
+            _logger.LogWarning("No intermediate value found for Delivery API conversion on property {PropertyAlias}.", propertyType.Alias);
+            return Enumerable.Empty<UmbNavItem>();
+        }
+
+        try
+        {
+            var items = JsonSerializer.Deserialize<IEnumerable<UmbNavItem>>(inter.ToString()!)?.ToArray() ?? [];
+            if (items.Length == 0)
+            {
+                _logger.LogWarning("Failed to deserialize UmbNav items for Delivery API on property {PropertyAlias}.", propertyType.Alias);
+                return null;
+            }
+
+            var hideNoopener = HideNoopener(propertyType);
+            var hideNoreferrer = HideNoreferrer(propertyType);
+            var hideIncludeChildren = HideIncludeChildren(propertyType);
+
+            return _umbNavMenuBuilderService.BuildMenu(items, 0, hideNoopener, hideNoreferrer, hideIncludeChildren);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error converting UmbNav intermediate value for Delivery API on property {PropertyAlias}.", propertyType.Alias);
+        }
+
+        return Enumerable.Empty<UmbNavItem>();
+    }
 }
