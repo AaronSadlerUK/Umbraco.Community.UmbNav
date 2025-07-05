@@ -418,7 +418,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                         ...menuItem,
                         name: menuItem.name ? menuItem.name : document.variants[0].name,
                         icon: document.documentType.icon,
-                        url: document.urls.length > 0 ? document.urls[0].url : null,
+                        url: menuItem.url,
                         published: document.variants[0].state === "Published"
                     };
                 }
