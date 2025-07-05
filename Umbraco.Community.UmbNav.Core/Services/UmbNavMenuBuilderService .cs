@@ -60,7 +60,6 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
                     IPublishedContent? umbracoContent = item.ItemType == UmbNavItemType.Media ?
                         _publishedMediaCache.GetById(contentKey)
                         : _publishedContentCache.GetById(contentKey);
-                    string? currentCulture = umbracoContent?.GetCultureFromDomains();
 
                     if (umbracoContent != null)
                     {
@@ -82,12 +81,12 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
                                     ContentKey = child.Key,
                                     ItemType = UmbNavItemType.Document,
                                     Level = level + 1,
-                                    Url = child.Url(currentCulture),
+                                    Url = child.Url(),
                                     IsActive = child.Key == currentPublishedContentKey
                                 }));
                         }
 
-                        string.IsNullOrWhiteSpace(item.Name).IfTrue(() => umbracoContent.Name(currentCulture));
+                        string.IsNullOrWhiteSpace(item.Name).IfTrue(() => umbracoContent.Name());
                     }
                     else
                     {
