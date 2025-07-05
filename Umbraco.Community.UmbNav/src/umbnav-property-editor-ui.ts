@@ -7,8 +7,8 @@ import {
     UmbPropertyEditorUiElement
 } from "@umbraco-cms/backoffice/property-editor";
 import {UmbElementMixin} from "@umbraco-cms/backoffice/element-api";
-import './umbnav-group.js';
-import type {UmbNavGroup} from './umbnav-group.js';
+import './components/umbnav-group/umbnav-group.js';
+import type {UmbNavGroup} from './components/umbnav-group/umbnav-group.js';
 import {ModelEntryType, Guid} from "./umbnav.token.ts";
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 
