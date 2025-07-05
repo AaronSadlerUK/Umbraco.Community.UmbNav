@@ -92,4 +92,7 @@ public class UmbNavItem
 
     [JsonPropertyName("noreferrer")]
     public string? Noreferrer { get; set; }
+
+    [JsonPropertyName("includeChildNodes")]
+    public bool IncludeChildNodes { get; set; }
 }

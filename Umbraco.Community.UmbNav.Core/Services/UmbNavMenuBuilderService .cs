@@ -1,8 +1,8 @@
-﻿using Umbraco.Cms.Core.Models.PublishedContent;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PublishedCache;
 using Umbraco.Cms.Core.Web;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Umbraco.Community.UmbNav.Core.Abstractions;
 using Umbraco.Community.UmbNav.Core.Models;
 using Umbraco.Extensions;
@@ -31,7 +31,7 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
     }
 
     public IEnumerable<UmbNavItem> BuildMenu(IEnumerable<UmbNavItem> items, int level = 0,
-        bool removeNoopener = false, bool removeNoreferrer = false)
+        bool removeNoopener = false, bool removeNoreferrer = false, bool hideIncludeChildren = false)
     {
         var umbNavItems = items.ToList();
         var removeItems = new List<UmbNavItem>();
@@ -72,6 +72,24 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
                         umbracoContent.Key.Equals(currentPublishedContentKey).IfTrue(() => item.IsActive = true);
                         removeNoopener.IfTrue(() => item.Noopener = null);
                         removeNoreferrer.IfTrue(() => item.Noreferrer = null);
+
+                        if (!hideIncludeChildren && item.IncludeChildNodes)
+                        {
+                            children.AddRange(umbracoContent.Children()
+                                .Where(x => x.IsVisible() ||
+                                            x.HasProperty("umbracoNavihide") && x.Value<bool>("umbracoNavihide"))
+                                .Select(child => new UmbNavItem
+                                {
+                                    Name = child.Name,
+                                    Key = child.Key,
+                                    ContentKey = child.Key,
+                                    ItemType = UmbNavItemType.Document,
+                                    Level = level + 1,
+                                    Url = child.Url(currentCulture),
+                                    IsActive = child.Key == currentPublishedContentKey
+                                }));
+                        }
+
                         string.IsNullOrWhiteSpace(item.Name).IfTrue(() => umbracoContent.Name(currentCulture));
                     }
                     else
@@ -86,7 +104,7 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
 
                 if (children.Any())
                 {
-                    var childItems = BuildMenu(children, level + 1, removeNoopener, removeNoreferrer).ToList();
+                    var childItems = BuildMenu(children, level + 1, removeNoopener, removeNoreferrer, hideIncludeChildren).ToList();
                     if (!children.Equals(childItems))
                     {
                         children = childItems;

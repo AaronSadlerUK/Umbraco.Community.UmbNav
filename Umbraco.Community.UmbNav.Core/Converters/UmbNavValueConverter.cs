@@ -39,8 +39,9 @@ public class UmbNavValueConverter : PropertyValueConverterBase
             
             var hideNoopener = HideNoopener(propertyType);
             var hideNoreferrer = HideNoreferrer(propertyType);
+            var hideIncludeChildren = HideIncludeChildren(propertyType);
 
-            return _umbNavMenuBuilderService.BuildMenu(items, 0, hideNoopener, hideNoreferrer);
+            return _umbNavMenuBuilderService.BuildMenu(items, 0, hideNoopener, hideNoreferrer, hideIncludeChildren);
         }
         catch (Exception ex)
         {
@@ -56,4 +57,6 @@ public class UmbNavValueConverter : PropertyValueConverterBase
     private static bool HideNoreferrer(IPublishedPropertyType propertyType) =>
         propertyType.DataType.ConfigurationAs<UmbNavConfiguration>()?.HideNoreferrer ?? false;
 
+    private static bool HideIncludeChildren(IPublishedPropertyType propertyType) =>
+        propertyType.DataType.ConfigurationAs<UmbNavConfiguration>()?.HideIncludeChildren ?? false;
 }

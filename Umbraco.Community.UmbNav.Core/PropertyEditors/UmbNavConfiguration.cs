@@ -24,5 +24,8 @@ namespace Umbraco.Community.UmbNav.Core.PropertyEditors
 
         [ConfigurationField("hideNoreferrer")]
         public bool HideNoreferrer { get; set; }
+
+        [ConfigurationField("hideIncludeChildren")]
+        public bool HideIncludeChildren { get; set; }
     }
 }
