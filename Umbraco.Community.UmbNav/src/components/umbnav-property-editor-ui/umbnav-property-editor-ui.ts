@@ -1,16 +1,12 @@
-import {UmbTextStyles} from '@umbraco-cms/backoffice/style';
-import {css, html, customElement, LitElement, property, state} from '@umbraco-cms/backoffice/external/lit';
-import {v4 as uuidv4} from 'uuid';
-import {
-    UmbPropertyEditorConfigCollection,
-    UmbPropertyEditorConfigProperty,
-    UmbPropertyEditorUiElement
-} from "@umbraco-cms/backoffice/property-editor";
-import {UmbElementMixin} from "@umbraco-cms/backoffice/element-api";
-import './components/umbnav-group/umbnav-group.js';
-import type {UmbNavGroup} from './components/umbnav-group/umbnav-group.js';
-import {ModelEntryType, Guid} from "./umbnav.token.ts";
+import { html, customElement, LitElement, property, state } from '@umbraco-cms/backoffice/external/lit';
+import { UmbPropertyEditorConfigCollection, UmbPropertyEditorConfigProperty, UmbPropertyEditorUiElement } from "@umbraco-cms/backoffice/property-editor";
+import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import '../umbnav-group/umbnav-group.js';
+import type { UmbNavGroup } from '../umbnav-group/umbnav-group.js';
+import { ModelEntryType } from "../../tokens/umbnav.token.ts";
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
+import { UmbNavPropertyEditorUIStyles } from './umbnav-property-editor-ui.styles.ts';
+import { ensureNavItemKeys } from '../../umbnav-utils.ts';
 
 @customElement('umbnav-property-editor-ui')
 export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin(LitElement) implements UmbPropertyEditorUiElement {
@@ -34,13 +30,7 @@ export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin
     firstUpdated() {
         // Only assign keys if they're missing, once
         if (Array.isArray(this.value)) {
-            const updatedValue = this.value.map(item => ({
-                ...item,
-                key: item.key ?? (uuidv4() as Guid),
-                unique: item.udi != null && (item.udi.startsWith('umb://document/') || item.udi.startsWith('umb://media/')) ? item.key : undefined,
-                itemType: item.udi != null && item.udi.startsWith('umb://document/') ? 'document' : item.itemType
-            }));
-            this.value = updatedValue;
+            this.value = ensureNavItemKeys(this.value);
         }
     }
 
@@ -77,15 +67,7 @@ export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin
         `;
     }
 
-    static override styles = [
-        UmbTextStyles,
-        css`
-            .outer-wrapper {
-                display: grid;
-                gap: 4px;
-            }
-        `,
-    ];
+    static override styles = UmbNavPropertyEditorUIStyles;
 }
 
 declare global {

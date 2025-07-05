@@ -1,10 +1,10 @@
 import { UmbModalManagerContext } from '@umbraco-cms/backoffice/modal';
-import { UMBNAV_TEXT_ITEM_MODAL } from '../../modals/text-item-modal-token.ts';
-import { UMBNAV_VISIBILITY_ITEM_MODAL } from '../../modals/visibility-item-modal-token.ts';
-import { UMBNAV_SETTINGS_ITEM_MODAL } from '../../modals/settings-item-modal-token.ts';
-import { Guid, ModelEntryType } from '../../umbnav.token.ts';
+import { UMBNAV_TEXT_ITEM_MODAL } from '../../tokens/text-item-modal-token.ts';
+import { UMBNAV_VISIBILITY_ITEM_MODAL } from '../../tokens/visibility-item-modal-token.ts';
+import { UMBNAV_SETTINGS_ITEM_MODAL } from '../../tokens/settings-item-modal-token.ts';
+import { Guid, ModelEntryType } from '../../tokens/umbnav.token.ts';
 import { v4 as uuidv4 } from 'uuid';
-import { findItemByKey } from '../umbnav-utils.ts';
+import { findItemByKey } from '../../umbnav-utils.ts';
 import { UmbControllerHost } from '@umbraco-cms/backoffice/controller-api';
 
 export async function openTextModal(

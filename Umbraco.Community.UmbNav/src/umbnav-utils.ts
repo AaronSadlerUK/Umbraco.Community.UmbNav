@@ -1,4 +1,4 @@
-import { ModelEntryType, Guid, ImageItem } from "../umbnav.token";
+import { ModelEntryType, Guid, ImageItem } from "./tokens/umbnav.token";
 import { UmbLinkPickerLink } from '@umbraco-cms/backoffice/multi-url-picker';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -129,4 +129,13 @@ export function convertToImageType(image: Guid): ImageItem {
             udi: '',
         };
     }
+}
+
+export function ensureNavItemKeys(value: ModelEntryType[]): ModelEntryType[] {
+    return value.map(item => ({
+        ...item,
+        key: item.key ?? (uuidv4() as Guid),
+        unique: item.udi != null && (item.udi.startsWith('umb://document/') || item.udi.startsWith('umb://media/')) ? item.key : undefined,
+        itemType: item.udi != null && item.udi.startsWith('umb://document/') ? 'document' : item.itemType
+    }));
 }

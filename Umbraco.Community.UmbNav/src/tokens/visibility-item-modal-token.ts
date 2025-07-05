@@ -1,5 +1,5 @@
 import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
-import './text-item-modal-element.ts'
+import '../modals/text-item-modal-element.ts'
 
 export interface UmbNavVisibilityItemModalData {
     headline: string;

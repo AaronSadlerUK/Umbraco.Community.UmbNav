@@ -5,7 +5,7 @@ import { UUIInputEvent } from "@umbraco-cms/backoffice/external/uui";
 import {UmbTextStyles} from '@umbraco-cms/backoffice/style';
 import {umbBindToValidation, UmbValidationContext} from "@umbraco-cms/backoffice/validation";
 import type { UUIButtonState } from '@umbraco-cms/backoffice/external/uui';
-import {ModelEntryType} from "../umbnav.token.ts";
+import {ModelEntryType} from "../tokens/umbnav.token.ts";
 import { umbFocus } from '@umbraco-cms/backoffice/lit-element';
 
 @customElement('umbnav-text-item-modal')

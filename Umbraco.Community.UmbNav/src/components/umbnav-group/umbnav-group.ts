@@ -1,5 +1,5 @@
 import { UmbNavGroupStyles } from './umbnav-group.styles.ts';
-import { calculateTotalDepth, findItemByKey, convertToUmbLinkPickerLink, convertToUmbNavLink, convertToImageType } from '../umbnav-utils.ts';
+import { calculateTotalDepth, findItemByKey, convertToUmbLinkPickerLink, convertToUmbNavLink, convertToImageType } from '../../umbnav-utils.ts';
 import { openTextModal, openSettingsModal, openVisibilityModal } from './umbnav-group.modals.ts';
 import { getDocument, getMedia, generateUmbNavLink } from './umbnav-group.data.ts';
 import { customElement, html, LitElement, property, repeat, state } from '@umbraco-cms/backoffice/external/lit';
@@ -7,11 +7,11 @@ import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
 import { UmbSorterController } from '@umbraco-cms/backoffice/sorter';
 import { UMB_LINK_PICKER_MODAL, UmbLinkPickerLink } from '@umbraco-cms/backoffice/multi-url-picker';
 import { UMB_MEDIA_PICKER_MODAL } from '@umbraco-cms/backoffice/media';
-import '../../umbnav-item.ts';
-import UmbNavItem from '../../umbnav-item.ts';
+import '../umbnav-item/umbnav-item.ts';
+import UmbNavItem from '../umbnav-item/umbnav-item.ts';
 import { UMB_MODAL_MANAGER_CONTEXT, UmbModalManagerContext, } from '@umbraco-cms/backoffice/modal';
 import { UmbPropertyEditorConfigProperty } from "@umbraco-cms/backoffice/property-editor";
-import { Guid, ModelEntryType } from "../../umbnav.token.ts";
+import { Guid, ModelEntryType } from "../../tokens/umbnav.token.ts";
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 @customElement('umbnav-group')
 export class UmbNavGroup extends UmbElementMixin(LitElement) {

@@ -2,7 +2,7 @@ import { UmbDocumentItemRepository, UmbDocumentItemDataResolver, UmbDocumentUrlR
 import { UmbMediaItemRepository, UmbMediaUrlRepository } from '@umbraco-cms/backoffice/media';
 import { DocumentService, MediaService } from '@umbraco-cms/backoffice/external/backend-api';
 import { tryExecute } from '@umbraco-cms/backoffice/resources';
-import { Guid, ModelEntryType } from '../../umbnav.token.ts';
+import { Guid, ModelEntryType } from '../../tokens/umbnav.token.ts';
 import { UmbControllerHost } from '@umbraco-cms/backoffice/controller-api';
 
 export async function getDocumentUrl(context: UmbControllerHost, unique: Guid) {

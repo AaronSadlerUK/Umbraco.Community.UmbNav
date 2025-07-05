@@ -4,7 +4,7 @@ const umbNavPropertyEditorUiManifest: ManifestPropertyEditorUi = {
     type: 'propertyEditorUi',
     alias: 'Umbraco.Community.UmbNav',
     name: 'UmbNav',
-    element: () => import('./umbnav-property-editor-ui'),
+    element: () => import('./components/umbnav-property-editor-ui/umbnav-property-editor-ui'),
     elementName: "umbnav-property-editor-ui",
     meta: {
          label : "UmbNav",
