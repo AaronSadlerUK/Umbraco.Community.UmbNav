@@ -1,9 +1,9 @@
-import {css, customElement, html, ifDefined, state, when} from '@umbraco-cms/backoffice/external/lit';
+import {customElement, html, ifDefined, state, when} from '@umbraco-cms/backoffice/external/lit';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
 import {type UUIBooleanInputEvent, UUIInputEvent} from "@umbraco-cms/backoffice/external/uui";
-import {UmbTextStyles} from '@umbraco-cms/backoffice/style';
 import type { UUIButtonState } from '@umbraco-cms/backoffice/external/uui';
-import {UmbNavSettingsItem, UmbNavSettingsItemModalData} from "./settings-item-modal-token.ts";
+import {UmbNavSettingsItem, UmbNavSettingsItemModalData} from "../tokens/settings-item-modal-token.ts";
+import { UmbNavSettingsModalStyles } from './settings-item-modal-element.styles.ts';
 
 @customElement('umbnav-settings-item-modal')
 export class UmbNavModalElement extends
@@ -15,7 +15,7 @@ export class UmbNavModalElement extends
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.updateValue({customCssClasses: this.data?.customCssClasses});
+        this.updateValue({customCssClasses: this.data?.customCssClasses, noreferrer: this.data?.noreferrer, noopener: this.data?.noopener, includeChildNodes: this.data?.includeChildNodes});
     }
 
     @state()
@@ -34,13 +34,20 @@ export class UmbNavModalElement extends
     }
 
     @state()
+    public get includeChildNodesToggle(): Boolean {
+        return <Boolean>this.data?.config.find(item => item.alias === 'hideIncludeChildren')?.value ?? false;
+    }
+
     customCssClasses: string = '';
 
     @state()
-    noReferrer: string = '';
+    noreferrer: string = '';
 
     @state()
-    noOpener: string = '';
+    noopener: string = '';
+
+    @state()
+    includeChildNodes: boolean = false;
 
     @state()
     private _submitButtonState: UUIButtonState;
@@ -50,8 +57,9 @@ export class UmbNavModalElement extends
 
         this.value = {
             customCssClasses: this.value?.customCssClasses ?? '',
-            noReferrer: this.value?.noReferrer ?? '',
-            noOpener: this.value?.noOpener ?? ''}
+            noreferrer: this.value?.noreferrer ?? '',
+            noopener: this.value?.noopener ?? '',
+            includeChildNodes: this.value?.includeChildNodes ?? false}
         ;
         this.modalContext?.submit();
     }
@@ -67,22 +75,33 @@ export class UmbNavModalElement extends
     #handleNoReferrerToggle(event: UUIBooleanInputEvent) {
 
         if (event.target.checked) {
-            this.updateValue({noReferrer: 'noreferrer'});
-            this.noReferrer = 'noreferrer';
+            this.updateValue({noreferrer: 'noreferrer'});
+            this.noreferrer = 'noreferrer';
         }else{
-            this.updateValue({noReferrer: ''});
-            this.noReferrer = '';
+            this.updateValue({noreferrer: ''});
+            this.noreferrer = '';
         }
     }
 
     #handleNoOpenerToggle(event: UUIBooleanInputEvent) {
 
         if (event.target.checked) {
-            this.updateValue({noOpener: 'noopener'});
-            this.noOpener = 'noopener';
+            this.updateValue({noopener: 'noopener'});
+            this.noopener = 'noopener';
         }else{
-            this.updateValue({noOpener: ''});
-            this.noOpener = '';
+            this.updateValue({noopener: ''});
+            this.noopener = '';
+        }
+    }
+
+    #handleIncludeChildNodesToggle(event: UUIBooleanInputEvent) {
+
+        if (event.target.checked) {
+            this.updateValue({includeChildNodes: true});
+            this.includeChildNodes =  true;
+        }else{
+            this.updateValue({includeChildNodes: false});
+            this.includeChildNodes = false;
         }
     }
 
@@ -98,6 +117,11 @@ export class UmbNavModalElement extends
                     ${when(
                             !this.hideNoOpenerToggle || !this.hideNoReferrerToggle,
                             () => html`${this.#renderSEOToggles()}`,
+                    )}
+
+                    ${when(
+                            !this.includeChildNodesToggle && this.data?.itemType === 'document',
+                            () => html`${this.#renderIncludeChildNodesToggle()}`,
                     )}
 				</uui-box>
 				<div slot="actions">
@@ -119,11 +143,11 @@ export class UmbNavModalElement extends
 				<div class="side-by-side" slot="editor">
 					<umb-property-layout
 						orientation="vertical"
-						label="Custom CSS Classes"
+						label="#umbnav_settingsItemModalCustomCssClassesLabel"
 						style="padding:0;">
 						<uui-input
 							slot="editor"
-                            label="Custom CSS Classes"
+                            label=${this.localize.term('umbnav_settingsItemModalCustomCssClassesLabel')}
                             .value=${this.data?.customCssClasses ?? ''}
                             @input=${this.#contentChange} />
 						</uui-input>
@@ -139,24 +163,24 @@ export class UmbNavModalElement extends
 				<div class="side-by-side" slot="editor">
 					<umb-property-layout
 						orientation="vertical"
-						label='SEO'
+						label='#umbnav_settingsItemModalSeoGroupLabel'
 						style="padding:0;"
                         class="seo-toggles">
                         ${when(
                                 !this.hideNoReferrerToggle,
                                 () => html`
-                                    <uui-toggle label='Add "noreferrer" to link'
+                                    <uui-toggle label=${this.localize.term('umbnav_settingsItemModalNoReferrerLabel')}
                                                 slot="editor"
-                                                ?checked="${this.data?.noReferrer === 'noreferrer'}"
+                                                ?checked="${this.data?.noreferrer === 'noreferrer'}"
                                                 @change=${this.#handleNoReferrerToggle}></uui-toggle>`,
                         )}
 
                         ${when(
                                 !this.hideNoOpenerToggle,
                                 () => html`
-                                    <uui-toggle label='Add "noopener" to link'
+                                    <uui-toggle label=${this.localize.term('umbnav_settingsItemModalNoOpenerLabel')}
                                                 slot="editor"
-                                                ?checked="${this.data?.noOpener === 'noopener'}"
+                                                ?checked="${this.data?.noopener === 'noopener'}"
                                                 @change=${this.#handleNoOpenerToggle}></uui-toggle>`,
                         )}
 					</umb-property-layout>
@@ -165,41 +189,30 @@ export class UmbNavModalElement extends
 		`;
     }
 
-    static override styles = [
-        UmbTextStyles,
-        css`
-            uui-box {
-                --uui-box-default-padding: 0 var(--uui-size-space-5);
-            }
+        #renderIncludeChildNodesToggle() {
+        return html`
+			<umb-property-layout orientation="vertical">
+				<div class="side-by-side" slot="editor">
+					<umb-property-layout
+						orientation="vertical"
+						label='#umbnav_settingsItemModalIncludeChildNodesGroupLabel'
+						style="padding:0;"
+                        class="misc-toggles">
+                        ${when(
+                                !this.includeChildNodesToggle,
+                                () => html`
+                                    <uui-toggle label=${this.localize.term('umbnav_settingsItemModalIncludeChildNodesLabel')}
+                                                slot="editor"
+                                                ?checked="${this.data?.includeChildNodes === true}"
+                                                @change=${this.#handleIncludeChildNodesToggle}></uui-toggle>`,
+                        )}
+					</umb-property-layout>
+				</div>
+			</umb-property-layout>
+		`;
+    }
 
-            uui-button-group {
-                width: 100%;
-            }
-
-            uui-input {
-                width: 100%;
-            }
-
-            .side-by-side {
-                display: flex;
-                flex-wrap: wrap;
-                gap: var(--uui-size-space-5);
-
-                umb-property-layout {
-                    flex: 1 1 0px;
-                }
-            }
-            
-            .invalid {
-                color: var(--uui-color-danger);
-            }
-            
-            .seo-toggles uui-toggle:not(:last-child) {
-                display: block;
-                margin-bottom: var(--uui-size-space-5);
-            }
-        `,
-    ];
+    static override styles = UmbNavSettingsModalStyles
 
 }
 

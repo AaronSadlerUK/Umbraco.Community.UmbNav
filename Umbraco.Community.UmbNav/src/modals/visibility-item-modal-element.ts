@@ -1,9 +1,9 @@
-import {css, customElement, html, state} from '@umbraco-cms/backoffice/external/lit';
+import {customElement, html, state} from '@umbraco-cms/backoffice/external/lit';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
-import {UmbTextStyles} from '@umbraco-cms/backoffice/style';
 import type { UUIButtonState } from '@umbraco-cms/backoffice/external/uui';
-import {UmbNavItemVisibility, UmbNavVisibilityItemModalData} from "./visibility-item-modal-token.ts";
+import {UmbNavItemVisibility, UmbNavVisibilityItemModalData} from "../tokens/visibility-item-modal-token.ts";
 import type { UUIBooleanInputEvent } from '@umbraco-cms/backoffice/external/uui';
+import { UmbNavVisibilityModalStyles } from './visibility-item-modal-element.styles.ts';
 
 @customElement('umbnav-visibility-item-modal')
 export class UmbNavModalElement extends
@@ -55,7 +55,7 @@ export class UmbNavModalElement extends
 
     render() {
         return html`
-            <umb-body-layout .headline=${this.data?.headline ?? 'Custom dialog'}>
+            <umb-body-layout .headline=${this.data?.headline ?? this.localize.term('umbnav_visibilityItemModalHeadline')}>
                 <uui-box>
                     ${this.#renderVisibilityToggles()}
                 </uui-box>
@@ -81,12 +81,12 @@ export class UmbNavModalElement extends
 						label='Toggle Visibility'
 						style="padding:0;"
                         class="visibility-toggles">
-                        <uui-toggle label="Hide Logged In"
+                        <uui-toggle label=${this.localize.term('umbnav_visibilityItemHideLoggedInLabel')}
                                     slot="editor"
                                     ?checked="${this.hideLoggedIn}"
                                     @change=${this.#hideLoggedIn}></uui-toggle>
-                        
-                        <uui-toggle label="Hide Logged Out"
+
+                        <uui-toggle label=${this.localize.term('umbnav_visibilityItemHideLoggedOutLabel')}
                                     slot="editor"
                                     ?checked="${this.hideLoggedOut}"
                                     @change=${this.#hideLoggedOut}></uui-toggle>
@@ -96,29 +96,7 @@ export class UmbNavModalElement extends
 		`;
     }
 
-    static override styles = [
-        UmbTextStyles,
-        css`
-            .invalid {
-                color: var(--uui-color-danger);
-            }
-            uui-box {
-                --uui-box-default-padding: 0 var(--uui-size-space-5);
-            }
-
-            uui-button-group {
-                width: 100%;
-            }
-
-            uui-input {
-                width: 100%;
-            }
-            .visibility-toggles uui-toggle:not(:last-child) {
-                display: block;
-                margin-bottom: var(--uui-size-space-5);
-            }
-        `,
-    ];
+    static override styles = UmbNavVisibilityModalStyles;
 
 }
 

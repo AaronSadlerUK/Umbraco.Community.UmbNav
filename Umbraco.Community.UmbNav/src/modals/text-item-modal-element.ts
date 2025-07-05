@@ -1,12 +1,12 @@
-import {css, customElement, html, state} from '@umbraco-cms/backoffice/external/lit';
+import { customElement, html, state} from '@umbraco-cms/backoffice/external/lit';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
 import { UmbNavTextItemModalData } from "../tokens/text-item-modal-token.ts";
 import { UUIInputEvent } from "@umbraco-cms/backoffice/external/uui";
-import {UmbTextStyles} from '@umbraco-cms/backoffice/style';
 import {umbBindToValidation, UmbValidationContext} from "@umbraco-cms/backoffice/validation";
 import type { UUIButtonState } from '@umbraco-cms/backoffice/external/uui';
 import {ModelEntryType} from "../tokens/umbnav.token.ts";
 import { umbFocus } from '@umbraco-cms/backoffice/lit-element';
+import { UmbNavTextItemStyles } from './text-item-modal-element.styles.ts';
 
 @customElement('umbnav-text-item-modal')
 export class UmbNavModalElement extends
@@ -69,7 +69,7 @@ export class UmbNavModalElement extends
 
     render() {
         return html`
-            <umb-body-layout .headline=${this.data?.headline ?? 'Custom dialog'}>
+            <umb-body-layout .headline=${this.data?.headline ?? this.localize.term('umbnav_textItemModalHeadline')}>
                 <uui-box>
                     ${this.#renderTextItemInput()}
                 </uui-box>
@@ -96,7 +96,7 @@ export class UmbNavModalElement extends
 				<div class="side-by-side" slot="editor">
 					<umb-property-layout
 						orientation="vertical"
-						label="Title"
+						label="#umbnav_textItemModalTitleLabel"
 						style="padding:0;">
                         <uui-input label="content"
                                    slot="editor"
@@ -115,25 +115,7 @@ export class UmbNavModalElement extends
 		`;
     }
 
-    static override styles = [
-        UmbTextStyles,
-        css`
-            .invalid {
-                color: var(--uui-color-danger);
-            }
-            uui-box {
-                --uui-box-default-padding: 0 var(--uui-size-space-5);
-            }
-
-            uui-button-group {
-                width: 100%;
-            }
-
-            uui-input {
-                width: 100%;
-            }
-        `,
-    ];
+    static override styles = UmbNavTextItemStyles;
 
 }
 

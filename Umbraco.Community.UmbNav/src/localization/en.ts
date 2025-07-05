@@ -31,8 +31,19 @@ export default {
         settingsHideNoreferrerLabel: 'Hide noreferrer Toggle',
         settingsHideNoreferrerDescription: 'Hide the ability to toggle noreferrer.',
         settingsMaxDepthLabel: 'Max Depth',
-        settingsMaxDepthDescription: 'The maximum depth of the navigation tree.'
+        settingsMaxDepthDescription: 'The maximum depth of the navigation tree.',
+        settingsHideIncludeChildrenLabel: 'Hide Include Child Nodes Toggle',
+        settingsHideIncludeChildrenDescription: 'Hide the ability to include child nodes in the navigation.',
+        settingsItemModalCustomCssClassesLabel: 'Custom CSS Classes',
+        settingsItemModalSeoGroupLabel: 'SEO Settings',
+        settingsItemModalNoOpenerLabel: 'Add "noopener" to link',
+        settingsItemModalNoReferrerLabel: 'Add "noreferrer" to link',
         settingsItemModalIncludeChildNodesGroupLabel: 'Include Child Nodes',
         settingsItemModalIncludeChildNodesLabel: 'Include Child Nodes',
+        textItemModalHeadline: 'Custom dialog',
+        textItemModalTitleLabel: 'Text Item Title',
+        visibilityItemModalHeadline: 'Custom dialog',
+        visibilityItemHideLoggedInLabel: 'Hide for logged in users',
+        visibilityItemHideLoggedOutLabel: 'Hide for logged out users',
     }
 } as UmbLocalizationDictionary;
