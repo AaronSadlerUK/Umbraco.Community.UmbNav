@@ -1,6 +1,6 @@
 import {css, customElement, html, state} from '@umbraco-cms/backoffice/external/lit';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
-import { UmbNavTextItemModalData } from "./text-item-modal-token.ts";
+import { UmbNavTextItemModalData } from "../tokens/text-item-modal-token.ts";
 import { UUIInputEvent } from "@umbraco-cms/backoffice/external/uui";
 import {UmbTextStyles} from '@umbraco-cms/backoffice/style';
 import {umbBindToValidation, UmbValidationContext} from "@umbraco-cms/backoffice/validation";

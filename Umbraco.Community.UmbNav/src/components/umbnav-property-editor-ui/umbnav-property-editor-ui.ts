@@ -52,7 +52,7 @@ export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin
         return html`
             <div class="outer-wrapper">
                 ${this.enableToggleAllButton ? html`
-                    <uui-button label="Toggle All Items" look="secondary"
+                    <uui-button label=${this.localize.term('umbnav_toggleAllItemsToggleButton')} look="secondary"
                                 @click=${() => this.toggleAllNodes()}
                     ></uui-button>
                 ` : ''}

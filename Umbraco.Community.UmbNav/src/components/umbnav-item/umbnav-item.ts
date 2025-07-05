@@ -96,30 +96,30 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
                 <div id="buttons">
                     <uui-action-bar>
                         ${this.enableMediaPicker ? html`
-                        <uui-button look="secondary" label="Image"
+                        <uui-button look="secondary" label=${this.localize.term('umbnav_buttonsImage')}
                                     @click=${() => this.addImage(this.key)}>
                             <uui-icon name="picture"></uui-icon>
                         </uui-button>
                         ` : ''}
 
-                        <uui-button look="secondary" label="Item Settings"
+                        <uui-button look="secondary" label=${this.localize.term('umbnav_buttonsSettings')}
                                     @click=${() => this.toggleItemSettings(this.key)}>
                             <uui-icon name="icon-settings"></uui-icon>
                         </uui-button>
 
                         ${this.enableVisibility ? html`
-                            <uui-button look="secondary" label="Visibility"
+                            <uui-button look="secondary" label=${this.localize.term('umbnav_buttonsVisibility')}
                                         @click=${() => this.toggleVisibility(this.key)}>
                                 <uui-icon name="lock"></uui-icon>
                             </uui-button>
                         ` : ''}
-                        
-                        <uui-button look="secondary" label="Edit"
+
+                        <uui-button look="secondary" label=${this.localize.term('umbnav_buttonsEdit')}
                                     @click=${() => this.editNode(this.key)}>
                             <uui-icon name="edit"></uui-icon>
                         </uui-button>
 
-                        <uui-button look="secondary" label="Delete"
+                        <uui-button look="secondary" label=${this.localize.term('umbnav_buttonsDelete')}
                                     @click=${() => this.requestDelete()}>
                             <uui-icon name="delete"></uui-icon>
                         </uui-button>

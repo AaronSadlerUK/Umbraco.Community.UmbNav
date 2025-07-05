@@ -1,7 +1,9 @@
 import { manifests as modals } from "./modals/manifest.ts";
 import { manifests as propertyEditors } from "./manifest.ts";
+import { manifests as localization } from "./localization/manifest.ts";
 
 export const manifests: Array<UmbExtensionManifest> = [
     ...modals,
-    ...propertyEditors
+    ...propertyEditors,
+    ...localization
 ]

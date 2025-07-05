@@ -15,50 +15,50 @@ const umbNavPropertyEditorUiManifest: ManifestPropertyEditorUi = {
              properties : [
                 {
                      alias : "enableTextItems",
-                     label : "Enable Text Items",
-                     description : "If enabled text items can be added to the navigation.",
+                     label : "#umbnav_settingsEnableTextItemsLabel",
+                     description : "{#umbnav_settingsEnableTextItemsDescription}",
                      propertyEditorUiAlias : "Umb.PropertyEditorUi.Toggle"
                 },
                 {
                      alias : "enableToggleAllButton",
-                     label : "Enable Toggle All Items Button",
-                     description : "If enabled a button will be displayed to toggle all items.",
+                     label : "#umbnav_settingsEnableToggleAllButtonLabel",
+                     description : "{#umbnav_settingsEnableToggleAllButtonDescription}",
                      propertyEditorUiAlias : "Umb.PropertyEditorUi.Toggle"
                 },
                 {
                      alias : "allowImageIcon",
-                     label : "Allow Image / Icon Url",
-                     description : "Allow the ability to pick an image for the navigation item.",
+                     label : "#umbnav_settingsAllowImageIconLabel",
+                     description : "{#umbnav_settingsAllowImageIconDescription}",
                      propertyEditorUiAlias : "Umb.PropertyEditorUi.Toggle"
                 },
                 {
                      alias : "allowCustomClasses",
-                     label : "Allow Custom Classes",
-                     description : "Allow the ability to set custom classes on an item.",
+                     label : "#umbnav_settingsAllowCustomClassesLabel",
+                     description : "{#umbnav_settingsAllowCustomClassesDescription}",
                      propertyEditorUiAlias : "Umb.PropertyEditorUi.Toggle"
                 },
                 {
                      alias : "allowDisplay",
-                     label : "Allow Member Visibility",
-                     description : "Allow the ability to hide menu items based on member authentication status",
+                     label : "#umbnav_settingsAllowDisplayLabel",
+                     description : "{#umbnav_settingsAllowDisplayDescription}",
                      propertyEditorUiAlias : "Umb.PropertyEditorUi.Toggle"
                 },
                 {
                      alias : "hideNoopener",
-                     label : "Hide noopener Toggle",
-                     description : "Hide the ability to toggle noopener",
+                     label : "#umbnav_settingsHideNoopenerLabel",
+                     description : "{#umbnav_settingsHideNoopenerDescription}",
                      propertyEditorUiAlias : "Umb.PropertyEditorUi.Toggle"
                 },
                 {
                      alias : "hideNoreferrer",
-                     label : "Hide noreferrer Toggle",
-                     description : "Hide the ability to toggle noreferrer",
+                     label : "#umbnav_settingsHideNoreferrerLabel",
+                     description : "{#umbnav_settingsHideNoreferrerDescription}",
                      propertyEditorUiAlias : "Umb.PropertyEditorUi.Toggle"
                 },
                  {
                      alias : "maxDepth",
-                     label : "Max Depth",
-                     description : "The maximum number of levels in the navigation",
+                     label : "#umbnav_settingsMaxDepthLabel",
+                     description : "{#umbnav_settingsMaxDepthDescription}",
                      propertyEditorUiAlias : "Umb.PropertyEditorUi.Integer"
                  }
             ],

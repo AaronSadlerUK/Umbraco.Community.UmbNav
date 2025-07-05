@@ -6,6 +6,7 @@ import { Guid, ModelEntryType } from '../../tokens/umbnav.token.ts';
 import { v4 as uuidv4 } from 'uuid';
 import { findItemByKey } from '../../umbnav-utils.ts';
 import { UmbControllerHost } from '@umbraco-cms/backoffice/controller-api';
+import { UmbLocalizationController } from '@umbraco-cms/backoffice/localization-api';
 
 export async function openTextModal(
     modalContext: UmbModalManagerContext | undefined,
@@ -14,6 +15,7 @@ export async function openTextModal(
     host: UmbControllerHost
 ): Promise<ModelEntryType | undefined> {
     try {
+        let localize = new UmbLocalizationController(host);
         let item: ModelEntryType | undefined;
         if (key != null) {
             item = findItemByKey(key, value) as ModelEntryType;
@@ -22,7 +24,7 @@ export async function openTextModal(
         const modalHandler = modalContext?.open(host, UMBNAV_TEXT_ITEM_MODAL, {
             data: {
                 key: key,
-                headline: 'Add text item',
+                headline: localize.term('umbnav_addTextItemModalHeadline'),
                 name: item?.name ?? item?.title ?? ''
             }
         });
@@ -52,6 +54,7 @@ export async function openSettingsModal(
     host: UmbControllerHost
 ): Promise<ModelEntryType | undefined> {
     try {
+        let localize = new UmbLocalizationController(host);
         let item: ModelEntryType = {
             key: key,
             name: '',
@@ -74,7 +77,7 @@ export async function openSettingsModal(
         const modalHandler = modalContext?.open(host, UMBNAV_SETTINGS_ITEM_MODAL, {
             data: {
                 key: key,
-                headline: 'Edit Menu Item',
+                headline: localize.term('umbnav_editMenuItemModalHeadline'),
                 config: config,
                 customCssClasses: item.customClasses ?? '',
                 noopener: item.noopener ?? '',
@@ -99,6 +102,7 @@ export async function openVisibilityModal(
     host: UmbControllerHost
 ): Promise<ModelEntryType | undefined> {
     try {
+        let localize = new UmbLocalizationController(host);
         let item: ModelEntryType = {
             key: key,
             name: '',
@@ -124,7 +128,7 @@ export async function openVisibilityModal(
 
         const modalHandler = modalContext?.open(host, UMBNAV_VISIBILITY_ITEM_MODAL, {
             data: {
-                headline: 'Toggle Item Visibility',
+                headline: localize.term('umbnav_toggleItemModalVisibilityHeadline'),
                 hideLoggedIn: item.hideLoggedIn ?? false,
                 hideLoggedOut: item.hideLoggedOut ?? false
             }

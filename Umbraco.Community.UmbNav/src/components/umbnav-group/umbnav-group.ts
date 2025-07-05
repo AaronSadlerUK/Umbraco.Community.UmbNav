@@ -426,7 +426,6 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             <div class="umbnav-container ${this.nested ? 'margin-left' : ''}">
                 ${repeat(
             this._items,
-            // Note: ideally you have an unique identifier for each item, but for this example we use the `name` as identifier.
             (item) => item.key,
             (item) =>
                 html`
@@ -464,10 +463,10 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
                 <uui-button-group>
                     ${this.enableTextItems ? html`
-                        <uui-button label="Add Text Item" look="placeholder" class="add-menuitem-button"
+                        <uui-button label=${this.localize.term('umbnav_addTextItemToggleButton')} look="placeholder" class="add-menuitem-button"
                                     @click=${() => this.#toggleTextModal(null)}></uui-button>
                     ` : ''}
-                    <uui-button label="Add Link Item" look="placeholder" class="add-menuitem-button"
+                    <uui-button label=${this.localize.term('umbnav_addLinkItemToggleButton')} look="placeholder" class="add-menuitem-button"
                                 @click=${() => this.#newNode()}></uui-button>
                 </uui-button-group>
             </div>
