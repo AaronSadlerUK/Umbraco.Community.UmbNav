@@ -6,8 +6,8 @@ export interface UmbNavSettingsItemModalData {
     headline: string;
     config: Array<UmbPropertyEditorConfigProperty>;
     customCssClasses: string | null | undefined;
-    noReferrer: string | null | undefined;
-    noOpener: string | null | undefined;
+    noreferrer: string | null | undefined;
+    noopener: string | null | undefined;
     key: string | null | undefined;
 }
 

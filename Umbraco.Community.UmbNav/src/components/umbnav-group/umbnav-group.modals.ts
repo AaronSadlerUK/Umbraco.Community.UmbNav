@@ -77,8 +77,8 @@ export async function openSettingsModal(
                 headline: 'Edit Menu Item',
                 config: config,
                 customCssClasses: item.customClasses ?? '',
-                noOpener: item.noopener ?? '',
-                noReferrer: item.noreferrer ?? ''
+                noopener: item.noopener ?? '',
+                noreferrer: item.noreferrer ?? ''
             }
         });
 
