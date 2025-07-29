@@ -32,6 +32,16 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Content Remove="appsettings-schema.json" />
+      <Content Remove="appsettings-schema.Umbraco.Cms.json" />
+      <Content Remove="json-example.json" />
+      <Content Remove="package-lock.json" />
+      <Content Remove="package.json" />
+      <Content Remove="tsconfig.json" />
+      <Content Remove="umbraco-package-schema.json" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\Umbraco.Community.UmbNav.Core\Umbraco.Community.UmbNav.Core.csproj" />
     </ItemGroup>
 
@@ -46,6 +56,13 @@
             <PackagePath></PackagePath>
             <Link>README.md</Link>
         </None>
+        <None Include="appsettings-schema.json" />
+        <None Include="appsettings-schema.Umbraco.Cms.json" />
+        <None Include="json-example.json" />
+        <None Include="package-lock.json" />
+        <None Include="package.json" />
+        <None Include="tsconfig.json" />
+        <None Include="umbraco-package-schema.json" />
     </ItemGroup>
 
     <ItemGroup>
