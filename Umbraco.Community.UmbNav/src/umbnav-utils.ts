@@ -33,17 +33,20 @@ export function findItemByKey(key: string, items: ModelEntryType[]): ModelEntryT
 // Convert ModelEntryType to UmbLinkPickerLink
 export async function convertToUmbLinkPickerLink(context: UmbControllerHost, item: ModelEntryType): Promise<UmbLinkPickerLink> {
     try {
+        
         let menuItemName = null;
 
         switch (item.itemType) {
             case 'document':
-                const documentName = await getDocument(context, item.contentKey ?? item.key).then(name => name);
+                const document = await getDocument(context, item.contentKey ?? item.key);
+                const documentName = document?.variants?.[0]?.name ?? null;
                 if (documentName !== item.name) {
                     menuItemName = item.name;
                 }
                 break;
             case 'media':
-                const mediaName = await getMedia(context, item.contentKey ?? item.key).then(name => name);
+                const media = await getMedia(context, item.contentKey ?? item.key);
+                const mediaName = media?.variants?.[0]?.name ?? null;
                 if (mediaName !== item.name) {
                     menuItemName = item.name;
                 }
