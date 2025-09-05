@@ -26,7 +26,8 @@ export type ModelEntryType = {
     hideLoggedOut?: boolean | null | undefined,
     includeChildNodes?: boolean | null | undefined,
     noopener?: string | null | undefined,
-    noreferrer?: string | null | undefined
+    noreferrer?: string | null | undefined,
+    depth?: number
 };
 
 export type ImageItem = {

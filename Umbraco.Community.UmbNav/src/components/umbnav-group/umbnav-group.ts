@@ -1,5 +1,5 @@
 import { UmbNavGroupStyles } from './umbnav-group.styles.ts';
-import { calculateTotalDepth, findItemByKey, convertToUmbLinkPickerLink, convertToUmbNavLink, convertToImageType } from '../../umbnav-utils.ts';
+import { calculateTotalDepth, findItemByKey, convertToUmbLinkPickerLink, convertToUmbNavLink, convertToImageType, setItemDepths } from '../../umbnav-utils.ts';
 import { openTextModal, openSettingsModal, openVisibilityModal } from './umbnav-group.modals.ts';
 import { getDocument, getMedia, generateUmbNavLink } from './umbnav-group.data.ts';
 import { customElement, html, LitElement, property, repeat, state } from '@umbraco-cms/backoffice/external/lit';
@@ -30,7 +30,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         containerSelector: '.umbnav-container',
         onChange: ({ model }) => {
             const oldValue = this._value;
-            this._value = model;
+            this._value = setItemDepths(model);
             this.requestUpdate('value', oldValue);
             this.#dispatchChangeEvent();
         },
@@ -72,7 +72,8 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
     @state()
     public get maxDepth(): number {
-        return <number>this.config?.find(item => item.alias === 'maxDepth')?.value ?? 0;
+        const maxDepth = <number>this.config?.find(item => item.alias === 'maxDepth')?.value ?? 0;
+        return maxDepth;
     }
 
     @property({ type: Boolean, reflect: true })
@@ -132,7 +133,9 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         if (changed.has('value')) {
             // fetch the latest data for every item before the next render
             this._items = await Promise.all(
-                (this.value ?? []).map((i) => this.#generateUmbNavLink(i))
+                (this.value ?? []).map(async (i) => {
+                    return await this.#generateUmbNavLink(i);
+                })
             );
         }
     }
@@ -348,7 +351,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             newValue.push(newItem);
         }
 
-        this.value = newValue;
+        this.value = setItemDepths(newValue);
         this.#dispatchChangeEvent();
     }
 
@@ -361,8 +364,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             updatedValue[index] = updatedItem;
         }
 
-        this.value = updatedValue;
-
+        this.value = setItemDepths(updatedValue)
         this.#dispatchChangeEvent();
     }
 
@@ -381,7 +383,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
     #newNode(siblingKey?: string | null | undefined): void {
         this.#toggleLinkPicker(null, siblingKey);
-        this.requestUpdate();
+        this.#dispatchChangeEvent();
     }
 
 
@@ -405,6 +407,9 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
     firstUpdated() {
         this.style.setProperty('interpolate-size', 'allow-keywords');
+        if (Array.isArray(this.value) && this.value.length > 0) {
+            this.value = setItemDepths(this.value);
+        }
     }
 
     #toggleNode(event: CustomEvent<{ key: string }>): void {
@@ -440,6 +445,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                                                  .hideLoggedIn=${!!item.hideLoggedIn}
                                                  .hideLoggedOut=${!!item.hideLoggedOut}
                                                  .hideIncludesChildNodes=${!!item.includeChildNodes}
+                                                 .currentDepth=${item.depth ?? 0}
                                                  .maxDepth=${this.maxDepth}
                                                  icon="${item.icon ?? ''}"
                                                  ?unpublished=${item.published === false && item.itemType === "document"}

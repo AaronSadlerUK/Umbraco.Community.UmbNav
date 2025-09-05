@@ -33,6 +33,8 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
     hideIncludesChildNodes: boolean = false;
     @property({ type: Number, reflect: true })
     maxDepth: number = 0;
+    @property({ type: Number, reflect: true })
+    currentDepth: number = -1;
 
     // TODO: Does it make any different to have this as a property?
     @property({ type: Boolean, reflect: true, attribute: 'drag-placeholder' })
@@ -75,10 +77,12 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
     override render() {
         return html`
             <div class="tree-node ${this.unpublished ? 'unpublished' : ''}">
-                ${this.maxDepth !== 1 ? html`                <div id="arrow">
-                <uui-symbol-expand ?open="${this.expanded}"
-                @click=${() => this.toggleNode()}></uui-symbol-expand>
-                </div>` : ''}
+                ${this.maxDepth == 0 || (this.maxDepth !== 1 && this.currentDepth < this.maxDepth) ? html`
+                    <div id="arrow">
+                    <uui-symbol-expand ?open="${this.expanded}"
+                    @click=${() => this.toggleNode()}></uui-symbol-expand>
+                    </div>
+                ` : ''}
 			    <div id="icon">
                     <umb-icon name="${this.icon}"></umb-icon>
                 </div>

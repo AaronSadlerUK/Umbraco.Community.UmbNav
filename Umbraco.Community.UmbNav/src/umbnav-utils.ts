@@ -139,3 +139,11 @@ export function ensureNavItemKeys(value: ModelEntryType[]): ModelEntryType[] {
         itemType: item.udi != null && item.udi.startsWith('umb://document/') ? 'document' : item.itemType
     }));
 }
+
+export function setItemDepths(items: ModelEntryType[], currentDepth = 1): ModelEntryType[] {
+    return items.map(item => ({
+        ...item,
+        depth: currentDepth,
+        children: item.children ? setItemDepths(item.children, currentDepth + 1) : []
+    }));
+}
