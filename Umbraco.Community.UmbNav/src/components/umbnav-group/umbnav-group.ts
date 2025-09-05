@@ -440,6 +440,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                                                  .hideLoggedIn=${!!item.hideLoggedIn}
                                                  .hideLoggedOut=${!!item.hideLoggedOut}
                                                  .hideIncludesChildNodes=${!!item.includeChildNodes}
+                                                 .maxDepth=${this.maxDepth}
                                                  icon="${item.icon ?? ''}"
                                                  ?unpublished=${item.published === false && item.itemType === "document"}
                                                  @toggle-children-event=${this.#toggleNode}

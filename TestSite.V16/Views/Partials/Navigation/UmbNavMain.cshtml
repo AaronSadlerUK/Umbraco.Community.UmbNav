@@ -16,10 +16,10 @@
                         <i class="fa fa-caret-down"></i>
                     </button>
                     <div class="dropdown-content">
-                        <a href="@umbNavItem.Url()">@umbNavItem.Name</a>
+                        <a href="@umbNavItem.Url">@umbNavItem.Name</a>
                         @foreach (var child in umbNavItem.Children)
                         {
-                            <a href="@child.Url()">@child.Name</a>
+                            <a href="@child.Url">@child.Name</a>
                         }
                     </div>
                 </div>
