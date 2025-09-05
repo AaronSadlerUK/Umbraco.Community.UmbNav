@@ -274,7 +274,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             let item: UmbLinkPickerLink = { name: '', url: '', icon: '', type: null, target: '', published: false, unique: '', queryString: '' };
             if (key != null) {
                 const umbNavItem = findItemByKey(key, this.value);
-                item = convertToUmbLinkPickerLink(<ModelEntryType>umbNavItem);
+                item = await convertToUmbLinkPickerLink(this, <ModelEntryType>umbNavItem);
             }
 
             const modalHandler = this.#modalContext?.open(this, UMB_LINK_PICKER_MODAL, {
@@ -293,9 +293,9 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             if (menuItem.type === null) menuItem = this.#handleNullLink(menuItem);
 
             if (this.value.find(item => item.key === key)) {
-                this.#updateItem(convertToUmbNavLink(menuItem, key, this.value));
+                this.#updateItem(await convertToUmbNavLink(this, menuItem, key, this.value));
             } else {
-                this.#addItem(convertToUmbNavLink(menuItem, null, this.value), siblingKey);
+                this.#addItem(await convertToUmbNavLink(this, menuItem, null, this.value), siblingKey);
             }
         } catch (error) {
             console.error(error);

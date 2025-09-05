@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PublishedCache;
@@ -63,6 +63,9 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
 
                     if (umbracoContent != null)
                     {
+                        if (string.IsNullOrWhiteSpace(item.Name)){
+                            item.Name = umbracoContent.Name;
+                        }
                         item.Content = umbracoContent;
                         item.Url = umbracoContent.Url();
                         umbracoContent.Key.Equals(currentPublishedContentKey).IfTrue(() => item.IsActive = true);

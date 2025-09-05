@@ -1,6 +1,8 @@
 import { ModelEntryType, Guid, ImageItem } from "./tokens/umbnav.token";
 import { UmbLinkPickerLink } from '@umbraco-cms/backoffice/multi-url-picker';
 import { v4 as uuidv4 } from 'uuid';
+import { getDocument, getMedia } from "./components/umbnav-group/umbnav-group.data";
+import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 
 // Recursively calculate the total depth of children
 export function calculateTotalDepth(children: ModelEntryType[]): number {
@@ -29,10 +31,27 @@ export function findItemByKey(key: string, items: ModelEntryType[]): ModelEntryT
 }
 
 // Convert ModelEntryType to UmbLinkPickerLink
-export function convertToUmbLinkPickerLink(item: ModelEntryType): UmbLinkPickerLink {
+export async function convertToUmbLinkPickerLink(context: UmbControllerHost, item: ModelEntryType): Promise<UmbLinkPickerLink> {
     try {
+        let menuItemName = null;
+
+        switch (item.itemType) {
+            case 'document':
+                const documentName = await getDocument(context, item.contentKey ?? item.key).then(name => name);
+                if (documentName !== item.name) {
+                    menuItemName = item.name;
+                }
+                break;
+            case 'media':
+                const mediaName = await getMedia(context, item.contentKey ?? item.key).then(name => name);
+                if (mediaName !== item.name) {
+                    menuItemName = item.name;
+                }
+                break;
+        }
+
         return {
-            name: item.name,
+            name: menuItemName,
             url: item.url,
             icon: item.icon,
             // @ts-ignore
@@ -59,18 +78,39 @@ export function convertToUmbLinkPickerLink(item: ModelEntryType): UmbLinkPickerL
 }
 
 // Convert UmbLinkPickerLink to ModelEntryType
-export function convertToUmbNavLink(
+export async function convertToUmbNavLink(
+    context: UmbControllerHost,
     item: UmbLinkPickerLink,
     key: Guid | null | undefined,
     value: ModelEntryType[]
-): ModelEntryType {
+): Promise<ModelEntryType> {
     try {
         const menuItem = value.find(i => i.key === key);
         const linkId = item.unique != null && item.unique.length > 0 ? item.unique as Guid : null;
+
+        let menuItemName = null;
+
+        switch (item.type) {
+            case 'document':
+                const document = await getDocument(context, item.unique);
+                const documentName = document?.variants?.[0]?.name ?? null;
+                if (documentName !== item.name) {
+                    menuItemName = item.name;
+                }
+                break;
+            case 'media':
+                const media = await getMedia(context, item.unique);
+                const mediaName = media?.variants?.[0]?.name ?? null;
+                if (mediaName !== item.name) {
+                    menuItemName = item.name;
+                }
+                break;
+        }
+
         key ??= uuidv4() as Guid;
         return {
             key: key,
-            name: item.name,
+            name: menuItemName,
             url: item.url,
             icon: item.icon,
             itemType: item.type,

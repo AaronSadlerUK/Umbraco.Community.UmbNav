@@ -78,7 +78,7 @@ export async function generateUmbNavLink(context: UmbControllerHost, item: Model
                     return {
                         ...item,
                         icon: await itemDataResolver.getIcon(),
-                        name: item.name,
+                        name: item.name ?? documentItem.variants[0].name,
                         description: await getDocumentUrl(context, item.contentKey as Guid),
                     };
                 }
