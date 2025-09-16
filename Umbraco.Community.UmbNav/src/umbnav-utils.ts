@@ -3,6 +3,7 @@ import { UmbLinkPickerLink } from '@umbraco-cms/backoffice/multi-url-picker';
 import { v4 as uuidv4 } from 'uuid';
 import { getDocument, getMedia } from "./components/umbnav-group/umbnav-group.data";
 import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
+import { DocumentVariantStateModel } from "@umbraco-cms/backoffice/external/backend-api";
 
 // Recursively calculate the total depth of children
 export function calculateTotalDepth(children: ModelEntryType[]): number {
@@ -35,13 +36,18 @@ export async function convertToUmbLinkPickerLink(context: UmbControllerHost, ite
     try {
         
         let menuItemName = null;
+        let isPublished = false;
 
         switch (item.itemType) {
             case 'document':
                 const document = await getDocument(context, item.contentKey ?? item.key);
-                const documentName = document?.variants?.[0]?.name ?? null;
+                let documentVariant = document?.variants?.[0];
+                const documentName = documentVariant?.name ?? null;
+                isPublished = documentVariant?.state != DocumentVariantStateModel.DRAFT
                 if (documentName !== item.name) {
                     menuItemName = item.name;
+                }else{
+                    menuItemName = documentName;
                 }
                 break;
             case 'media':
@@ -49,6 +55,8 @@ export async function convertToUmbLinkPickerLink(context: UmbControllerHost, ite
                 const mediaName = media?.variants?.[0]?.name ?? null;
                 if (mediaName !== item.name) {
                     menuItemName = item.name;
+                }else{
+                    menuItemName = mediaName;
                 }
                 break;
         }
@@ -60,7 +68,7 @@ export async function convertToUmbLinkPickerLink(context: UmbControllerHost, ite
             // @ts-ignore
             type: item.itemType,
             target: item.target,
-            published: item.itemType === 'document' ? item.published : true,
+            published: isPublished,
             unique: item.contentKey ?? item.key,
             queryString: item.anchor
         };
@@ -88,15 +96,22 @@ export async function convertToUmbNavLink(
     value: ModelEntryType[]
 ): Promise<ModelEntryType> {
     try {
-        const menuItem = value.find(i => i.key === key);
+        let menuItem;
+        if (value) {
+            menuItem = value.find(i => i.key === key);
+         }
+        
         const linkId = item.unique != null && item.unique.length > 0 ? item.unique as Guid : null;
 
         let menuItemName = null;
+        let isPublished = false;
 
         switch (item.type) {
             case 'document':
                 const document = await getDocument(context, item.unique);
-                const documentName = document?.variants?.[0]?.name ?? null;
+                let documentVariant = document?.variants?.[0];
+                const documentName = documentVariant?.name ?? null;
+                isPublished = documentVariant?.state != DocumentVariantStateModel.DRAFT
                 if (documentName !== item.name) {
                     menuItemName = item.name;
                 }
@@ -106,6 +121,7 @@ export async function convertToUmbNavLink(
                 const mediaName = media?.variants?.[0]?.name ?? null;
                 if (mediaName !== item.name) {
                     menuItemName = item.name;
+                    isPublished = true
                 }
                 break;
         }
@@ -118,7 +134,7 @@ export async function convertToUmbNavLink(
             icon: item.icon,
             itemType: item.type,
             target: item.target,
-            published: item.type === 'document' ? item.published : true,
+            published: isPublished,
             // @ts-ignore
             udi: item.type === 'external' ? '' : `umb://${item.type}/${key.replace(/-/g, '')}`,
             contentKey: linkId,
