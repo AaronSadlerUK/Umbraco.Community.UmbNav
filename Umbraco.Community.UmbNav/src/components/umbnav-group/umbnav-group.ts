@@ -133,7 +133,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         if (changed.has('value')) {
             // fetch the latest data for every item before the next render
             this._items = await Promise.all(
-                (this.value ?? []).map(async (i) => {
+                (Array.isArray(this.value) ? this.value : []).map(async (i) => {
                     return await this.#generateUmbNavLink(i);
                 })
             );
@@ -292,7 +292,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             if (menuItem.type === "document") menuItem = await this.#handleDocumentLink(menuItem);
             if (menuItem.type === null) menuItem = this.#handleNullLink(menuItem);
 
-            if (this.value.find(item => item.key === key)) {
+            if (this.value && this.value.find(item => item.key === key)) {
                 this.#updateItem(await convertToUmbNavLink(this, menuItem, key, this.value));
             } else {
                 this.#addItem(await convertToUmbNavLink(this, menuItem, null, this.value), siblingKey);
