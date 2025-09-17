@@ -1,4 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
+import * as path from "path";
+import dotenv from "dotenv";
+import { fileURLToPath } from 'url';
+dotenv.config();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+export const STORAGE_STATE = path.join(__dirname, 'playwright/.auth/user.json');
 
 /**
  * Read environment variables from file.
@@ -30,6 +36,7 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    ignoreHTTPSErrors: true
   },
 
   /* Configure projects for major browsers */

@@ -471,10 +471,10 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
                 <uui-button-group>
                     ${this.enableTextItems ? html`
-                        <uui-button label=${this.localize.term('umbnav_addTextItemToggleButton')} look="placeholder" class="add-menuitem-button"
+                        <uui-button label=${this.localize.term('umbnav_addTextItemToggleButton')} id="AddTextButton" look="placeholder" class="add-menuitem-button"
                                     @click=${() => this.#toggleTextModal(null)}></uui-button>
                     ` : ''}
-                    <uui-button label=${this.localize.term('umbnav_addLinkItemToggleButton')} look="placeholder" class="add-menuitem-button"
+                    <uui-button label=${this.localize.term('umbnav_addLinkItemToggleButton')} id="AddLinkButton"  look="placeholder" class="add-menuitem-button"
                                 @click=${() => this.#newNode()}></uui-button>
                 </uui-button-group>
             </div>
