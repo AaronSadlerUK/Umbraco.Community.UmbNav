@@ -259,7 +259,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         try {
             const menuItem = await openTextModal(this.#modalContext, key, this.value, this);
             if (!menuItem) return;
-            if (this.value.find(item => item.key === key)) {
+            if (Array.isArray(this.value) && this.value.find(item => item.key === key)) {
                 this.#updateItem(menuItem);
             } else {
                 this.#addItem(menuItem);

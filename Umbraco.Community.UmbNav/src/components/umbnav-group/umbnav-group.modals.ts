@@ -34,7 +34,7 @@ export async function openTextModal(
 
         // @ts-ignore
         let menuItem: ModelEntryType = { ...data };
-        if (value.find(item => item.key === key)) {
+        if (Array.isArray(value) && value && value.find(item => item.key === key)) {
             return menuItem;
         } else {
             menuItem.key = uuidv4() as Guid;
