@@ -14,7 +14,6 @@ test.beforeEach(async ({ umbracoUi }) => {
 test.describe("UmbNav Add Content Item", () => {
   test('add-content-item', async ({ umbracoUi }) => {
 
-    test.slow();
     await umbracoUi.content.goToContentWithName(contentName);
     
     const addTextBtn = await umbracoUi.page.locator('umbnav-property-editor-ui').locator('#AddLinkButton >> button');
