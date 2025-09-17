@@ -21,6 +21,11 @@ export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin
 
     @state()
     public get enableToggleAllButton(): Boolean {
+
+        if (this.config?.find(item => item.alias === 'maxDepth')?.value === 1) {
+            return false;
+        }
+
         return <Boolean>this.config?.find(item => item.alias === 'enableToggleAllButton')?.value ?? false;
     }
 
