@@ -10,15 +10,20 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "watch": "vite build --watch"
+    "watch": "vite build --watch",
+    "config": "node config.cjs"
   },
   "dependencies": {
+    "@umbraco/playwright-testhelpers": "^16.0.46",
     "lit": "^3.3.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^24.5.0",
     "@umbraco-cms/backoffice": "~16.2.0",
     "typescript": "^5.8.3",
-    "vite": "^5.4.19"
+    "vite": "^5.4.19",
+     "prompt": "^1.2.0"
   }
 }
