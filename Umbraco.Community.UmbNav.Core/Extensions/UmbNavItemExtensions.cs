@@ -67,9 +67,9 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
                     rel.Add(item.Noreferrer);
                 }
 
-                if (htmlAttributesConverted.ContainsKey("rel"))
+                if (htmlAttributesConverted.TryGetValue("rel", out object? value))
                 {
-                    var originalRelValue = htmlAttributesConverted["rel"] as string;
+                    var originalRelValue = value as string;
                     htmlAttributesConverted["rel"] = string.Format("{0} {1}", originalRelValue, string.Join(" ", rel));
                 }
                 else
@@ -117,7 +117,7 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
             return item.Url ?? "#";
         }
 
-        public static bool IsActive(this UmbNavItem item, IPublishedContent currentPage, bool checkAncestors = false, int? minLevel = null)
+        public static bool IsActive(this UmbNavItem item, IPublishedContent? currentPage, bool checkAncestors = false, int? minLevel = null)
         {
             var contentKey = item.ContentKey ?? item.Content?.Key;
             
