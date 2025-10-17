@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.Community.UmbNav.Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.Community.UmbNav", "Umbraco.Community.UmbNav\Umbraco.Community.UmbNav.csproj", "{99A70C65-EFAD-4A37-A699-7788CE4C7736}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.SampleSite", "The-Starter-Kit\src\Umbraco.SampleSite\Umbraco.SampleSite.csproj", "{9FB2A9FC-17F5-5562-85A9-DB939B5230ED}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{99A70C65-EFAD-4A37-A699-7788CE4C7736}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99A70C65-EFAD-4A37-A699-7788CE4C7736}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99A70C65-EFAD-4A37-A699-7788CE4C7736}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9FB2A9FC-17F5-5562-85A9-DB939B5230ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9FB2A9FC-17F5-5562-85A9-DB939B5230ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9FB2A9FC-17F5-5562-85A9-DB939B5230ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9FB2A9FC-17F5-5562-85A9-DB939B5230ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
