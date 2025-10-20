@@ -19,11 +19,11 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0",
+    "@playwright/test": "^1.56.1",
     "@types/node": "^24.5.0",
     "@umbraco-cms/backoffice": "~17.0.0-beta",
     "typescript": "^5.8.3",
-    "vite": "^5.4.19",
+    "vite": "^7.1.11",
      "prompt": "^1.2.0"
   }
 }
