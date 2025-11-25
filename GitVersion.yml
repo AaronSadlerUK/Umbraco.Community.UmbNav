@@ -9,16 +9,16 @@ branches:
     increment: Patch
     prevent-increment-of-merged-branch-version: true
     track-merge-target: false
-    source-branches: [ 'develop', 'release' ]
+    source-branches: [ 'rc', 'release' ]
     tracks-release-branches: false
-    is-release-branch: false
+    is-release-branch: true
     is-mainline: true
     pre-release-weight: 55000
   develop:
     regex: ^dev(elop)?(ment)?$
     mode: ContinuousDeployment
     tag: beta
-    increment: Minor
+    increment: Patch  # Changed from Minor to Patch
     prevent-increment-of-merged-branch-version: false
     track-merge-target: true
     source-branches: []
@@ -26,6 +26,18 @@ branches:
     is-release-branch: false
     is-mainline: false
     pre-release-weight: 0
+  rc:
+    regex: ^rc$
+    mode: ContinuousDeployment
+    tag: rc
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: true
+    source-branches: [ 'develop' ]
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: false
+    pre-release-weight: 30000
   release:
     regex: ^releases?[/-]
     mode: ContinuousDelivery
