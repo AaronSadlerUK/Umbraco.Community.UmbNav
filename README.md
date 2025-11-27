@@ -1,13 +1,8 @@
-# Umbraco UmbNav
-
-![Umbraco Cloud Badge](https://img.shields.io/badge/Works%20on-Umbraco%20Cloud-3544b1)
-
-
-UmbNav adds a drag and drop menu builder to the Umbraco Belissima V16+ backoffice.
+UmbNav adds a drag and drop menu builder to the Umbraco V17+ backoffice.
 
 ## Getting started
 
-UmbNav V4.X only supports Umbraco 16+
+UmbNav V4.X only supports Umbraco 17+
 
 For Umbraco versions 13 and below please see the repository linked below:
 https://github.com/AaronSadlerUK/Our.Umbraco.UmbNav
@@ -26,7 +21,6 @@ https://github.com/AaronSadlerUK/Our.Umbraco.UmbNav
 - Display the property editor as full width in the back office (Hide the label)
 - Add an image to a menu item
 - TagHelper
-- GetLinkHtml extension for Umbraco V8 and V9
 - Add label items
 
 ### Installation
@@ -41,10 +35,6 @@ To [install UI from NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbN
 To [install Core from NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbNav.Core), run the following command in your instance of Visual Studio.
 
     PM> Install-Package Umbraco.Community.UmbNav.Core
-
-## Umbraco Cloud Supported
-
-UmbNav fully supports Umbraco Cloud including the content synchroniser, it has been fully tested transferring and restoring between environments.
 
 ### Documentation
 
@@ -61,7 +51,7 @@ This project is maintained by [Aaron Sadler](https://aaronsadler.uk) and contrib
 
 ## License
 
-Copyright &copy; 2025 [UmbHost Limited](https://umbhost.net), and other contributors
+Copyright &copy; 2025 [Aaron Sadler](https://aaronsadler.dev), and other contributors
 
 Licensed under the MIT License.
 
