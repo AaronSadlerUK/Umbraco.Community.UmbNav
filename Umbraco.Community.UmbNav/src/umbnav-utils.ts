@@ -59,6 +59,9 @@ export async function convertToUmbLinkPickerLink(context: UmbControllerHost, ite
                     menuItemName = mediaName;
                 }
                 break;
+                case 'external':
+                    menuItemName = item.name
+                break;
         }
 
         return {
@@ -123,6 +126,9 @@ export async function convertToUmbNavLink(
                     menuItemName = item.name;
                     isPublished = true
                 }
+                break;
+            case 'external':
+                menuItemName = item.name
                 break;
         }
 
