@@ -14,7 +14,7 @@
     <Title>Umbraco.Community.UmbNav.Core</Title>
     <RootNamespace>Umbraco.Community.UmbNav.Core</RootNamespace>
     <Description>Drag and drop menu editor for Umbraco V15+</Description>
-    <PackageTags>umbraco;umbraco-marketplace;UmbNav;MegaNav;</PackageTags>
+    <PackageTags>umbraco;UmbNav;MegaNav;</PackageTags>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Authors>Aaron Sadler</Authors>
     <Copyright>© $([System.DateTime]::Now.ToString(`yyyy`)) Aaron Sadler</Copyright>
