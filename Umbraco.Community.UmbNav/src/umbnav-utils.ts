@@ -103,7 +103,7 @@ export async function convertToUmbNavLink(
         
         const linkId = item.unique != null && item.unique.length > 0 ? item.unique as Guid : null;
 
-        let menuItemName = null;
+        let menuItemName = item.name;
         let isPublished = false;
 
         switch (item.type) {
