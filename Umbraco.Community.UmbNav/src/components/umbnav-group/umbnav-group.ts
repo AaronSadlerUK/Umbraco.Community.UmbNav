@@ -361,7 +361,8 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
         const index = updatedValue.findIndex(item => item.key === updatedItem.key);
         if (index !== -1) {
-            updatedValue[index] = updatedItem;
+            const existingChildren = updatedValue[index].children;
+            updatedValue[index] = { ...updatedValue[index], ...updatedItem, children: existingChildren };
         }
 
         this.value = setItemDepths(updatedValue)
