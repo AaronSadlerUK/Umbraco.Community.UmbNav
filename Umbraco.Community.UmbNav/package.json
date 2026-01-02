@@ -14,7 +14,7 @@
     "config": "node config.cjs"
   },
   "dependencies": {
-    "@umbraco/playwright-testhelpers": "^17.0.12",
+    "@umbraco/playwright-testhelpers": "^17.0.25",
     "lit": "^3.3.0",
     "uuid": "^13.0.0"
   },

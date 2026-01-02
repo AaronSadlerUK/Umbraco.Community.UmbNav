@@ -8,7 +8,10 @@ test.beforeEach(async ({ umbracoUi }) => {
     await umbracoUi.login.enterEmail(ConstantHelper.testUserCredentials.email);
     await umbracoUi.login.enterPassword(ConstantHelper.testUserCredentials.password);
     await umbracoUi.login.clickLoginButton();
-    await umbracoUi.login.goToSection(ConstantHelper.sections.content);
+        const tab = umbracoUi.page.getByRole('tab', { name: 'Content' });
+    await expect(tab).toBeVisible();
+    await tab.click();
+    // await umbracoUi.login.goToSection(ConstantHelper.sections.content);
 });
 
 test.describe("UmbNav Do Not Add Empty Text Item", () => {
