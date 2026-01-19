@@ -83,14 +83,15 @@ export async function openSettingsModal(
                 noopener: item.noopener ?? '',
                 noreferrer: item.noreferrer ?? '',
                 includeChildNodes: item.includeChildNodes ?? false,
-                itemType: item.itemType ?? ''
+                itemType: item.itemType ?? '',
+                description: item.description ?? null
             }
         });
 
         const data = await modalHandler?.onSubmit().catch(() => undefined);
         if (!modalHandler || !data) return;
 
-        return { ...item, customClasses: data.customCssClasses, noreferrer: data.noreferrer, noopener: data.noopener, includeChildNodes: data.includeChildNodes };
+        return { ...item, customClasses: data.customCssClasses, description: data.description, noreferrer: data.noreferrer, noopener: data.noopener, includeChildNodes: data.includeChildNodes };
     } catch (error) {
         console.error('Error in openSettingsModal:', error);
         return;
