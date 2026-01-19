@@ -34,6 +34,7 @@ export default {
         settingsMaxDepthDescription: 'The maximum depth of the navigation tree.',
         settingsHideIncludeChildrenLabel: 'Hide Include Child Nodes Toggle',
         settingsHideIncludeChildrenDescription: 'Hide the ability to include child nodes in the navigation.',
+        settingsItemModalDescriptionLabel: 'Description',
         settingsItemModalCustomCssClassesLabel: 'Custom CSS Classes',
         settingsItemModalSeoGroupLabel: 'SEO Settings',
         settingsItemModalNoOpenerLabel: 'Add "noopener" to link',
