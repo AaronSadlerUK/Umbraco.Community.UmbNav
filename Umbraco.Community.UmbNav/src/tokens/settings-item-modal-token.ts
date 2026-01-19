@@ -11,6 +11,7 @@ export interface UmbNavSettingsItemModalData {
     key: string | null | undefined;
     includeChildNodes: boolean | null | undefined;
     itemType: string | null | undefined;
+    description: string | null | undefined;
 }
 
 export type UmbNavSettingsItem = {
@@ -18,6 +19,7 @@ export type UmbNavSettingsItem = {
     noreferrer: string | null | undefined;
     noopener: string | null | undefined;
     includeChildNodes: boolean | null | undefined;
+    description: string | null | undefined;
 }
 
 export const UMBNAV_SETTINGS_ITEM_MODAL = new UmbModalToken<UmbNavSettingsItemModalData, UmbNavSettingsItem>(
