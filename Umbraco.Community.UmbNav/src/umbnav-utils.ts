@@ -1,4 +1,4 @@
-import { ModelEntryType, Guid, ImageItem } from "./tokens/umbnav.token";
+import { ModelEntryType, Guid, ImageItem, UmbNavLinkPickerLinkType } from "./tokens/umbnav.token";
 import { UmbLinkPickerLink } from '@umbraco-cms/backoffice/multi-url-picker';
 import { v4 as uuidv4 } from 'uuid';
 import { getDocument, getMedia } from "./components/umbnav-group/umbnav-group.data";
@@ -37,10 +37,12 @@ export async function convertToUmbLinkPickerLink(context: UmbControllerHost, ite
         
         let menuItemName = null;
         let isPublished = false;
-
+        let itemType = null;
+        let unique = undefined;
         switch (item.itemType) {
-            case 'document':
-                const document = await getDocument(context, item.contentKey ?? item.key);
+            case 'Document':
+                const document = await getDocument(context, item.contentKey);
+                unique = item.contentKey;
                 let documentVariant = document?.variants?.[0];
                 const documentName = documentVariant?.name ?? null;
                 isPublished = documentVariant?.state != DocumentVariantStateModel.DRAFT
@@ -49,18 +51,22 @@ export async function convertToUmbLinkPickerLink(context: UmbControllerHost, ite
                 }else{
                     menuItemName = documentName;
                 }
+                itemType = 'document';
                 break;
-            case 'media':
-                const media = await getMedia(context, item.contentKey ?? item.key);
-                const mediaName = media?.variants?.[0]?.name ?? null;
+            case 'Media':
+                const media = await getMedia(context, item.contentKey);
+                const mediaName = media?.variants?.[0]?.name ?? null;                
+                unique = item.contentKey;
                 if (mediaName !== item.name) {
                     menuItemName = item.name;
                 }else{
                     menuItemName = mediaName;
                 }
+                itemType = 'media';
                 break;
-                case 'external':
-                    menuItemName = item.name
+            case 'External':
+                menuItemName = item.name;
+                itemType = 'external';
                 break;
         }
 
@@ -69,10 +75,10 @@ export async function convertToUmbLinkPickerLink(context: UmbControllerHost, ite
             url: item.url,
             icon: item.icon,
             // @ts-ignore
-            type: item.itemType,
+            type: itemType,
             target: item.target,
             published: isPublished,
-            unique: item.contentKey ?? item.key,
+            unique: unique,
             queryString: item.anchor
         };
     } catch (error) {
@@ -108,10 +114,11 @@ export async function convertToUmbNavLink(
 
         let menuItemName = item.name;
         let isPublished = false;
-
+        let itemType: UmbNavLinkPickerLinkType = 'Title';
         switch (item.type) {
             case 'document':
                 const document = await getDocument(context, item.unique);
+                itemType = 'Document';
                 let documentVariant = document?.variants?.[0];
                 const documentName = documentVariant?.name ?? null;
                 isPublished = documentVariant?.state != DocumentVariantStateModel.DRAFT
@@ -122,6 +129,7 @@ export async function convertToUmbNavLink(
             case 'media':
                 const media = await getMedia(context, item.unique);
                 const mediaName = media?.variants?.[0]?.name ?? null;
+                itemType = 'Media';
                 if (mediaName !== item.name) {
                     menuItemName = item.name;
                     isPublished = true
@@ -129,6 +137,7 @@ export async function convertToUmbNavLink(
                 break;
             case 'external':
                 menuItemName = item.name
+                itemType = 'External';
                 break;
         }
 
@@ -138,14 +147,13 @@ export async function convertToUmbNavLink(
             name: menuItemName,
             url: item.url,
             icon: item.icon,
-            itemType: item.type,
+            itemType: itemType,
             target: item.target,
             published: isPublished,
             // @ts-ignore
             udi: item.type === 'external' ? '' : `umb://${item.type}/${key.replace(/-/g, '')}`,
             contentKey: linkId,
             anchor: item.queryString,
-            description: item.url,
             customClasses: menuItem?.customClasses ?? '',
             hideLoggedIn: menuItem?.hideLoggedIn ?? false,
             hideLoggedOut: menuItem?.hideLoggedOut ?? false,
@@ -201,7 +209,7 @@ export function ensureNavItemKeys(value: ModelEntryType[]): ModelEntryType[] {
         ...item,
         key: item.key ?? (uuidv4() as Guid),
         unique: item.udi != null && (item.udi.startsWith('umb://document/') || item.udi.startsWith('umb://media/')) ? item.key : undefined,
-        itemType: item.udi != null && item.udi.startsWith('umb://document/') ? 'document' : item.itemType
+        itemType: item.udi != null && item.udi.startsWith('umb://document/') ? 'Document' : item.itemType
     }));
 }
 
