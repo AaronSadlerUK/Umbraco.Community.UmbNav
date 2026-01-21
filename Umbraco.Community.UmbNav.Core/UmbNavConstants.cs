@@ -11,5 +11,8 @@
         //public const string TelemetryUrl = "http://127.0.0.1:8787/api/telemetry/";
 
         internal const string TelemetryKey = "UmbNavTelemetry";
+
+        //Needed for legacy migrations
+        internal const string LegacyEditorAlias = "AaronSadler.UmbNav";
     }
 }
