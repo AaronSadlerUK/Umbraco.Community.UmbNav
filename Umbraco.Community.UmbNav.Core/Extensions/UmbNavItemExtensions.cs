@@ -117,6 +117,32 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
             return item.Url ?? "#";
         }
 
+        public static bool IsActive(this UmbNavItem item, IPublishedContent currentPage, int? minLevel = null)
+        {
+            if (minLevel.HasValue && item.Level < minLevel.Value)
+                return false;
+
+            var contentKey = item.ContentKey ?? item.Content?.Key;
+            var currentPageKey = currentPage.Key;
+
+            // Direct match - this nav item IS the current page
+            if (contentKey.HasValue && contentKey.Value == currentPageKey)
+                return true;
+
+            // Check if any child nav items match the current page (making this a parent of the active item)
+            if (item.Children != null)
+            {
+                foreach (var child in item.Children)
+                {
+                    if (child.IsActive(currentPage, minLevel))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        [Obsolete("This will be removed in a future version as it does not work as intended")]
         public static bool IsActive(this UmbNavItem item, IPublishedContent? currentPage, bool checkAncestors = false, int? minLevel = null)
         {
             var contentKey = item.ContentKey ?? item.Content?.Key;
