@@ -20,6 +20,9 @@ public class UmbNavItem
     [JsonPropertyName("url")]
     public string? Url { get; set; }
 
+    [JsonPropertyName("icon")]
+    public string? Icon { get; set; }
+
     [JsonConverter(typeof(JsonStringEnumConverter))]
     [JsonPropertyName("itemType")]
     public UmbNavItemType ItemType { get; set; }
