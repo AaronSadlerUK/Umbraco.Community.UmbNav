@@ -66,7 +66,7 @@ export async function getMedia(context: UmbControllerHost, entityKey: string | u
 export async function generateUmbNavLink(context: UmbControllerHost, item: ModelEntryType): Promise<ModelEntryType> {
     try {
         switch (item.itemType) {
-            case 'document': {
+            case 'Document': {
                 const documentRepository = new UmbDocumentItemRepository(context);
                 const { data: documentItems } = await documentRepository.requestItems(
                     item.contentKey ? [item.contentKey as string] : []
@@ -84,7 +84,7 @@ export async function generateUmbNavLink(context: UmbControllerHost, item: Model
                 }
                 return item;
             }
-            case 'media': {
+            case 'Media': {
                 const mediaRepository = new UmbMediaItemRepository(context);
                 const { data: mediaData } = await mediaRepository.requestItems(
                     item.contentKey ? [item.contentKey as string] : []
