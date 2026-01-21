@@ -427,6 +427,12 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         this.requestUpdate();
     }
 
+    #getDescriptionText(description: string | null | undefined, url: string | null | undefined, anchor: string | null | undefined): string {
+        var urlText = typeof url !== 'undefined' && url ? url : '';
+        var anchorText = typeof anchor !== 'undefined' && anchor ? anchor : '';
+        return typeof description !== 'undefined' && description ? description : `${urlText}${anchorText}`;
+    }
+
     override render() {
         return html`
             <div class="umbnav-container ${this.nested ? 'margin-left' : ''}">
@@ -438,7 +444,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                                     <uui-button-inline-create
                                             @click=${() => this.#newNode(item.key)}></uui-button-inline-create>
                                     <umbnav-item name=${item.name ?? item.title ?? ''} key="${item.key ?? ''}" class=""
-                                                 description="${item.description ?? ''}"
+                                                 description="${this.#getDescriptionText(item.description, item.url, item.anchor)}"
                                                  .expanded=${this._expandAll || item.key != null && this.expandedItems.includes(item.key)}
                                                  .hasImage=${Boolean(item.image?.length)}
                                                  .enableMediaPicker=${this.enableMediaPicker}
@@ -449,7 +455,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                                                  .currentDepth=${item.depth ?? 0}
                                                  .maxDepth=${this.maxDepth}
                                                  icon="${item.icon ?? ''}"
-                                                 ?unpublished=${item.published === false && item.itemType === "document"}
+                                                 ?unpublished=${item.published === false && item.itemType === "Document"}
                                                  @toggle-children-event=${this.#toggleNode}
                                                  @edit-node-event=${this.#toggleLinkPickerEvent}
                                                  @add-image-event=${this.#toggleMediaPickerEvent}

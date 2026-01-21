@@ -1,7 +1,5 @@
 ﻿using System.Text.Json.Serialization;
-using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models.PublishedContent;
-using Umbraco.Community.UmbNav.Core.Converters;
 
 namespace Umbraco.Community.UmbNav.Core.Models;
 
@@ -20,14 +18,12 @@ public class UmbNavItem
     [JsonPropertyName("url")]
     public string? Url { get; set; }
 
+    [JsonPropertyName("icon")]
+    public string? Icon { get; set; }
+
     [JsonConverter(typeof(JsonStringEnumConverter))]
     [JsonPropertyName("itemType")]
     public UmbNavItemType ItemType { get; set; }
-
-    [JsonPropertyName("udi")]
-    [JsonConverter(typeof(UmbNavJsonUdiConverter))]
-    [Obsolete("Use Contentkey instead")]
-    public GuidUdi? Udi { get; set; }
 
     [JsonPropertyName("contentKey")]
     public Guid? ContentKey { get; set; }
@@ -67,7 +63,6 @@ public class UmbNavItem
 
     [JsonPropertyName("hideLoggedOut")]
     public bool HideLoggedOut { get; set; }
-
 
     [JsonPropertyName("noopener")]
     public string? Noopener { get; set; }
