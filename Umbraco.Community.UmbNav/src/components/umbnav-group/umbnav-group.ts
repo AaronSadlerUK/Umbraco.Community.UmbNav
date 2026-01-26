@@ -13,9 +13,12 @@ import { UMB_MODAL_MANAGER_CONTEXT, UmbModalManagerContext, } from '@umbraco-cms
 import { UmbPropertyEditorConfigProperty } from "@umbraco-cms/backoffice/property-editor";
 import { Guid, ModelEntryType } from "../../tokens/umbnav.token.ts";
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
+import { UMB_VARIANT_CONTEXT } from '@umbraco-cms/backoffice/variant';
+
 @customElement('umbnav-group')
 export class UmbNavGroup extends UmbElementMixin(LitElement) {
     #modalContext?: UmbModalManagerContext;
+    #culture?: string | null;
 
     // Sorter setup:
     #sorter = new UmbSorterController<ModelEntryType, UmbNavItem>(this, {
@@ -126,6 +129,11 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         super();
         this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (_instance) => {
             this.#modalContext = _instance;
+        });
+        this.consumeContext(UMB_VARIANT_CONTEXT, (context) => {
+            this.observe(context?.variantId, (variantId) => {
+                this.#culture = variantId?.culture ?? null;
+            });
         });
     }
 
@@ -371,7 +379,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
     async #generateUmbNavLink(item: ModelEntryType): Promise<ModelEntryType> {
         try {
-            return await generateUmbNavLink(this, item);
+            return await generateUmbNavLink(this, item, this.#culture);
         } catch (error) {
             console.error('Error in #generateUmbNavLink:', error);
             return item;
