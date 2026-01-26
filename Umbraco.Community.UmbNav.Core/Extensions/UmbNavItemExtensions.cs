@@ -117,7 +117,7 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
             return item.Url ?? "#";
         }
 
-        public static bool IsActive(this UmbNavItem item, IPublishedContent currentPage, int? minLevel = null)
+        public static bool IsActive(this UmbNavItem item, IPublishedContent currentPage, int? minLevel = null, bool includeDescendants = false)
         {
             if (minLevel.HasValue && item.Level < minLevel.Value)
                 return false;
@@ -129,44 +129,27 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
             if (contentKey.HasValue && contentKey.Value == currentPageKey)
                 return true;
 
+            // Check if current page is a descendant of this nav item's content in the content tree
+            if (includeDescendants && item.Content != null)
+            {
+                // Check if the current page's path contains this item's content ID
+                var itemContentId = item.Content.Id.ToString();
+                var currentPagePath = currentPage.Path;
+
+                // Path is comma-separated IDs like "-1,1234,5678,9012"
+                // Check if itemContentId appears in the path (but not as a substring of another ID)
+                var pathIds = currentPagePath.Split(',');
+                if (pathIds.Contains(itemContentId))
+                    return true;
+            }
+
             // Check if any child nav items match the current page (making this a parent of the active item)
             if (item.Children != null)
             {
                 foreach (var child in item.Children)
                 {
-                    if (child.IsActive(currentPage, minLevel))
+                    if (child.IsActive(currentPage, minLevel, includeDescendants))
                         return true;
-                }
-            }
-
-            return false;
-        }
-
-        [Obsolete("This will be removed in a future version as it does not work as intended")]
-        public static bool IsActive(this UmbNavItem item, IPublishedContent? currentPage, bool checkAncestors = false, int? minLevel = null)
-        {
-            var contentKey = item.ContentKey ?? item.Content?.Key;
-            
-            if (contentKey is null || currentPage is null) return false;
-            
-            var key = currentPage.Key;
-            
-            if (contentKey == key)
-            {
-                return true;
-            }
-            
-            if (minLevel.HasValue && currentPage.Level > minLevel)
-            {
-                return currentPage.Ancestors().Any(x => x.Level >= minLevel
-                                                        && x.Key == contentKey.GetValueOrDefault());
-            }
-
-            if (checkAncestors)
-            {
-                if (item.Content != null && item.Content.IsAncestorOrSelf(currentPage) && item.Content != currentPage.Root())
-                {
-                    return true;
                 }
             }
 
