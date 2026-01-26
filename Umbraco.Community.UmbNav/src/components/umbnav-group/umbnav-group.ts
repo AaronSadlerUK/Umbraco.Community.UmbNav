@@ -4,7 +4,6 @@ import { openTextModal, openSettingsModal, openVisibilityModal } from './umbnav-
 import { getDocument, getMedia, generateUmbNavLink } from './umbnav-group.data.ts';
 import { customElement, html, LitElement, property, repeat, state } from '@umbraco-cms/backoffice/external/lit';
 import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
-import { UmbSorterController } from '@umbraco-cms/backoffice/sorter';
 import { UMB_LINK_PICKER_MODAL, UmbLinkPickerLink } from '@umbraco-cms/backoffice/multi-url-picker';
 import { UMB_MEDIA_PICKER_MODAL } from '@umbraco-cms/backoffice/media';
 import '../umbnav-item/umbnav-item.ts';
@@ -14,6 +13,7 @@ import { UmbPropertyEditorConfigProperty } from "@umbraco-cms/backoffice/propert
 import { Guid, ModelEntryType } from "../../tokens/umbnav.token.ts";
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 import { UMB_VARIANT_CONTEXT } from '@umbraco-cms/backoffice/variant';
+import {UmbSorterController} from "../../sorter.controller.ts";
 
 @customElement('umbnav-group')
 export class UmbNavGroup extends UmbElementMixin(LitElement) {
