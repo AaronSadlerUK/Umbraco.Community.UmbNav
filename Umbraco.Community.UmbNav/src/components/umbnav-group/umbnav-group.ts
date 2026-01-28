@@ -20,41 +20,16 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
     #modalContext?: UmbModalManagerContext;
     #culture?: string | null;
 
-    // Sorter setup:
-    #sorter = new UmbSorterController<ModelEntryType, UmbNavItem>(this, {
-        getUniqueOfElement: (element) => {
-            return element.key;
-        },
-        getUniqueOfModel: (modelEntry) => {
-            return modelEntry.key;
-        },
-        identifier: 'umbnav-identifier',
-        itemSelector: 'umbnav-item',
-        containerSelector: '.umbnav-container',
-        onChange: ({ model }) => {
-            const oldValue = this._value;
-            this._value = setItemDepths(model);
-            this.requestUpdate('value', oldValue);
-            this.#dispatchChangeEvent();
-        },
-        onRequestMove: ({ item }) => {
-            if (this.maxDepth === 0) {
-                return true;
-            }
-
-            if (item.children) {
-                return this.depth + calculateTotalDepth(item.children) <= this.maxDepth;
-            }
-
-            return this.depth <= this.maxDepth;
-        }
-    });
+    #sorter: UmbSorterController<ModelEntryType, UmbNavItem>;
 
     @state()
     private _value?: ModelEntryType[];
 
     @state()
     private _items: ModelEntryType[] = [];
+
+    // Cache for fetched item data to avoid re-fetching during drag operations
+    #itemCache = new Map<string, ModelEntryType>();
 
     @state()
     private expandedItems: string[] = [];
@@ -127,6 +102,33 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
     constructor() {
         super();
+        this.#sorter = new UmbSorterController<ModelEntryType, UmbNavItem>(this, {
+            getUniqueOfElement: (element) => element.key,
+            getUniqueOfModel: (modelEntry) => modelEntry.key,
+            identifier: 'umbnav-identifier',
+            itemSelector: 'umbnav-item',
+            containerSelector: '.umbnav-container',
+            onChange: ({ model }) => {
+                const oldValue = this._value;
+                this._value = model;
+                this.requestUpdate('value', oldValue);
+                this.#dispatchChangeEvent();
+            },
+            onRequestMove: ({ item }) => {
+                if (this.maxDepth === 0) {
+                    return true;
+                }
+                const itemDepth = 1 + calculateTotalDepth(item.children ?? []);
+                return (this.depth + itemDepth - 1) < this.maxDepth;
+            },
+            resolvePlacement: (args) => {
+                if (args.pointerY > args.relatedRect.top + args.relatedRect.height * 0.5) {
+                    return { placeAfter: true, verticalDirection: true };
+                } else {
+                    return { placeAfter: false, verticalDirection: true };
+                }
+            },
+        });
         this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (_instance) => {
             this.#modalContext = _instance;
         });
@@ -139,13 +141,25 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
     async willUpdate(changed: Map<PropertyKey, unknown>) {
         if (changed.has('value')) {
-            // fetch the latest data for every item before the next render
+            // Only fetch data for items not already in cache to avoid re-fetching during drag operations
             this._items = await Promise.all(
                 (Array.isArray(this.value) ? this.value : []).map(async (i) => {
-                    return await this.#generateUmbNavLink(i);
+                    const key = i.key;
+                    if (key && this.#itemCache.has(key)) {
+                        // Return cached item but merge with current model data (preserves order changes, children updates, etc.)
+                        const cached = this.#itemCache.get(key)!;
+                        return { ...i, icon: cached.icon, name: cached.name ?? i.name, description: cached.description };
+                    }
+                    // Fetch and cache new items
+                    const fetched = await this.#generateUmbNavLink(i);
+                    if (key) {
+                        this.#itemCache.set(key, fetched);
+                    }
+                    return fetched;
                 })
             );
         }
+        this.#sorter.setModel(this.value);
     }
 
     #removeItem = (event: CustomEvent<{ key: string }>) => {
@@ -211,7 +225,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             const convertedImages = this.#convertSelectedImages(result.selection);
             const menuItem = this.#updateMenuItemImage(umbNavItem, convertedImages);
 
-            this.#updateItem(menuItem);
+            this.#updateItem(menuItem, true);
         } catch (error) {
             console.error(error);
         }
@@ -233,7 +247,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         try {
             const updatedItem = await openSettingsModal(this.#modalContext, key, this.value, this.config, this);
             if (updatedItem) {
-                this.#updateItem(updatedItem);
+                this.#updateItem(updatedItem, true);
             }
         } catch (error) {
             console.error('Error in #toggleSettingsModal:', error);
@@ -248,7 +262,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         try {
             const updatedItem = await openVisibilityModal(this.#modalContext, key, this.value, this);
             if (updatedItem) {
-                this.#updateItem(updatedItem);
+                this.#updateItem(updatedItem, true);
             }
         } catch (error) {
             console.error('Error in #toggleVisibilityModal:', error);
@@ -268,7 +282,10 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             const menuItem = await openTextModal(this.#modalContext, key, this.value, this);
             if (!menuItem) return;
             if (Array.isArray(this.value) && this.value.find(item => item.key === key)) {
-                this.#updateItem(menuItem);
+                // Preserve children when renaming
+                const original = this.value.find(item => item.key === key);
+                const merged = { ...menuItem, children: original?.children ?? [] };
+                this.#updateItem(merged, true);
             } else {
                 this.#addItem(menuItem);
             }
@@ -301,7 +318,11 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             if (menuItem.type === null) menuItem = this.#handleNullLink(menuItem);
 
             if (this.value && this.value.find(item => item.key === key)) {
-                this.#updateItem(await convertToUmbNavLink(this, menuItem, key, this.value));
+                // Preserve children when updating
+                const original = this.value.find(item => item.key === key);
+                const updated = await convertToUmbNavLink(this, menuItem, key, this.value);
+                const merged = { ...updated, children: original?.children ?? [] };
+                this.#updateItem(merged, true);
             } else {
                 this.#addItem(await convertToUmbNavLink(this, menuItem, null, this.value), siblingKey);
             }
@@ -363,17 +384,22 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         this.#dispatchChangeEvent();
     }
 
-    #updateItem(updatedItem: ModelEntryType): void {
-
-        let updatedValue = [...this.value]
-
+    #updateItem(updatedItem: ModelEntryType, invalidateCache: boolean = false): void {
+        let updatedValue = [...this.value];
         const index = updatedValue.findIndex(item => item.key === updatedItem.key);
         if (index !== -1) {
-            const children = updatedItem.children !== undefined ? updatedItem.children : updatedValue[index].children;
+            // Always preserve children unless explicitly set (even if set to empty array)
+            const children =
+                Object.prototype.hasOwnProperty.call(updatedItem, 'children')
+                    ? updatedItem.children
+                    : updatedValue[index].children;
             updatedValue[index] = { ...updatedValue[index], ...updatedItem, children };
         }
-
-        this.value = setItemDepths(updatedValue)
+        // Invalidate cache for this item if requested (e.g., when user edits the item)
+        if (invalidateCache && updatedItem.key) {
+            this.#itemCache.delete(updatedItem.key);
+        }
+        this.value = setItemDepths(updatedValue);
         this.#dispatchChangeEvent();
     }
 
@@ -417,8 +443,9 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
     firstUpdated() {
         this.style.setProperty('interpolate-size', 'allow-keywords');
         if (Array.isArray(this.value) && this.value.length > 0) {
-            this.value = setItemDepths(this.value);
+            // this.value = setItemDepths(this.value); // REMOVE: don't mutate model during drag
         }
+        this.#sorter.setModel(this.value);
     }
 
     #toggleNode(event: CustomEvent<{ key: string }>): void {
@@ -445,52 +472,54 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         return html`
             <div class="umbnav-container ${this.nested ? 'margin-left' : ''}">
                 ${repeat(
-            this._items,
-            (item) => item.key,
-            (item) =>
-                html`
-                                    <uui-button-inline-create
-                                            @click=${() => this.#newNode(item.key)}></uui-button-inline-create>
-                                    <umbnav-item name=${item.name ?? item.title ?? ''} key="${item.key ?? ''}" class=""
-                                                 description="${this.#getDescriptionText(item.description, item.url, item.anchor)}"
-                                                 .expanded=${this._expandAll || item.key != null && this.expandedItems.includes(item.key)}
-                                                 .hasImage=${Boolean(item.image?.length)}
-                                                 .enableMediaPicker=${this.enableMediaPicker}
-                                                 .enableVisibility=${this.enableVisibility}
-                                                 .hideLoggedIn=${!!item.hideLoggedIn}
-                                                 .hideLoggedOut=${!!item.hideLoggedOut}
-                                                 .hideIncludesChildNodes=${!!item.includeChildNodes}
-                                                 .currentDepth=${item.depth ?? 0}
-                                                 .maxDepth=${this.maxDepth}
-                                                 icon="${item.icon ?? ''}"
-                                                 ?unpublished=${item.published === false && item.itemType === "Document"}
-                                                 @toggle-children-event=${this.#toggleNode}
-                                                 @edit-node-event=${this.#toggleLinkPickerEvent}
-                                                 @add-image-event=${this.#toggleMediaPickerEvent}
-                                                 @toggle-itemsettings-event=${this.#toggleSettingsEvent}
-                                                 @add-togglevisibility-event=${this.#toggleVisibilityEvent}
-                                                 @remove-node-event=${this.#removeItem}>
-                                        <umbnav-group
-                                                ?nested=${true}
-                                                class="${this.expandAll || item.key != null && this.expandedItems.includes(item.key) ? 'expanded' : 'collapsed'} ${this.disallowed ? 'disallowed' : ''}"
-                                                .config=${this.config}
-                                                .value=${item.children}
-                                                .depth=${this.depth + 1}
-                                                @change=${(e: Event) => {
-                        item = { ...item, children: (e.target as UmbNavGroup).value };
-                        this.#updateItem(item);
-                    }}></umbnav-group>
-                                    </umbnav-item>
-                                `,
-        )}
-
+                    this._items,
+                    (item) => item.key,
+                    (item) => html`
+                        <uui-button-inline-create @click=${() => this.#newNode(item.key)}></uui-button-inline-create>
+                        <umbnav-item
+                            name=${item.name ?? item.title ?? ''}
+                            key="${item.key ?? ''}"
+                            class=""
+                            description="${this.#getDescriptionText(item.description, item.url, item.anchor)}"
+                            .expanded=${this._expandAll || (item.key != null && this.expandedItems.includes(item.key))}
+                            .hasImage=${Boolean(item.image?.length)}
+                            .enableMediaPicker=${this.enableMediaPicker}
+                            .enableVisibility=${this.enableVisibility}
+                            .hideLoggedIn=${!!item.hideLoggedIn}
+                            .hideLoggedOut=${!!item.hideLoggedOut}
+                            .hideIncludesChildNodes=${!!item.includeChildNodes}
+                            .currentDepth=${item.depth ?? 0}
+                            .maxDepth=${this.maxDepth}
+                            icon="${item.icon ?? ''}"
+                            ?unpublished=${item.published === false && item.itemType === "Document"}
+                            @toggle-children-event=${this.#toggleNode}
+                            @edit-node-event=${this.#toggleLinkPickerEvent}
+                            @add-image-event=${this.#toggleMediaPickerEvent}
+                            @toggle-itemsettings-event=${this.#toggleSettingsEvent}
+                            @add-togglevisibility-event=${this.#toggleVisibilityEvent}
+                            @remove-node-event=${this.#removeItem}
+                        >
+                            <umbnav-group
+                                ?nested=${true}
+                                class="${this.expandAll || (item.key != null && this.expandedItems.includes(item.key)) ? 'expanded' : 'collapsed'} ${this.disallowed ? 'disallowed' : ''}"
+                                .config=${this.config}
+                                .value=${item.children}
+                                .depth=${this.depth + 1}
+                                @change=${(e: Event) => {
+                                    // Always update the parent item with the exact children reference from the nested group
+                                    const group = e.target as UmbNavGroup;
+                                    const updatedItem = { ...item, children: group.value };
+                                    this.#updateItem(updatedItem);
+                                }}
+                            ></umbnav-group>
+                        </umbnav-item>
+                    `
+                )}
                 <uui-button-group>
-                    ${this.enableTextItems ? html`
-                        <uui-button label=${this.localize.term('umbnav_addTextItemToggleButton')} id="AddTextButton" look="placeholder" class="add-menuitem-button"
-                                    @click=${() => this.#toggleTextModal(null)}></uui-button>
-                    ` : ''}
-                    <uui-button label=${this.localize.term('umbnav_addLinkItemToggleButton')} id="AddLinkButton"  look="placeholder" class="add-menuitem-button"
-                                @click=${() => this.#newNode()}></uui-button>
+                    ${this.enableTextItems
+                        ? html`<uui-button label=${this.localize.term('umbnav_addTextItemToggleButton')} id="AddTextButton" look="placeholder" class="add-menuitem-button" @click=${() => this.#toggleTextModal(null)}></uui-button>`
+                        : ''}
+                    <uui-button label=${this.localize.term('umbnav_addLinkItemToggleButton')} id="AddLinkButton" look="placeholder" class="add-menuitem-button" @click=${() => this.#newNode()}></uui-button>
                 </uui-button-group>
             </div>
         `;

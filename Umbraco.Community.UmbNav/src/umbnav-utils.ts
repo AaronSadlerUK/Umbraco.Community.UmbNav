@@ -157,6 +157,15 @@ export async function convertToUmbNavLink(
         }
 
         key ??= uuidv4() as Guid;
+        // Preserve children: if menuItem?.children is undefined, use the original item's children (from value array)
+        // Always preserve the original item's children (from value array)
+        let children: ModelEntryType[] = [];
+        if (value) {
+            const original = value.find(i => i.key === key);
+            if (original && Array.isArray(original.children)) {
+                children = original.children;
+            }
+        }
         return {
             key: key,
             name: menuItemName,
@@ -175,7 +184,7 @@ export async function convertToUmbNavLink(
             noreferrer: menuItem?.noreferrer ?? '',
             noopener: menuItem?.noopener ?? '',
             image: menuItem?.image?.map(image => convertToImageType(image.key)) ?? [],
-            children: menuItem?.children ?? []
+            children
         };
     } catch (error) {
         console.error('Error in convertToUmbNavLink:', error);
