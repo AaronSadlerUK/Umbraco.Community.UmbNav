@@ -35,7 +35,7 @@ namespace Umbraco.Community.UmbNav.Core.TagHelpers
 
             if (!string.IsNullOrEmpty(ActiveClass) && CurrentPage != null && IsActiveAncestorCheck)
             {
-                if (MenuItem.IsActive(CurrentPage, true))
+                if (MenuItem.IsActive(CurrentPage))
                 {
                     output.AddClass(ActiveClass, HtmlEncoder.Default);
                 }

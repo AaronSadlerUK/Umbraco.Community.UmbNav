@@ -5,7 +5,7 @@ import { getDocument, getMedia } from "./components/umbnav-group/umbnav-group.da
 import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import { DocumentVariantStateModel } from "@umbraco-cms/backoffice/external/backend-api";
 
-// Recursively calculate the total depth of children
+// Recursively calculate the total depth of children (sum of all levels)
 export function calculateTotalDepth(children: ModelEntryType[]): number {
     if (!children || children.length === 0) {
         return 0;
@@ -13,6 +13,21 @@ export function calculateTotalDepth(children: ModelEntryType[]): number {
     return children.reduce((total, child) => {
         return total + 1 + calculateTotalDepth(child.children);
     }, 0);
+}
+
+// Calculate the maximum depth level that children reach (for depth validation)
+export function calculateMaxChildDepth(children: ModelEntryType[]): number {
+    if (!children || children.length === 0) {
+        return 0;
+    }
+    let maxDepth = 0;
+    for (const child of children) {
+        const childDepth = 1 + calculateMaxChildDepth(child.children);
+        if (childDepth > maxDepth) {
+            maxDepth = childDepth;
+        }
+    }
+    return maxDepth;
 }
 
 // Recursively find an item by key
@@ -142,6 +157,15 @@ export async function convertToUmbNavLink(
         }
 
         key ??= uuidv4() as Guid;
+        // Preserve children: if menuItem?.children is undefined, use the original item's children (from value array)
+        // Always preserve the original item's children (from value array)
+        let children: ModelEntryType[] = [];
+        if (value) {
+            const original = value.find(i => i.key === key);
+            if (original && Array.isArray(original.children)) {
+                children = original.children;
+            }
+        }
         return {
             key: key,
             name: menuItemName,
@@ -160,7 +184,7 @@ export async function convertToUmbNavLink(
             noreferrer: menuItem?.noreferrer ?? '',
             noopener: menuItem?.noopener ?? '',
             image: menuItem?.image?.map(image => convertToImageType(image.key)) ?? [],
-            children: menuItem?.children ?? []
+            children
         };
     } catch (error) {
         console.error('Error in convertToUmbNavLink:', error);
@@ -209,7 +233,9 @@ export function ensureNavItemKeys(value: ModelEntryType[]): ModelEntryType[] {
         ...item,
         key: item.key ?? (uuidv4() as Guid),
         unique: item.udi != null && (item.udi.startsWith('umb://document/') || item.udi.startsWith('umb://media/')) ? item.key : undefined,
-        itemType: item.udi != null && item.udi.startsWith('umb://document/') ? 'Document' : item.itemType
+        itemType: item.udi != null && item.udi.startsWith('umb://document/') ? 'Document' : item.itemType,
+        // Always ensure children is an array so nested sorters can initialize
+        children: Array.isArray(item.children) ? ensureNavItemKeys(item.children) : []
     }));
 }
 
@@ -217,6 +243,9 @@ export function setItemDepths(items: ModelEntryType[], currentDepth = 1): ModelE
     return items.map(item => ({
         ...item,
         depth: currentDepth,
-        children: item.children ? setItemDepths(item.children, currentDepth + 1) : []
+        // Always ensure children is an array (never null/undefined) so nested sorters work correctly
+        children: Array.isArray(item.children) && item.children.length > 0
+            ? setItemDepths(item.children, currentDepth + 1)
+            : []
     }));
 }
