@@ -298,7 +298,7 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
         [JsonPropertyName("icon")]
         public string? Icon { get; set; }
 
-        [JsonPropertyName("description")]
+        [JsonPropertyName("menuitemdescription")]
         public string? Description { get; set; }
 
         [JsonPropertyName("target")]
