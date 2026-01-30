@@ -5,36 +5,15 @@ import { tryExecute } from '@umbraco-cms/backoffice/resources';
 import { Guid, ModelEntryType } from '../../tokens/umbnav.token.ts';
 import { UmbControllerHost } from '@umbraco-cms/backoffice/controller-api';
 
-export async function getDocumentUrl(context: UmbControllerHost, unique: Guid, culture?: string | null) {
+export async function getDocumentUrl(context: UmbControllerHost, unique: Guid) {
     try {
         const documentUrlRepository = new UmbDocumentUrlRepository(context);
         const { data: documentUrlData } = await documentUrlRepository.requestItems([unique]);
-        const urls = documentUrlData?.[0]?.urls;
-
-        if (!urls || urls.length === 0) {
-            return '';
-        }
-
-        // If culture is provided, find the URL for that specific culture
-        if (culture) {
-            const cultureUrl = urls.find(u => u.culture === culture);
-            if (cultureUrl?.url) {
-                return cultureUrl.url;
-            }
-        }
-
-        // Fallback: try to use the data resolver which gets culture from UMB_VARIANT_CONTEXT
+        const urlsItem = documentUrlData?.[0];
         const dataResolver = new UmbDocumentUrlsDataResolver(context);
-        dataResolver.setData(urls);
+        dataResolver.setData(urlsItem?.urls);
         const resolvedUrls = await dataResolver.getUrls();
-
-        // If resolver returned filtered URLs, use the first one
-        if (resolvedUrls && resolvedUrls.length > 0) {
-            return resolvedUrls[0]?.url ?? '';
-        }
-
-        // Final fallback: return the first URL (invariant content case)
-        return urls[0]?.url ?? '';
+        return resolvedUrls?.[0]?.url ?? '';
     } catch (error) {
         console.error('Error in getDocumentUrl:', error);
         return '';
@@ -84,7 +63,7 @@ export async function getMedia(context: UmbControllerHost, entityKey: string | u
     }
 }
 
-export async function generateUmbNavLink(context: UmbControllerHost, item: ModelEntryType, culture?: string | null): Promise<ModelEntryType> {
+export async function generateUmbNavLink(context: UmbControllerHost, item: ModelEntryType): Promise<ModelEntryType> {
     try {
         switch (item.itemType) {
             case 'Document': {
@@ -100,7 +79,7 @@ export async function generateUmbNavLink(context: UmbControllerHost, item: Model
                         ...item,
                         icon: await itemDataResolver.getIcon(),
                         name: item.name ?? documentItem.variants[0].name,
-                        description: await getDocumentUrl(context, item.contentKey as Guid, culture),
+                        description: await getDocumentUrl(context, item.contentKey as Guid),
                     };
                 }
                 return item;

@@ -57,7 +57,8 @@ export const UmbNavItemStyles = [
                 cursor: pointer;
             }
             
-            #description {
+            #description,
+            #url {
                 color: #515054;
                 font-size: 12px;
                 line-height: 1.5em;
@@ -84,10 +85,13 @@ export const UmbNavItemStyles = [
                 border: 1px solid var(--uui-color-border, #d8d7d9);
                 border-radius: 4px;
                 background-color: var(--uui-color-surface, #fff);
-                cursor: all-scroll;
+                cursor: grab;
                 transition: background-color 0.3s ease;
                 min-height: var(--uui-size-14);
+            }
 
+            .tree-node.expanded {
+                cursor: default;
             }
 
             .tree-node:hover {

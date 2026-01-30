@@ -12,6 +12,8 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
     @property({ type: String, reflect: true })
     description: string = '';
     @property({ type: String, reflect: true })
+    url: string = '';
+    @property({ type: String, reflect: true })
     icon: string = '';
     @property({ type: String, reflect: true })
     key: string = '';
@@ -29,6 +31,8 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
     hideLoggedOut: boolean = false;
     @property({ type: Boolean, reflect: true })
     enableVisibility: boolean = false;
+    @property({ type: Boolean, reflect: true })
+    enableDescription: boolean = false;
     @property({ type: Boolean, reflect: true })
     hideIncludesChildNodes: boolean = false;
     @property({ type: Number, reflect: true })
@@ -74,9 +78,21 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
         }
     }
 
+    override updated(changedProperties: Map<string, unknown>) {
+        super.updated(changedProperties);
+        // Set draggable="false" on host when expanded to prevent sorter from dragging
+        if (changedProperties.has('expanded')) {
+            if (this.expanded) {
+                this.setAttribute('draggable', 'false');
+            } else {
+                this.removeAttribute('draggable');
+            }
+        }
+    }
+
     override render() {
         return html`
-            <div class="tree-node ${this.unpublished ? 'unpublished' : ''}">
+            <div class="tree-node ${this.unpublished ? 'unpublished' : ''} ${this.expanded ? 'expanded' : ''}" title="${this.expanded ? 'Collapse to drag' : ''}">
                 ${this.maxDepth == 0 || (this.maxDepth !== 1 && this.currentDepth < this.maxDepth) ? html`
                     <div id="arrow">
                     <uui-symbol-expand ?open="${this.expanded}"
@@ -95,9 +111,8 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
                             ${this.enableVisibility && this.hideLoggedOut ? html`<span class="image" @click=${() => this.toggleVisibility(this.key)}>${this.hideLoggedOut ? html`<umb-icon name="lock"></umb-icon>` : ''}</span>` : ''}
                             ${this.enableVisibility && this.hideLoggedIn ? html`<span class="image" @click=${() => this.toggleVisibility(this.key)}>${this.hideLoggedIn ? html`<umb-icon name="icon-unlocked"></umb-icon>` : ''}</span>` : ''}
                         </div>
-                        <div id="description">
-                            ${this.description}
-                        </div>
+                        ${this.enableDescription && this.description ? html`<div id="description">${this.description}</div>` : ''}
+                        ${this.url ? html`<div id="url">${this.url}</div>` : ''}
                     </div>
                 </div>
                 <div id="buttons">

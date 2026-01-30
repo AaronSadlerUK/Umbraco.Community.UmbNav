@@ -6,5 +6,6 @@ namespace Umbraco.Community.UmbNav.Core.Abstractions;
 public interface IUmbNavMenuBuilderService
 {
     IEnumerable<UmbNavItem> BuildMenu(IEnumerable<UmbNavItem> items, int level = 0,
-        bool removeNoopener = false, bool removeNoreferrer = false, bool includeChildNodes = false);
+        bool removeNoopener = false, bool removeNoreferrer = false, bool hideIncludeChildren = false,
+        bool removeDescription = false);
 }

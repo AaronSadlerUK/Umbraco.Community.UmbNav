@@ -34,6 +34,8 @@ export default {
         settingsMaxDepthDescription: 'The maximum depth of the navigation tree.',
         settingsHideIncludeChildrenLabel: 'Hide Include Child Nodes Toggle',
         settingsHideIncludeChildrenDescription: 'Hide the ability to include child nodes in the navigation.',
+        settingsAllowDescriptionLabel: 'Allow Description',
+        settingsAllowDescriptionDescription: 'Allow the ability to add a description to menu items.',
         settingsItemModalDescriptionLabel: 'Description',
         settingsItemModalCustomCssClassesLabel: 'Custom CSS Classes',
         settingsItemModalSeoGroupLabel: 'SEO Settings',

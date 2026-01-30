@@ -31,7 +31,8 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
     }
 
     public IEnumerable<UmbNavItem> BuildMenu(IEnumerable<UmbNavItem> items, int level = 0,
-        bool removeNoopener = false, bool removeNoreferrer = false, bool hideIncludeChildren = false)
+        bool removeNoopener = false, bool removeNoreferrer = false, bool hideIncludeChildren = false,
+        bool removeDescription = false)
     {
         var umbNavItems = items.ToList();
         var removeItems = new List<UmbNavItem>();
@@ -101,9 +102,11 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
                     item.Image = GetImageUrl(item.ImageArray[0]);
                 }
 
+                removeDescription.IfTrue(() => item.Description = null);
+
                 if (children.Any())
                 {
-                    var childItems = BuildMenu(children, level + 1, removeNoopener, removeNoreferrer, hideIncludeChildren).ToList();
+                    var childItems = BuildMenu(children, level + 1, removeNoopener, removeNoreferrer, hideIncludeChildren, removeDescription).ToList();
                     if (!children.Equals(childItems))
                     {
                         children = childItems;
