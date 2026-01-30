@@ -46,10 +46,11 @@ export const UmbNavItemStyles = [
 
             #buttons uui-action-bar {
                 opacity: 0;
-            }
-            #buttons:hover uui-action-bar{
-                opacity: 1;
                 transition: opacity 120ms;
+            }
+
+            .tree-node:hover #buttons uui-action-bar {
+                opacity: 1;
             }
 
             #name {
