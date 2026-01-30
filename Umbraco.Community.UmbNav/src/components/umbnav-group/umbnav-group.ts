@@ -368,6 +368,28 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         this.#dispatchChangeEvent();
     }
 
+    /**
+     * Handle item update events from extensions.
+     */
+    #handleItemUpdate(event: CustomEvent<{ item: ModelEntryType }>): void {
+        this.#updateItem(event.detail.item);
+    }
+
+    /**
+     * Handle modal open requests from extensions.
+     */
+    async #handleOpenModal(event: CustomEvent<{ token: unknown; data: unknown; resolve: (value: unknown) => void }>): Promise<void> {
+        const { token, data, resolve } = event.detail;
+        try {
+            const modalHandler = this.#modalContext?.open(this, token as any, { data } as any);
+            const result = await modalHandler?.onSubmit().catch(() => undefined);
+            resolve(result);
+        } catch (error) {
+            console.error('Error opening modal:', error);
+            resolve(undefined);
+        }
+    }
+
     override render() {
         return html`
             <div class="umbnav-container ${this.nested ? 'margin-left' : ''}">
@@ -391,6 +413,8 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                             .hideIncludesChildNodes=${!!item.includeChildNodes}
                             .currentDepth=${item.depth ?? 0}
                             .maxDepth=${this.maxDepth}
+                            .itemData=${item}
+                            .config=${this.config}
                             icon="${item.icon ?? ''}"
                             ?unpublished=${item.published === false && item.itemType === "Document"}
                             @toggle-children-event=${this.#toggleNode}
@@ -399,6 +423,8 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                             @toggle-itemsettings-event=${this.#toggleSettingsEvent}
                             @add-togglevisibility-event=${this.#toggleVisibilityEvent}
                             @remove-node-event=${this.removeItem}
+                            @umbnav-item-update=${this.#handleItemUpdate}
+                            @umbnav-open-modal=${this.#handleOpenModal}
                         >
                             <umbnav-group
                                 ?nested=${true}

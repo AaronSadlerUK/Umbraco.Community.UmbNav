@@ -9,6 +9,10 @@ using Umbraco.Extensions;
 
 namespace Umbraco.Community.UmbNav.Core.Services;
 
+/// <summary>
+/// Service for building navigation menus from UmbNav data.
+/// This class can be extended to customize menu building behavior.
+/// </summary>
 public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
 {
     private readonly IUmbracoContextAccessor _umbracoContextAccessor;
@@ -16,6 +20,31 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
     private readonly IPublishedMediaCache _publishedMediaCache;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<UmbNavMenuBuilderService> _logger;
+
+    /// <summary>
+    /// Gets the Umbraco context accessor for accessing the current Umbraco context.
+    /// </summary>
+    protected IUmbracoContextAccessor UmbracoContextAccessor => _umbracoContextAccessor;
+
+    /// <summary>
+    /// Gets the published content cache for retrieving content items.
+    /// </summary>
+    protected IPublishedContentCache PublishedContentCache => _publishedContentCache;
+
+    /// <summary>
+    /// Gets the published media cache for retrieving media items.
+    /// </summary>
+    protected IPublishedMediaCache PublishedMediaCache => _publishedMediaCache;
+
+    /// <summary>
+    /// Gets the HTTP context accessor for accessing request information.
+    /// </summary>
+    protected IHttpContextAccessor HttpContextAccessor => _httpContextAccessor;
+
+    /// <summary>
+    /// Gets the logger for this service.
+    /// </summary>
+    protected ILogger<UmbNavMenuBuilderService> Logger => _logger;
 
     public UmbNavMenuBuilderService(
         IPublishedContentCache publishedContentCache,
@@ -32,7 +61,7 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
     }
 
     /// <inheritdoc />
-    public IEnumerable<UmbNavItem> BuildMenu(IEnumerable<UmbNavItem> items, UmbNavBuildOptions? options = null)
+    public virtual IEnumerable<UmbNavItem> BuildMenu(IEnumerable<UmbNavItem> items, UmbNavBuildOptions? options = null)
     {
         options ??= UmbNavBuildOptions.Default;
 
@@ -47,7 +76,15 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
         }
     }
 
-    private List<UmbNavItem> ProcessItems(List<UmbNavItem> items, int level, UmbNavBuildOptions options)
+    /// <summary>
+    /// Processes a list of navigation items at a specific level.
+    /// Override this method to customize how items are processed.
+    /// </summary>
+    /// <param name="items">The items to process.</param>
+    /// <param name="level">The current nesting level (0-based).</param>
+    /// <param name="options">The build options.</param>
+    /// <returns>The processed list of items.</returns>
+    protected virtual List<UmbNavItem> ProcessItems(List<UmbNavItem> items, int level, UmbNavBuildOptions options)
     {
         var result = new List<UmbNavItem>();
         var currentContentKey = GetCurrentContentKey();
@@ -78,16 +115,22 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
 
     /// <summary>
     /// Determines if the current user is authenticated.
+    /// Override this method to customize authentication detection.
     /// </summary>
-    private bool IsUserLoggedIn()
+    /// <returns>True if the user is logged in, otherwise false.</returns>
+    protected virtual bool IsUserLoggedIn()
     {
         return _httpContextAccessor.HttpContext?.User?.Identity?.IsAuthenticated ?? false;
     }
 
     /// <summary>
     /// Determines if the item should be included based on authentication rules.
+    /// Override this method to add custom visibility rules.
     /// </summary>
-    private static bool ShouldIncludeItem(UmbNavItem item, bool isLoggedIn)
+    /// <param name="item">The item to check.</param>
+    /// <param name="isLoggedIn">Whether the current user is logged in.</param>
+    /// <returns>True if the item should be included, otherwise false.</returns>
+    protected virtual bool ShouldIncludeItem(UmbNavItem item, bool isLoggedIn)
     {
         if (item.HideLoggedIn && isLoggedIn)
         {
@@ -105,9 +148,12 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
     /// <summary>
     /// Resolves content from Umbraco for Document/Media items.
     /// Sets the Content, Url, Name, and IsActive properties.
-    /// Returns false if content-based item cannot be resolved (should be excluded).
+    /// Override this method to customize content resolution.
     /// </summary>
-    private bool ResolveContent(UmbNavItem item, Guid currentContentKey)
+    /// <param name="item">The item to resolve content for.</param>
+    /// <param name="currentContentKey">The key of the currently viewed content.</param>
+    /// <returns>False if content-based item cannot be resolved (should be excluded).</returns>
+    protected virtual bool ResolveContent(UmbNavItem item, Guid currentContentKey)
     {
         if (!item.ContentKey.HasValue)
         {
@@ -138,8 +184,11 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
 
     /// <summary>
     /// Resolves the image from the media cache.
+    /// Override this method to customize image resolution.
     /// </summary>
-    private void ResolveImage(UmbNavItem item, UmbNavBuildOptions options)
+    /// <param name="item">The item to resolve the image for.</param>
+    /// <param name="options">The build options.</param>
+    protected virtual void ResolveImage(UmbNavItem item, UmbNavBuildOptions options)
     {
         if (options.RemoveImages)
         {
@@ -160,8 +209,11 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
 
     /// <summary>
     /// Applies build options to sanitize/remove properties from the item.
+    /// Override this method to customize option application or add custom options.
     /// </summary>
-    private static void ApplyOptions(UmbNavItem item, UmbNavBuildOptions options)
+    /// <param name="item">The item to apply options to.</param>
+    /// <param name="options">The build options.</param>
+    protected virtual void ApplyOptions(UmbNavItem item, UmbNavBuildOptions options)
     {
         if (options.RemoveNoopener)
         {
@@ -187,8 +239,13 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
     /// <summary>
     /// Processes child items, including auto-expanded children from content nodes.
     /// Respects MaxDepth option (0 = unlimited).
+    /// Override this method to customize child processing.
     /// </summary>
-    private void ProcessChildren(UmbNavItem item, int level, UmbNavBuildOptions options, Guid currentContentKey)
+    /// <param name="item">The parent item.</param>
+    /// <param name="level">The current nesting level.</param>
+    /// <param name="options">The build options.</param>
+    /// <param name="currentContentKey">The key of the currently viewed content.</param>
+    protected virtual void ProcessChildren(UmbNavItem item, int level, UmbNavBuildOptions options, Guid currentContentKey)
     {
         // If MaxDepth is set and we've reached the limit, don't process children
         if (options.MaxDepth > 0 && level >= options.MaxDepth - 1)
@@ -217,8 +274,13 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
 
     /// <summary>
     /// Gets auto-expanded children from a content node.
+    /// Override this method to customize how child nodes are automatically included.
     /// </summary>
-    private static IEnumerable<UmbNavItem> GetAutoExpandedChildren(IPublishedContent content, int level, Guid currentContentKey)
+    /// <param name="content">The parent content node.</param>
+    /// <param name="level">The level for the child items.</param>
+    /// <param name="currentContentKey">The key of the currently viewed content.</param>
+    /// <returns>A collection of auto-generated child items.</returns>
+    protected virtual IEnumerable<UmbNavItem> GetAutoExpandedChildren(IPublishedContent content, int level, Guid currentContentKey)
     {
         return content.Children()
             .Where(x => x.IsVisible() || (x.HasProperty("umbracoNavihide") && x.Value<bool>("umbracoNavihide")))
@@ -237,8 +299,10 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
 
     /// <summary>
     /// Gets the current page's content key for active state detection.
+    /// Override this method to customize active state detection.
     /// </summary>
-    private Guid GetCurrentContentKey()
+    /// <returns>The key of the current content, or Guid.Empty if not available.</returns>
+    protected virtual Guid GetCurrentContentKey()
     {
         if (_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext))
         {
