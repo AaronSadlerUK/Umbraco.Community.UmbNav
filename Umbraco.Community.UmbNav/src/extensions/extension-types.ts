@@ -37,18 +37,6 @@ export interface UmbNavActionContext {
 }
 
 /**
- * Represents a custom modal that can be registered with UmbNav.
- */
-export interface UmbNavModalRegistration {
-    /** Unique alias for this modal */
-    alias: string;
-    /** The modal token to use */
-    token: unknown;
-    /** Function to create modal data from item */
-    createData?: (item: ModelEntryType | null, config: UmbPropertyEditorConfigProperty[]) => unknown;
-}
-
-/**
  * Represents a custom item type that can be added to UmbNav.
  */
 export interface UmbNavItemTypeRegistration {
@@ -62,10 +50,10 @@ export interface UmbNavItemTypeRegistration {
     allowChildren?: boolean;
     /** Custom render function for the item display */
     render?: (item: ModelEntryType) => TemplateResult;
-    /** Modal alias to open when editing this type */
-    editModalAlias?: string;
-    /** Modal alias to open when creating this type */
-    createModalAlias?: string;
+    /** Modal token to open when editing this type */
+    editModalToken?: unknown;
+    /** Modal token to open when creating this type */
+    createModalToken?: unknown;
 }
 
 /**
@@ -88,8 +76,6 @@ export interface UmbNavItemSlot {
 export interface UmbNavExtensionConfig {
     /** Custom toolbar actions */
     toolbarActions?: UmbNavToolbarAction[];
-    /** Custom modals */
-    modals?: UmbNavModalRegistration[];
     /** Custom item types */
     itemTypes?: UmbNavItemTypeRegistration[];
     /** Custom item slots */

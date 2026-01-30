@@ -1,13 +1,12 @@
 import {
     UmbNavToolbarAction,
-    UmbNavModalRegistration,
     UmbNavItemTypeRegistration,
     UmbNavItemSlot
 } from './extension-types.js';
 
 /**
  * Registry for UmbNav extensions.
- * Use this to register custom toolbar actions, modals, item types, and slots.
+ * Use this to register custom toolbar actions, item types, and slots.
  *
  * @example
  * ```typescript
@@ -26,7 +25,6 @@ import {
  */
 class UmbNavExtensionRegistryClass {
     private _toolbarActions: Map<string, UmbNavToolbarAction> = new Map();
-    private _modals: Map<string, UmbNavModalRegistration> = new Map();
     private _itemTypes: Map<string, UmbNavItemTypeRegistration> = new Map();
     private _itemSlots: Map<string, UmbNavItemSlot> = new Map();
     private _changeCallbacks: Set<() => void> = new Set();
@@ -60,37 +58,6 @@ class UmbNavExtensionRegistryClass {
      */
     getToolbarAction(alias: string): UmbNavToolbarAction | undefined {
         return this._toolbarActions.get(alias);
-    }
-
-    /**
-     * Register a custom modal.
-     */
-    registerModal(modal: UmbNavModalRegistration): void {
-        this._modals.set(modal.alias, modal);
-        this._notifyChange();
-    }
-
-    /**
-     * Unregister a modal by alias.
-     */
-    unregisterModal(alias: string): boolean {
-        const result = this._modals.delete(alias);
-        if (result) this._notifyChange();
-        return result;
-    }
-
-    /**
-     * Get all registered modals.
-     */
-    getModals(): UmbNavModalRegistration[] {
-        return Array.from(this._modals.values());
-    }
-
-    /**
-     * Get a modal by alias.
-     */
-    getModal(alias: string): UmbNavModalRegistration | undefined {
-        return this._modals.get(alias);
     }
 
     /**
@@ -170,7 +137,6 @@ class UmbNavExtensionRegistryClass {
      */
     clear(): void {
         this._toolbarActions.clear();
-        this._modals.clear();
         this._itemTypes.clear();
         this._itemSlots.clear();
         this._notifyChange();
