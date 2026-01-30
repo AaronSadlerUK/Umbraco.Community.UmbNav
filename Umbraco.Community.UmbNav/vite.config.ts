@@ -3,7 +3,10 @@ import { defineConfig } from "vite";
 export default defineConfig({
     build: {
         lib: {
-            entry: "src/index.ts", // your web component source file
+            entry: {
+                client: "src/index.ts", // main entry point with manifests
+                api: "src/api.ts", // public API for extensions
+            },
             formats: ["es"],
         },
         outDir: "./wwwroot/App_Plugins/UmbNav/dist", // all compiled files will be placed here
