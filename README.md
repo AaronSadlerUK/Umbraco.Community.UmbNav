@@ -1,52 +1,115 @@
+# UmbNav
+
 UmbNav adds a drag and drop menu builder to the Umbraco V17+ backoffice.
 
-## Getting started
+[![NuGet](https://img.shields.io/nuget/v/Umbraco.Community.UmbNav.svg)](https://www.nuget.org/packages/Umbraco.Community.UmbNav)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/Umbraco.Community.UmbNav.svg)](https://www.nuget.org/packages/Umbraco.Community.UmbNav)
 
-UmbNav V4.X only supports Umbraco 17+
+## Documentation
 
-For Umbraco versions 13 and below please see the repository linked below:
-https://github.com/AaronSadlerUK/Our.Umbraco.UmbNav
+**Full documentation is available at [umbnavdocs.aaronsadler.dev](https://umbnavdocs.aaronsadler.dev/)** or in the [Docs folder](./Docs/README.md).
 
-### Features
-
-- Set maximum child levels
-- Hide menu items where `umbracoNaviHide` is true
-- Auto expand the backoffice menu tree on hover
-- Set the delay of the auto expand on hover (in ms)
-- Add `noopener` to external links by clicking a checkbox
-- Add `noreferrer` to external links by clicking a checkbox
-- Auto add child nodes when rendering on the front end
-- Allow menu items to be shown / hidden depending on member authentication status
-- Add custom CSS classes to each menu item in the backoffice
-- Display the property editor as full width in the back office (Hide the label)
-- Add an image to a menu item
-- TagHelper
-- Add label items
+## Quick Start
 
 ### Installation
 
-UmbNav is available from [NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbNav), or as a manual download directly from GitHub.
+```bash
+dotnet add package Umbraco.Community.UmbNav
+```
 
-#### NuGet package repository
-To [install UI from NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbNav), run the following command in your instance of Visual Studio.
+For headless/API-only scenarios (Core package without UI):
+```bash
+dotnet add package Umbraco.Community.UmbNav.Core
+```
 
-    PM> Install-Package Umbraco.Community.UmbNav
-	
-To [install Core from NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbNav.Core), run the following command in your instance of Visual Studio.
+### Basic Usage
 
-    PM> Install-Package Umbraco.Community.UmbNav.Core
+```cshtml
+@using Umbraco.Community.UmbNav.Core.Models
 
-### Documentation
+@{
+    var menuItems = Model.Value<IEnumerable<UmbNavItem>>("navigation");
+}
 
-After installing the package, you will have a new property editor called UmbNav in the Umbraco backoffice, typically this would get added to your sites "Site Settings" or "Home" node.
+<nav>
+    <ul>
+        @foreach (var item in menuItems)
+        {
+            <li>
+                <umbnavitem menu-item="@item"
+                            active-class="active"
+                            current-page="@Model">
+                </umbnavitem>
+            </li>
+        }
+    </ul>
+</nav>
+```
 
-Check out the [documentation](https://umbnavdocs.aaronsadler.dev/) to learn how to embed the package in your site.
+## Features
 
-### Contribution guidelines
+- **Drag and drop menu builder** with nested children support
+- **Multiple item types**: Content nodes, external links, and text labels
+- **TagHelper** for easy frontend rendering
+- **Fully extensible** - add custom toolbar actions, item types, and more
+- **Advanced options**:
+  - Custom CSS classes
+  - Menu item images
+  - Description fields
+  - Member visibility rules
+  - Auto-include child nodes
+  - noopener/noreferrer support
 
-To raise a new bug, create an issue on the GitHub repository. To fix a bug or add new features, fork the repository and send a pull request with your changes. Feel free to add ideas to the repository's issues list if you would to discuss anything related to the package.
+## Version Compatibility
 
-### Who do I talk to?
+| UmbNav Version | Umbraco Version |
+|----------------|-----------------|
+| 4.x | 17+ |
+| 3.x | 14-16 |
+| 2.x | 10-13 |
+| 1.x | 8-9 |
+
+For Umbraco versions 13 and below, see the [legacy repository](https://github.com/AaronSadlerUK/Our.Umbraco.UmbNav).
+
+## Documentation Topics
+
+- [Getting Started](./Docs/getting-started.md)
+- [Installation](./Docs/installation.md)
+- [Configuration](./Docs/configuration.md)
+- **Rendering**
+  - [TagHelper](./Docs/rendering/taghelper.md)
+  - [Extension Methods](./Docs/rendering/extension-methods.md)
+  - [Menu Builder Service](./Docs/rendering/menu-builder-service.md)
+- **Models**
+  - [UmbNavItem](./Docs/models/umbnav-item.md)
+  - [Build Options](./Docs/models/build-options.md)
+- **Extensibility**
+  - [Overview](./Docs/extensibility/overview.md)
+  - [Frontend Extensions](./Docs/extensibility/frontend/README.md)
+  - [Backend Extensions](./Docs/extensibility/backend/README.md)
+- **Examples**
+  - [Basic Navigation](./Docs/examples/basic-navigation.md)
+  - [Multi-Level Dropdown](./Docs/examples/multi-level-dropdown.md)
+  - [Mega Menu](./Docs/examples/mega-menu.md)
+  - [Bootstrap Integration](./Docs/examples/bootstrap-integration.md)
+  - [Tailwind Integration](./Docs/examples/tailwind-integration.md)
+  - [Mobile Navigation](./Docs/examples/mobile-navigation.md)
+- **Testing**
+  - [Playwright E2E Tests](./Docs/testing/playwright.md)
+  - [C# Unit Tests](./Docs/testing/unit-tests.md)
+- **Reference**
+  - [API Reference](./Docs/reference/api-reference.md)
+  - [Changelog](./Docs/reference/changelog.md)
+  - [Troubleshooting](./Docs/reference/troubleshooting.md)
+
+## Contributing
+
+To raise a new bug, create an issue on the GitHub repository. To fix a bug or add new features, fork the repository and send a pull request with your changes.
+
+See [Contributing Guide](./Docs/reference/contributing.md) for detailed instructions.
+
+## Who do I talk to?
+
 This project is maintained by [Aaron Sadler](https://aaronsadler.uk) and contributors.
 
 ## License
@@ -55,4 +118,4 @@ Copyright &copy; 2025 [Aaron Sadler](https://aaronsadler.dev), and other contrib
 
 Licensed under the MIT License.
 
-As per the spirit of the MIT Licence, feel free to fork and do what you wish with the source code, all I ask is that if you find a bug or add a feature please create a to PR this repository.
+As per the spirit of the MIT Licence, feel free to fork and do what you wish with the source code, all I ask is that if you find a bug or add a feature please create a PR to this repository.
