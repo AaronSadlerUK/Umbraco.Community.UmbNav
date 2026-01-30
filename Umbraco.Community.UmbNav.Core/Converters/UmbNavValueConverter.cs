@@ -104,7 +104,8 @@ public class UmbNavValueConverter : PropertyValueConverterBase, IDeliveryApiProp
             HideIncludeChildren = config?.HideIncludeChildren ?? false,
             RemoveDescription = !(config?.AllowDescription ?? false),
             RemoveCustomClasses = !(config?.AllowCustomClasses ?? false),
-            RemoveImages = !(config?.AllowImageIcon ?? false)
+            RemoveImages = !(config?.AllowImageIcon ?? false),
+            MaxDepth = config?.MaxDepth ?? 0
         };
     }
 }

@@ -186,9 +186,17 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
 
     /// <summary>
     /// Processes child items, including auto-expanded children from content nodes.
+    /// Respects MaxDepth option (0 = unlimited).
     /// </summary>
     private void ProcessChildren(UmbNavItem item, int level, UmbNavBuildOptions options, Guid currentContentKey)
     {
+        // If MaxDepth is set and we've reached the limit, don't process children
+        if (options.MaxDepth > 0 && level >= options.MaxDepth - 1)
+        {
+            item.Children = null;
+            return;
+        }
+
         var children = item.Children?.ToList() ?? new List<UmbNavItem>();
 
         if (!options.HideIncludeChildren && item.IncludeChildNodes && item.Content != null)

@@ -30,5 +30,8 @@ namespace Umbraco.Community.UmbNav.Core.PropertyEditors
 
         [ConfigurationField("allowDescription")]
         public bool AllowDescription { get; set; }
+
+        [ConfigurationField("maxDepth")]
+        public int MaxDepth { get; set; }
     }
 }

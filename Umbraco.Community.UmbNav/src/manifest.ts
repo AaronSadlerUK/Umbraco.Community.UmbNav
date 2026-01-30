@@ -108,6 +108,10 @@ const umbNavPropertyEditorUiManifest: ManifestPropertyEditorUi = {
                      value : 0
                  },
                 {
+                     alias : "hideIncludeChildren",
+                     value : false
+                 },
+                {
                      alias : "allowDescription",
                      value : false
                  }

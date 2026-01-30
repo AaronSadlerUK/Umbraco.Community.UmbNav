@@ -37,7 +37,12 @@ public class UmbNavBuildOptions
     public bool RemoveImages { get; set; }
 
     /// <summary>
-    /// Returns a new instance with default values (all options false).
+    /// Maximum depth of menu items to include. 0 means unlimited.
+    /// </summary>
+    public int MaxDepth { get; set; }
+
+    /// <summary>
+    /// Returns a new instance with default values (all options false, MaxDepth 0).
     /// </summary>
     public static UmbNavBuildOptions Default => new();
 }
