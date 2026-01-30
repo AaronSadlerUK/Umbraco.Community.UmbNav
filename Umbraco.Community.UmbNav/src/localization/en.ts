@@ -45,6 +45,8 @@ export default {
         settingsItemModalIncludeChildNodesLabel: 'Include Child Nodes',
         textItemModalHeadline: 'Custom dialog',
         textItemModalTitleLabel: 'Text Item Title',
+        textItemRequiredMessage: 'Please enter a title for the text item.',
+        requiredMessage: 'At least one menu item is required.',
         visibilityItemModalHeadline: 'Custom dialog',
         visibilityItemHideLoggedInLabel: 'Hide for logged in users',
         visibilityItemHideLoggedOutLabel: 'Hide for logged out users',
