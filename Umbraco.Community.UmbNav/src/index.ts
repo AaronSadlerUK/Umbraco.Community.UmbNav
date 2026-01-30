@@ -6,4 +6,4 @@ export const manifests: Array<UmbExtensionManifest> = [
     ...modals,
     ...propertyEditors,
     ...localization
-]
+];

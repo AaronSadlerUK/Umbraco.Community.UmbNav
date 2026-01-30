@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="TestSite.V17/TestSite.V17.csproj" />
   <Project Path="Umbraco.Community.UmbNav.Core/Umbraco.Community.UmbNav.Core.csproj" />
+  <Project Path="Umbraco.Community.UmbNav.Core.Tests/Umbraco.Community.UmbNav.Core.Tests.csproj" />
   <Project Path="Umbraco.Community.UmbNav/Umbraco.Community.UmbNav.csproj" />
 </Solution>

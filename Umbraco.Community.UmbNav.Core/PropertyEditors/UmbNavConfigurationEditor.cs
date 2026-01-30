@@ -8,7 +8,11 @@ using Umbraco.Cms.Core.PropertyEditors;
 
 namespace Umbraco.Community.UmbNav.Core.PropertyEditors;
 
-internal class UmbNavConfigurationEditor : ConfigurationEditor<UmbNavConfiguration>
+/// <summary>
+/// Configuration editor for the UmbNav property editor.
+/// This class can be extended to customize configuration handling.
+/// </summary>
+public class UmbNavConfigurationEditor : ConfigurationEditor<UmbNavConfiguration>
 {
     public UmbNavConfigurationEditor(IIOHelper ioHelper)
         : base(ioHelper)

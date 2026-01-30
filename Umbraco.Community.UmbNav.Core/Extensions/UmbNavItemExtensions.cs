@@ -47,7 +47,6 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
 
             tagBuilder.Attributes.Add("href", item.Url(culture, mode));
 
-
             if (!string.IsNullOrEmpty(item.Target))
             {
                 tagBuilder.Attributes.Add("target", item.Target);
@@ -56,6 +55,12 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
             if (!string.IsNullOrEmpty(item.Noopener) || !string.IsNullOrEmpty(item.Noreferrer))
             {
                 var rel = new List<string>();
+
+                // Preserve any existing rel value from htmlAttributes
+                if (htmlAttributesConverted.TryGetValue("rel", out object? value) && value is string existingRel)
+                {
+                    rel.Add(existingRel);
+                }
 
                 if (!string.IsNullOrEmpty(item.Noopener))
                 {
@@ -67,15 +72,7 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
                     rel.Add(item.Noreferrer);
                 }
 
-                if (htmlAttributesConverted.TryGetValue("rel", out object? value))
-                {
-                    var originalRelValue = value as string;
-                    htmlAttributesConverted["rel"] = string.Format("{0} {1}", originalRelValue, string.Join(" ", rel));
-                }
-                else
-                {
-                    htmlAttributesConverted.Add("rel", string.Join(" ", rel));
-                }
+                tagBuilder.Attributes["rel"] = string.Join(" ", rel);
             }
 
             return tagBuilder;

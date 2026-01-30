@@ -1,266 +1,687 @@
 # UmbNav - Claude Code Guide
 
-This document provides context and guidance for working with the UmbNav codebase using Claude Code.
+This document provides comprehensive context and guidance for working with the UmbNav codebase using Claude Code.
 
 ## Project Overview
 
-UmbNav is an Umbraco Community package that adds a drag-and-drop menu builder to the Umbraco V17+ backoffice. It allows content creators to visually build and manage site navigation menus.
+UmbNav is an Umbraco Community package that adds a drag-and-drop menu builder to the Umbraco V17+ backoffice. It allows content creators to visually build and manage site navigation menus with nested hierarchies, custom styling, and advanced visibility options.
 
-**Version**: 4.0.0+ (Umbraco 17+)
-**License**: MIT
-**Author**: Aaron Sadler
-**Documentation**: https://umbnavdocs.aaronsadler.dev/
+| Property | Value |
+|----------|-------|
+| **Version** | 4.0.0+ |
+| **Umbraco** | 17.0.0+ |
+| **License** | MIT |
+| **Author** | Aaron Sadler |
+| **Documentation** | https://umbnavdocs.aaronsadler.dev/ |
+| **NuGet** | https://www.nuget.org/packages/Umbraco.Community.UmbNav |
+
+---
 
 ## Technology Stack
 
-### Backend
-- C# (.NET 10.0)
-- ASP.NET Core
-- Umbraco CMS 17.0.0
+### Backend (.NET)
+- **Framework**: .NET 10.0
+- **Platform**: ASP.NET Core
+- **CMS**: Umbraco CMS 17.0.0
+- **Testing**: xUnit, Moq
 
-### Frontend
-- TypeScript (ES2020)
-- Lit 3.3.0 (web components)
-- Vite 7.1.11 (bundler)
-- Umbraco Backoffice ~17.0.0
+### Frontend (TypeScript/Web Components)
+- **Language**: TypeScript (ES2020, strict mode)
+- **UI Framework**: Lit 3.3.0
+- **Bundler**: Vite 7.1.11
+- **Backoffice**: Umbraco Backoffice ~17.0.0
+- **Testing**: Playwright
 
 ### Build & Tooling
-- .NET SDK
-- Node.js 23.x
-- GitVersion (semantic versioning)
-- GitHub Actions (CI/CD)
-- Playwright (E2E testing)
+- **Package Manager**: NuGet (.NET), npm (Node.js)
+- **Node Version**: 23.x
+- **Versioning**: GitVersion (semantic versioning)
+- **CI/CD**: GitHub Actions
+
+---
 
 ## Project Structure
 
-### Umbraco.Community.UmbNav/ (Main UI Package)
-The frontend package containing the backoffice property editor UI.
-
-**Key Directories:**
-- `src/components/` - Lit web components for the property editor
-  - `umbnav-property-editor-ui/` - Main property editor component
-  - `umbnav-item/` - Individual menu item component
-  - `umbnav-group/` - Menu group/section component
-- `src/modals/` - Modal dialogs for editing menu items
-- `src/localization/` - Multi-language support files
-- `src/tokens/` - Design tokens and theming
-- `wwwroot/App_Plugins/UmbNav/` - Compiled static assets
-
-**Key Files:**
-- `src/manifest.ts` - Property editor schema and registration
-- `src/index.ts` - Main entry point
-- `src/umbnav-utils.ts` - Shared utility functions
-- `vite.config.ts` - Frontend build configuration
-- `tsconfig.json` - TypeScript compiler settings
-
-### Umbraco.Community.UmbNav.Core/ (Core Logic Package)
-The backend package containing data models, services, and business logic.
-
-**Key Directories:**
-- `PropertyEditors/` - Property editor definition and configuration
-- `Models/` - Data models (UmbNavItem, ImageItem, etc.)
-- `Services/` - Business logic (UmbNavMenuBuilderService)
-- `Converters/` - Property value conversion
-- `TagHelpers/` - Razor tag helpers for frontend rendering
-- `Extensions/` - Helper extension methods
-- `NotificationHandlers/` - Event handlers (telemetry)
-
-**Key Files:**
-- `UmbNavConstants.cs` - Constants and configuration values
-- `Models/UmbNavItem.cs` - Core menu item data model
-- `Services/UmbNavMenuBuilderService.cs` - Menu building logic
-- `TagHelpers/UmbnavItemTagHelper.cs` - Razor tag helper
-
-### TestSite.V17/
-Test/demo Umbraco site for development and testing.
-
-**Key Files:**
-- `Program.cs` - Application startup and configuration
-- `appsettings.json` - Umbraco configuration
-- `Views/` - Razor view templates
-- `uSync/` - Content export/import data
-
-## Key Features
-
-- Drag-and-drop menu builder in Umbraco backoffice
-- Multiple menu item types:
-  - Content nodes (from Umbraco content tree)
-  - External links
-  - Text labels
-  - Groups/sections
-- Advanced options:
-  - Custom images
-  - Custom CSS classes
-  - Visibility based on member authentication status
-  - Maximum child levels configuration
-  - Hide items with `umbracoNaviHide` property
-  - Auto-expand backoffice tree on hover
-  - noopener/noreferrer attributes for external links
-  - Auto-add child nodes for content items
-- Razor tag helper for frontend rendering
-- Multi-language localization support
-- Telemetry for usage analytics
-
-## Development Workflow
-
-### Frontend Development
-```bash
-cd Umbraco.Community.UmbNav
-npm install
-npm run watch  # Watch mode for development
-npm run build  # Production build
+```
+Umbraco.Community.UmbNav/
+├── Umbraco.Community.UmbNav/           # Frontend UI Package
+│   ├── src/
+│   │   ├── components/                 # Lit web components
+│   │   │   ├── umbnav-property-editor-ui/  # Main property editor
+│   │   │   ├── umbnav-item/            # Individual menu item
+│   │   │   └── umbnav-group/           # Menu group container
+│   │   ├── modals/                     # Modal dialogs
+│   │   │   ├── link-item-modal-element.ts
+│   │   │   ├── text-item-modal-element.ts
+│   │   │   ├── settings-modal-element.ts
+│   │   │   └── visibility-modal-element.ts
+│   │   ├── extensions/                 # Extension system
+│   │   │   ├── extension-registry.ts   # Central registry
+│   │   │   └── extension-types.ts      # Type definitions
+│   │   ├── localization/               # i18n translations
+│   │   │   ├── en.ts
+│   │   │   ├── da.ts
+│   │   │   └── ...
+│   │   ├── tokens/                     # Shared types/tokens
+│   │   │   └── umbnav.token.ts
+│   │   ├── manifest.ts                 # Property editor registration
+│   │   ├── index.ts                    # Main entry point
+│   │   └── umbnav-utils.ts             # Utility functions
+│   ├── tests/                          # Playwright E2E tests
+│   ├── wwwroot/App_Plugins/UmbNav/     # Compiled output
+│   ├── vite.config.ts                  # Build configuration
+│   ├── tsconfig.json                   # TypeScript config
+│   └── package.json                    # npm dependencies
+│
+├── Umbraco.Community.UmbNav.Core/      # Backend Core Package
+│   ├── Models/
+│   │   ├── UmbNavItem.cs               # Core menu item model
+│   │   ├── UmbNavBuildOptions.cs       # Build options
+│   │   └── ImageItem.cs                # Image reference
+│   ├── Services/
+│   │   └── UmbNavMenuBuilderService.cs # Menu processing
+│   ├── Abstractions/
+│   │   └── IUmbNavMenuBuilderService.cs
+│   ├── Converters/
+│   │   └── UmbNavValueConverter.cs     # Property value converter
+│   ├── TagHelpers/
+│   │   └── UmbnavitemTagHelper.cs      # Razor TagHelper
+│   ├── Extensions/
+│   │   └── UmbNavItemExtensions.cs     # Extension methods
+│   ├── PropertyEditors/
+│   │   ├── UmbNavConfiguration.cs      # Data Type config
+│   │   └── UmbNavConfigurationEditor.cs
+│   ├── Migrations/                     # Package migrations
+│   │   ├── UmbNavPackageMigrationPlan.cs    # Migration plan
+│   │   └── UmbNavLegacyModelMigration.cs    # v3.x to v4.x data migration
+│   ├── Enums/
+│   │   └── UmbNavItemType.cs           # Item type enum
+│   ├── Composers/
+│   │   └── RegisterUmbNavServicesComposer.cs
+│   ├── NotificationHandlers/           # Telemetry
+│   └── UmbNavConstants.cs              # Constants
+│
+├── Umbraco.Community.UmbNav.Core.Tests/ # Unit tests
+│   └── Services/
+│       └── UmbNavMenuBuilderServiceTests.cs
+│
+├── TestSite.V17/                       # Development test site
+│   ├── Program.cs
+│   ├── appsettings.json
+│   ├── Views/
+│   └── uSync/                          # Content sync data
+│
+├── Docs/                               # Documentation (GitBook)
+│   ├── SUMMARY.md                      # Table of contents
+│   ├── README.md                       # Introduction
+│   ├── getting-started.md
+│   ├── installation.md
+│   ├── configuration.md
+│   ├── rendering/                      # Rendering docs
+│   ├── models/                         # Model docs
+│   ├── extensibility/                  # Extension docs
+│   │   ├── frontend/
+│   │   └── backend/
+│   ├── testing/                        # Testing docs
+│   ├── examples/                       # Code examples
+│   └── reference/                      # API reference
+│
+├── .github/workflows/                  # CI/CD
+│   ├── dotnet-build.stablerelease.yml
+│   ├── dotnet-build-prelease.yml
+│   └── codeql.yml
+│
+├── GitVersion.yml                      # Version config
+├── README.md                           # Project readme
+└── CLAUDE.md                           # This file
 ```
 
-### Backend Development
-```bash
-dotnet restore
-dotnet build
-dotnet run --project TestSite.V17
-```
+---
 
-### Building NuGet Packages
-```bash
-dotnet pack
-```
+## Key Files Reference
 
-## Git Workflow
+### Frontend (TypeScript/Lit)
 
-**Main Branches:**
-- `develop` - Active development branch (use for PRs)
-- `main` - Stable releases
-- Feature branches - Named branches for specific features
+| File | Purpose |
+|------|---------|
+| `src/manifest.ts` | Property editor registration with Umbraco |
+| `src/index.ts` | Main entry point, exports API |
+| `src/components/umbnav-item/umbnav-item.ts` | Menu item component with extension support |
+| `src/components/umbnav-group/umbnav-group.ts` | Drag-drop container for items |
+| `src/extensions/extension-registry.ts` | Extension registration system |
+| `src/extensions/extension-types.ts` | TypeScript interfaces for extensions |
+| `src/tokens/umbnav.token.ts` | `ModelEntryType` and shared types |
+| `src/modals/link-item-modal-element.ts` | Link/content item editor modal |
+| `src/modals/text-item-modal-element.ts` | Text item editor modal |
+| `src/localization/en.ts` | English translations |
 
-**Current Branch**: magical-feynman (feature branch)
+### Backend (C#)
+
+| File | Purpose |
+|------|---------|
+| `Models/UmbNavItem.cs` | Core menu item data model |
+| `Models/UmbNavBuildOptions.cs` | Menu processing options |
+| `Services/UmbNavMenuBuilderService.cs` | Menu building with virtual methods |
+| `Abstractions/IUmbNavMenuBuilderService.cs` | Service interface |
+| `TagHelpers/UmbnavitemTagHelper.cs` | Razor TagHelper with override points |
+| `Converters/UmbNavValueConverter.cs` | JSON to model conversion |
+| `Extensions/UmbNavItemExtensions.cs` | `Url()`, `IsActive()`, `GetLinkHtml()` |
+| `PropertyEditors/UmbNavConfiguration.cs` | Data Type configuration model |
+| `Enums/UmbNavItemType.cs` | `Link`, `Document`, `Title` enum |
+| `Migrations/UmbNavLegacyModelMigration.cs` | Migrates v3.x data to v4.x format |
+| `Migrations/UmbNavPackageMigrationPlan.cs` | Defines migration plan |
+
+---
 
 ## Architecture Patterns
 
-### Backend
-- **Composer Pattern**: `RegisterUmbNavServicesComposer` registers services at startup
-- **Property Editor Pattern**: Integrates with Umbraco's property editor system
-- **Value Converter Pattern**: Converts between JSON and C# models
-- **Service Layer**: Business logic separated into services
-- **Tag Helper Pattern**: Razor tag helpers for frontend rendering
+### Backend Patterns
 
-### Frontend
-- **Web Components**: Custom Lit elements for UI
-- **Event-Driven**: Component communication via custom events
-- **Configuration-Driven**: Manifest-based registration
-- **Modular Design**: Separate components for different concerns
+1. **Composer Pattern**: Services registered via `RegisterUmbNavServicesComposer`
+2. **Value Converter Pattern**: `UmbNavValueConverter` converts JSON to `IEnumerable<UmbNavItem>`
+3. **Service Layer**: `IUmbNavMenuBuilderService` for menu processing
+4. **TagHelper Pattern**: `UmbnavitemTagHelper` for Razor rendering
+5. **Virtual Methods**: Override points for customization
+6. **Package Migration**: `UmbNavPackageMigrationPlan` for version upgrades
 
-## Data Model
+### Frontend Patterns
 
-### UmbNavItem
-The core menu item model with properties:
-- **Link Information**: URL, content reference, or text
-- **Hierarchy**: Children, level, depth
-- **Metadata**: Images, custom CSS classes, target, rel attributes
-- **Authentication**: Show/hide for logged in/out members
-- **Display Options**: Visibility flags, noopener/noreferrer settings
+1. **Web Components**: Lit-based custom elements
+2. **Extension Registry**: Central registry for toolbar actions, slots, item types
+3. **Event Delegation**: Custom events bubble up for parent handling
+4. **Reactive Properties**: Lit `@property()` decorators
+5. **Modular Exports**: API bundle for external consumption
 
-### UmbNavItemType Enum
-- `Link` - External URL
-- `Content` - Umbraco content node
-- `Text` - Text-only label
-- `Group` - Menu group/section
+---
 
-## Configuration
+## Migration System
 
-### UmbNavConfiguration
-Property editor configuration options:
-- `MaxDepth` - Maximum menu depth
-- `HideNaviHide` - Hide items with umbracoNaviHide
-- `AutoExpand` - Auto-expand on hover
-- `AutoExpandDelay` - Hover delay in ms
-- `AddNoOpener` - Add noopener to external links
-- `AddNoReferrer` - Add noreferrer to external links
-- `AddImages` - Allow images on menu items
-- `AddCustomClasses` - Allow custom CSS classes
-- `HideLabel` - Display as full-width editor
-- `AllowTextItems` - Allow text-only items
+UmbNav includes an automatic migration system for upgrading from v3.x (and earlier) to v4.x.
 
-## Testing
+### How It Works
 
-### E2E Testing
-Playwright is configured but currently disabled in CI:
+```
+UmbNavPackageMigrationPlan
+└── UmbNavLegacyModelMigration (GUID: 786E9C82-8621-4B0E-8E3A-7A7AAD61B820)
+```
+
+The migration runs automatically on first startup after upgrading and:
+
+1. **Detects legacy data types** using `AaronSadler.UmbNav` property editor alias
+2. **Finds all content** using those data types
+3. **Transforms JSON data** from old format to new format
+4. **Updates data types** to use `Umbraco.Community.UmbNav` alias
+
+### Key Transformations
+
+| Old | New |
+|-----|-----|
+| `udi` (string) | `contentKey` (Guid) |
+| `title`/`name` | `name` (title preferred) |
+| `itemType: Link` | `itemType: External` |
+| `itemType: Content` | `itemType: Document` |
+| `itemType: Label` | `itemType: Title` |
+| `noopener` (bool) | `noopener` (string) |
+| `noreferrer` (bool) | `noreferrer` (string) |
+
+### Constants
+
+```csharp
+// Current property editor alias
+public const string PropertyEditorAlias = "Umbraco.Community.UmbNav";
+
+// Legacy alias (used for migration detection)
+internal const string LegacyEditorAlias = "AaronSadler.UmbNav";
+```
+
+### Testing Migration
+
+The migration has a static helper method for testing:
+
+```csharp
+UmbNavLegacyModelMigration.TryTransformLegacyValue(logger, legacyJson, out string newJson)
+```
+
+---
+
+## Data Models
+
+### UmbNavItem (C#)
+
+```csharp
+public class UmbNavItem
+{
+    // Identity
+    public Guid Key { get; set; }
+    public string Name { get; set; }
+    public UmbNavItemType ItemType { get; set; }  // Link, Document, Title
+
+    // Content
+    public string? Url { get; set; }
+    public Guid? ContentKey { get; set; }
+    public IPublishedContent? Content { get; set; }  // Resolved by service
+
+    // Hierarchy
+    public IEnumerable<UmbNavItem>? Children { get; set; }
+    public int Level { get; set; }
+
+    // Display
+    public string? Description { get; set; }
+    public string? CustomClasses { get; set; }
+    public string? Icon { get; set; }
+    public IPublishedContent? Image { get; set; }
+
+    // Link attributes
+    public string? Target { get; set; }
+    public string? Noopener { get; set; }
+    public string? Noreferrer { get; set; }
+
+    // Visibility
+    public bool HideLoggedIn { get; set; }
+    public bool HideLoggedOut { get; set; }
+    public bool IncludeChildNodes { get; set; }
+    public bool IsActive { get; set; }
+}
+```
+
+### ModelEntryType (TypeScript)
+
+```typescript
+interface ModelEntryType {
+    key: Guid;
+    name: string;
+    description?: string;
+    url?: string;
+    icon?: string;
+    itemType: 'Link' | 'Document' | 'Title';
+    udi?: string;
+    anchor?: string;
+    published?: boolean;
+    naviHide?: boolean;
+    culture?: string;
+    children?: ModelEntryType[];
+    expanded?: boolean;
+    target?: string;
+    noopener?: string;
+    noreferrer?: string;
+    customClasses?: string;
+    image?: MediaItem[];
+    includeChildNodes?: boolean;
+    hideLoggedIn?: boolean;
+    hideLoggedOut?: boolean;
+}
+```
+
+---
+
+## Extension System
+
+### Frontend Extensions (TypeScript)
+
+```typescript
+import { UmbNavExtensionRegistry } from '/App_Plugins/UmbNav/dist/api.js';
+
+// Toolbar Action
+UmbNavExtensionRegistry.registerToolbarAction({
+    alias: 'my-action',
+    label: 'My Action',
+    icon: 'icon-star',
+    position: 'start',  // 'start' | 'end' | number
+    isVisible: (item, config) => true,
+    onExecute: async (item, context) => {
+        context.updateItem({ ...item, customClasses: 'modified' });
+    }
+});
+
+// Item Slot
+UmbNavExtensionRegistry.registerItemSlot({
+    alias: 'my-slot',
+    position: 'after-name',  // 'before-name' | 'after-name' | 'before-toolbar' | 'after-toolbar'
+    isVisible: (item) => item.customClasses?.includes('featured'),
+    render: (item) => html`<span class="badge">Featured</span>`
+});
+
+// Item Type
+UmbNavExtensionRegistry.registerItemType({
+    alias: 'divider',
+    label: 'Divider',
+    icon: 'icon-navigation-horizontal',
+    defaultValues: { itemType: 'Title', name: '---' }
+});
+```
+
+### Backend Extensions (C#)
+
+```csharp
+// Custom Menu Builder Service
+public class CustomMenuBuilderService : UmbNavMenuBuilderService
+{
+    protected override bool ShouldIncludeItem(UmbNavItem item, bool isLoggedIn)
+    {
+        // Custom visibility logic
+        return base.ShouldIncludeItem(item, isLoggedIn);
+    }
+}
+
+// Register with composer
+public class CustomComposer : IComposer
+{
+    public void Compose(IUmbracoBuilder builder)
+    {
+        builder.Services.AddUnique<IUmbNavMenuBuilderService, CustomMenuBuilderService>();
+    }
+}
+```
+
+---
+
+## Development Workflow
+
+### Setup
+
+```bash
+# Clone repository
+git clone https://github.com/AaronSadlerUK/Umbraco.Community.UmbNav.git
+cd Umbraco.Community.UmbNav
+
+# Restore .NET packages
+dotnet restore
+
+# Install npm packages
+cd Umbraco.Community.UmbNav
+npm install
+```
+
+### Frontend Development
+
 ```bash
 cd Umbraco.Community.UmbNav
-npx playwright test
+
+# Development with watch
+npm run watch
+
+# Production build
+npm run build
+
+# Type checking
+npm run typecheck
 ```
 
-### Manual Testing
-Use the TestSite.V17 project to manually test changes:
+### Backend Development
+
 ```bash
+# Build all projects
+dotnet build
+
+# Run test site
 dotnet run --project TestSite.V17
+
+# Run unit tests
+dotnet test
+
+# Build NuGet packages
+dotnet pack
 ```
 
-## CI/CD
+### E2E Testing
 
-GitHub Actions workflows in `.github/workflows/`:
-- `dotnet-build.stablerelease.yml` - Production releases
-- `dotnet-build-prelease.yml` - Pre-release builds
-- `codeql.yml` - Security scanning
+```bash
+cd Umbraco.Community.UmbNav
 
-Versioning is managed by GitVersion (`GitVersion.yml`).
+# Install Playwright browsers
+npx playwright install
 
-## Important Notes
+# Run all tests
+npx playwright test
 
-### When Making Changes
-- Frontend changes require rebuilding TypeScript (`npm run build`)
-- Backend changes require rebuilding .NET projects
-- Test changes in TestSite.V17 before committing
-- Follow existing code patterns and naming conventions
-- Update localization files if adding new UI strings
-- Maintain backwards compatibility where possible
+# Run with UI
+npx playwright test --headed
 
-### Code Style
-- C#: Follow standard .NET conventions
-- TypeScript: Use strict mode, ES2020 features
-- Components: Use Lit decorators and reactive properties
-- Comments: Add XML docs for public APIs
+# Debug mode
+npx playwright test --debug
+```
 
-### Dependencies
-- Keep Umbraco dependency at ~17.0.0 for compatibility
-- Review package updates carefully for breaking changes
-- Lock npm dependencies in package-lock.json
+---
 
-### Release Process
-1. Commit changes to feature branch
-2. Create PR to `develop`
-3. After merge, GitVersion handles versioning
-4. GitHub Actions builds and publishes packages
-5. Packages published to nuget.org and GitHub Packages
+## Git Workflow
+
+### Branches
+- `main` - Stable releases
+- `develop` - Active development (PR target)
+- Feature branches - For specific features/fixes
+
+### Commit Messages
+```
+feat: Add custom toolbar action support
+fix: Resolve drag-drop issue with expanded items
+docs: Update extensibility documentation
+refactor: Simplify menu builder service
+test: Add unit tests for value converter
+chore: Update npm dependencies
+```
+
+### Pull Request Process
+1. Create feature branch from `develop`
+2. Make changes with tests
+3. Run `npm run build` and `dotnet build`
+4. Create PR to `develop`
+5. Address review feedback
+6. Merge after approval
+
+---
 
 ## Common Tasks
 
 ### Adding a New Menu Item Property
-1. Update `Models/UmbNavItem.cs` with new property
-2. Update `src/components/umbnav-item/` to handle new property
-3. Update `src/modals/` if property needs modal editing
-4. Update `Services/UmbNavMenuBuilderService.cs` if needed for rendering
-5. Add localization strings in `src/localization/`
-6. Update documentation
+
+1. **Update C# Model** (`Models/UmbNavItem.cs`):
+   ```csharp
+   public string? MyNewProperty { get; set; }
+   ```
+
+2. **Update TypeScript Type** (`src/tokens/umbnav.token.ts`):
+   ```typescript
+   myNewProperty?: string;
+   ```
+
+3. **Update Modal** (`src/modals/link-item-modal-element.ts` or similar):
+   - Add form field
+   - Handle in submit
+
+4. **Update Service** (`Services/UmbNavMenuBuilderService.cs`) if processing needed
+
+5. **Update Localization** (`src/localization/en.ts`):
+   ```typescript
+   myNewPropertyLabel: 'My New Property'
+   ```
+
+6. **Update Documentation** (`Docs/`)
 
 ### Adding a New Configuration Option
-1. Add property to `UmbNavConfiguration.cs`
-2. Update `UmbNavConfigurationEditor.cs` if needed
-3. Update `src/manifest.ts` to expose in backoffice
-4. Update logic that uses the configuration
-5. Update documentation
 
-### Updating Umbraco Version
-1. Update package references in `.csproj` files
-2. Update `package.json` dependencies
-3. Test thoroughly with new version
-4. Update README.md with version support info
+1. **Add to Configuration** (`PropertyEditors/UmbNavConfiguration.cs`):
+   ```csharp
+   public bool MyNewOption { get; set; }
+   ```
+
+2. **Update Manifest** (`src/manifest.ts`):
+   ```typescript
+   {
+       alias: 'myNewOption',
+       label: 'My New Option',
+       propertyEditorUiAlias: 'Umb.PropertyEditorUi.Toggle'
+   }
+   ```
+
+3. **Use in Components** - Access via `config` property
+
+### Extending the TagHelper
+
+```csharp
+[HtmlTargetElement("custom-navitem")]
+public class CustomNavItemTagHelper : UmbnavitemTagHelper
+{
+    protected override string? GetUrl()
+    {
+        var url = base.GetUrl();
+        return url != null ? $"{url}?tracking=nav" : null;
+    }
+
+    protected override void ProcessCustomAttributes(
+        TagHelperContext context, TagHelperOutput output)
+    {
+        output.Attributes.SetAttribute("data-analytics", "nav-click");
+    }
+}
+```
+
+---
+
+## Testing
+
+### Unit Tests (C#)
+
+Location: `Umbraco.Community.UmbNav.Core.Tests/`
+
+```csharp
+public class UmbNavMenuBuilderServiceTests
+{
+    [Fact]
+    public void BuildMenu_WithValidItems_ReturnsProcessedItems()
+    {
+        // Arrange
+        var service = CreateService();
+        var items = CreateTestItems();
+
+        // Act
+        var result = service.BuildMenu(items, UmbNavBuildOptions.Default);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
+    }
+}
+```
+
+### E2E Tests (Playwright)
+
+Location: `Umbraco.Community.UmbNav/tests/`
+
+```typescript
+import { test, expect } from '@playwright/test';
+import { ConstantHelper } from "@umbraco/playwright-testhelpers";
+
+test.describe("UmbNav", () => {
+    test('can add content item', async ({ umbracoUi }) => {
+        await umbracoUi.goToBackOffice();
+        await umbracoUi.login.enterEmail(ConstantHelper.testUserCredentials.email);
+        // ... test implementation
+    });
+});
+```
+
+---
+
+## Configuration Reference
+
+### Data Type Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `MaxDepth` | int | 0 | Maximum nesting depth (0 = unlimited) |
+| `HideNaviHide` | bool | false | Hide items with umbracoNaviHide |
+| `AutoExpand` | bool | false | Auto-expand on hover |
+| `AutoExpandDelay` | int | 1000 | Hover delay (ms) |
+| `HideNoopener` | bool | false | Hide noopener option |
+| `HideNoreferrer` | bool | false | Hide noreferrer option |
+| `AllowImageIcon` | bool | false | Allow images |
+| `AllowCustomClasses` | bool | false | Allow CSS classes |
+| `HideLabel` | bool | false | Full-width display |
+| `AllowTextItems` | bool | true | Allow text items |
+| `AllowDescription` | bool | false | Allow descriptions |
+| `EnableVisibility` | bool | false | Member visibility options |
+| `HideIncludeChildNodes` | bool | false | Hide child nodes option |
+
+### appsettings.json
+
+```json
+{
+  "UmbNav": {
+    "DisableTelemetry": true
+  }
+}
+```
+
+---
+
+## Troubleshooting
+
+### Frontend Issues
+
+1. **Property editor not loading**: Clear browser cache, check console for errors
+2. **Drag-drop not working**: Collapse expanded items first
+3. **Extensions not appearing**: Verify registration timing, check `isVisible`
+
+### Backend Issues
+
+1. **Menu items null**: Use `MenuBuilder.BuildMenu()` to process raw items
+2. **URLs incorrect**: Ensure content is published, check culture
+3. **Active state wrong**: Pass `current-page` to TagHelper
+
+### Build Issues
+
+1. **TypeScript errors**: Run `npm run typecheck`
+2. **Missing assets**: Run `npm run build`
+3. **NuGet restore fails**: Clear cache with `dotnet nuget locals all --clear`
+
+---
+
+## Important Conventions
+
+### Code Style
+
+**C#:**
+- Follow Microsoft C# conventions
+- XML documentation on public APIs
+- Use nullable reference types
+
+**TypeScript:**
+- Strict mode enabled
+- Use Lit decorators (`@property`, `@state`, `@customElement`)
+- Export types from API bundle
+
+### Naming
+
+- **Files**: kebab-case (`umbnav-item.ts`)
+- **Classes**: PascalCase (`UmbNavItem`)
+- **Methods**: PascalCase (C#), camelCase (TS)
+- **Properties**: PascalCase (C#), camelCase (TS)
+- **CSS Classes**: kebab-case (`umbnav-item`)
+
+### Documentation
+
+- Update `Docs/` for user-facing changes
+- Update `CLAUDE.md` for developer-facing changes
+- Add XML docs for public C# APIs
+- Add JSDoc for exported TypeScript functions
+
+---
 
 ## Resources
 
-- **Documentation**: https://umbnavdocs.aaronsadler.dev/
-- **NuGet Package**: https://www.nuget.org/packages/Umbraco.Community.UmbNav
-- **GitHub Issues**: https://github.com/AaronSadlerUK/Umbraco.Community.UmbNav/issues
-- **Legacy Version (V8-13)**: https://github.com/AaronSadlerUK/Our.Umbraco.UmbNav
+| Resource | URL |
+|----------|-----|
+| Documentation | https://umbnavdocs.aaronsadler.dev/ |
+| NuGet Package | https://www.nuget.org/packages/Umbraco.Community.UmbNav |
+| GitHub Repository | https://github.com/AaronSadlerUK/Umbraco.Community.UmbNav |
+| Issues | https://github.com/AaronSadlerUK/Umbraco.Community.UmbNav/issues |
+| Legacy (V8-13) | https://github.com/AaronSadlerUK/Our.Umbraco.UmbNav |
+| Umbraco Docs | https://docs.umbraco.com/ |
+
+---
 
 ## Contact
 
-**Maintainer**: Aaron Sadler (https://aaronsadler.uk)
-**Contributors**: See GitHub contributors list
+**Maintainer**: Aaron Sadler
+**Website**: https://aaronsadler.uk
+**GitHub**: [@AaronSadlerUK](https://github.com/AaronSadlerUK)

@@ -31,7 +31,6 @@ export class UmbNavModalElement extends
         this._submitButtonState = 'waiting';
 
         this.#validation.validate().then(() => {
-            (this.shadowRoot?.getElementById('label') as HTMLElement)?.classList.remove('invalid');
             this._submitButtonState = 'success';
 
             this.value = {
@@ -47,7 +46,6 @@ export class UmbNavModalElement extends
                 children: []};
             this.modalContext?.submit();
         }, () => {
-            (this.shadowRoot?.getElementById('label') as HTMLElement)?.classList.add('invalid');
             this._submitButtonState = 'failed';
         });
     }
@@ -57,11 +55,6 @@ export class UmbNavModalElement extends
     }
 
     #contentChange(event: UUIInputEvent) {
-        if (event.target.value.toString().length === 0) {
-            (this.shadowRoot?.getElementById('label') as HTMLElement)?.classList.add('invalid');
-        }else{
-            (this.shadowRoot?.getElementById('label') as HTMLElement)?.classList.remove('invalid');
-        }
         this.updateValue({name: event.target.value.toString()});
     }
 
@@ -92,25 +85,22 @@ export class UmbNavModalElement extends
 
     #renderTextItemInput() {
         return html`
-			<umb-property-layout orientation="vertical">
-				<div class="side-by-side" slot="editor">
-					<umb-property-layout
-						orientation="vertical"
-						label="#umbnav_textItemModalTitleLabel"
-						style="padding:0;">
-                        <uui-input label="content"
-                                   slot="editor"
-                                   id="umbnav-text-item"
-                                   rows=10
-                                   .value=${this.data?.name ?? ''}
-                                   @input=${this.#contentChange}
-                                   required
-                                   ${umbBindToValidation(this)}
-                                   ${umbFocus()}
-                        >
-                        </uui-input>
-					</umb-property-layout>
-				</div>
+			<umb-property-layout
+                orientation="vertical"
+                label="#umbnav_textItemModalTitleLabel">
+                <uui-input
+                    slot="editor"
+                    id="umbnav-text-item"
+                    name="name"
+                    label=${this.localize.term('umbnav_textItemModalTitleLabel')}
+                    .value=${this.data?.name ?? ''}
+                    @input=${this.#contentChange}
+                    required
+                    required-message=${this.localize.term('umbnav_textItemRequiredMessage')}
+                    ${umbBindToValidation(this, '$.name', this.value?.name)}
+                    ${umbFocus()}
+                >
+                </uui-input>
 			</umb-property-layout>
 		`;
     }

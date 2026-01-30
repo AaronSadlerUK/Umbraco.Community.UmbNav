@@ -9,6 +9,8 @@
     "IssueTrackerUrl": "https://github.com/AaronSadlerUK/Umbraco.Community.UmbNav/issues",
     "LicenseTypes": ["Free"],
     "PackageType": "Package",
+    "DocumentationUrl": "https://umbnavdocs.aaronsadler.dev/",
+    "Description": "UmbNav adds a drag and drop menu builder to the Umbraco V17+ backoffice.",
     "Tags": [
         "Menu",
         "Menu Builder",

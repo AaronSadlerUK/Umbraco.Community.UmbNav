@@ -38,6 +38,11 @@ export class UmbNavModalElement extends
         return <Boolean>this.data?.config.find(item => item.alias === 'hideIncludeChildren')?.value ?? false;
     }
 
+    @state()
+    public get enableDescription(): Boolean {
+        return <Boolean>this.data?.config.find(item => item.alias === 'allowDescription')?.value ?? false;
+    }
+
     customCssClasses: string = '';
 
     @state()
@@ -114,8 +119,11 @@ export class UmbNavModalElement extends
         return html`
 			<umb-body-layout headline=${ifDefined(this.data?.headline)}>
 				<uui-box>
-                    ${html`${this.#renderDescriptionInput()}`}
-                    
+                    ${when(
+                        this.enableDescription,
+                        () => html`${this.#renderDescriptionInput()}`,
+                    )}
+
                     ${when(
                         this.enableCustomCssClasses,
                         () => html`${this.#renderCustomCssClassesInput()}`,
