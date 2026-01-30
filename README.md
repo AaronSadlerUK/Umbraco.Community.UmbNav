@@ -75,6 +75,7 @@ For Umbraco versions 13 and below, see the [legacy repository](https://github.co
 
 - [Getting Started](./Docs/getting-started.md)
 - [Installation](./Docs/installation.md)
+- [Upgrading](./Docs/upgrading.md) - Migration from v3.x to v4.x
 - [Configuration](./Docs/configuration.md)
 - **Rendering**
   - [TagHelper](./Docs/rendering/taghelper.md)
