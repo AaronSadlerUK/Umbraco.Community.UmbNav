@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
@@ -316,7 +316,7 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
         [JsonPropertyName("children")]
         public IEnumerable<OldUmbNavItem>? Children { get; set; }        
 
-        [JsonIgnore]
+        [JsonPropertyName("itemType")]
         public OldUmbNavItemType ItemType { get; set; }
 
         [JsonIgnore]
