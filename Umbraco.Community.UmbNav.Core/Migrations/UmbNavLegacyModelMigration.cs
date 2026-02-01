@@ -240,7 +240,7 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
             ItemType = MapItemType(oldItem.ItemType),
             ContentKey = udi?.Guid,
             Anchor = oldItem.Anchor,
-            Children = oldItem.Children?.Select(c => MapToNewModel(c, level++)),
+            Children = oldItem.Children?.Select(c => MapToNewModel(c, level + 1)),
             Level = oldItem.Level,
             Target = oldItem.Target,
             ImageArray = oldItem.ImageArray,
@@ -316,7 +316,7 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
         [JsonPropertyName("children")]
         public IEnumerable<OldUmbNavItem>? Children { get; set; }        
 
-        [JsonIgnore]
+        [JsonPropertyName("itemType")]
         public OldUmbNavItemType ItemType { get; set; }
 
         [JsonIgnore]

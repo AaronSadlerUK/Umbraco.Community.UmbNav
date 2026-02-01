@@ -233,7 +233,8 @@ export function ensureNavItemKeys(value: ModelEntryType[]): ModelEntryType[] {
         ...item,
         key: item.key ?? (uuidv4() as Guid),
         unique: item.udi != null && (item.udi.startsWith('umb://document/') || item.udi.startsWith('umb://media/')) ? item.key : undefined,
-        itemType: item.udi != null && item.udi.startsWith('umb://document/') ? 'Document' : item.itemType,
+        itemType: item.udi != null && item.udi.startsWith('umb://document/') ? 'Document' :
+                  item.udi != null && item.udi.startsWith('umb://media/') ? 'Media' : item.itemType,
         // Always ensure children is an array so nested sorters can initialize
         children: Array.isArray(item.children) ? ensureNavItemKeys(item.children) : []
     }));
