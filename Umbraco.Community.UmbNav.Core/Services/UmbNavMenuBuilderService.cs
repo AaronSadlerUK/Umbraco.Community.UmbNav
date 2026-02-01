@@ -283,7 +283,7 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
     protected virtual IEnumerable<UmbNavItem> GetAutoExpandedChildren(IPublishedContent content, int level, Guid currentContentKey)
     {
         return content.Children()
-            .Where(x => x.IsVisible() || (x.HasProperty("umbracoNavihide") && x.Value<bool>("umbracoNavihide")))
+            .Where(x => x.IsVisible())
             .Select(child => new UmbNavItem
             {
                 Name = child.Name,
