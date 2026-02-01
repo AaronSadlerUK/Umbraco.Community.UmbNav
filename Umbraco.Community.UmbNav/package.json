@@ -22,7 +22,7 @@
     "@playwright/test": "^1.56.1",
     "@types/node": "^24.5.0",
     "@umbraco-cms/backoffice": "~17.0.0",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.3",
     "vite": "^7.1.11",
      "prompt": "^1.2.0"
   }
