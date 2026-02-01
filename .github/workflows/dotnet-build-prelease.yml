@@ -1,7 +1,8 @@
 name: Package up Prerelease.
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - develop
       - rc
@@ -10,6 +11,8 @@ on:
 jobs:
 
   build:
+    # Only run on PR merge, skip Dependabot PRs
+    if: github.event.pull_request.merged == true && github.event.pull_request.user.login != 'dependabot[bot]'
     runs-on: windows-latest
     # runs-on: self-hosted
     
