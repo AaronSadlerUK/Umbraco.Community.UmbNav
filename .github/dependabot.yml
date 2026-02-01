@@ -20,10 +20,6 @@ updates:
       # Security updates will still be created (they bypass ignore rules)
       - dependency-name: "Umbraco.*"
         update-types: ["version-update:semver-minor", "version-update:semver-patch"]
-      # For transitive dependencies: only non-breaking security updates (patch only)
-      - dependency-name: "*"
-        dependency-type: "indirect"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
 
   # Monitor npm packages
   - package-ecosystem: "npm"
