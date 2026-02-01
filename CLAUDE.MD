@@ -67,7 +67,17 @@ Umbraco.Community.UmbNav/
 │   │   ├── manifest.ts                 # Property editor registration
 │   │   ├── index.ts                    # Main entry point
 │   │   └── umbnav-utils.ts             # Utility functions
-│   ├── tests/                          # Playwright E2E tests
+│   ├── tests/                          # Playwright E2E tests (9 tests)
+│   │   ├── TODO.md                     # Outstanding test checklist (30 tests)
+│   │   ├── add-content-item.spec.ts
+│   │   ├── add-text-item.spec.ts
+│   │   ├── add-inline-content-item.spec.ts
+│   │   ├── rename-link-item.spec.ts
+│   │   ├── rename-text-item.spec.ts
+│   │   ├── do-not-add-empty-text-item.spec.ts
+│   │   ├── show-toggle-all-items-multi-level.spec.ts
+│   │   ├── no-toggle-all-items-single-level.spec.ts
+│   │   └── no-text-items.spec.ts
 │   ├── wwwroot/App_Plugins/UmbNav/     # Compiled output
 │   ├── vite.config.ts                  # Build configuration
 │   ├── tsconfig.json                   # TypeScript config
@@ -710,6 +720,44 @@ public class UmbNavValueConverterIntegrationTests : UmbracoIntegrationTest
 
 Location: `Umbraco.Community.UmbNav/tests/`
 
+**Current Coverage: 9 E2E tests (~20% of user-facing functionality)**
+
+#### Existing Tests
+
+| Test File | Coverage |
+|-----------|----------|
+| `add-content-item.spec.ts` | Adding Document type items |
+| `add-text-item.spec.ts` | Adding Title type items |
+| `add-inline-content-item.spec.ts` | Nested item creation |
+| `rename-link-item.spec.ts` | Editing link items |
+| `rename-text-item.spec.ts` | Editing text items |
+| `do-not-add-empty-text-item.spec.ts` | Empty validation |
+| `show-toggle-all-items-multi-level.spec.ts` | Toggle visibility (multi-level) |
+| `no-toggle-all-items-single-level.spec.ts` | Toggle visibility (single-level) |
+| `no-text-items.spec.ts` | Config option enforcement |
+
+#### Outstanding E2E Tests
+
+**See: `/tests/TODO.md` for complete list (30 outstanding tests)**
+
+**Priority 1 - Critical (12 tests):**
+- Drag and drop functionality (4 tests)
+- External links and media items (3 tests)
+- Delete functionality (3 tests)
+- Save and persistence (2 tests)
+
+**Priority 2 - Important (12 tests):**
+- Advanced properties (description, classes, target, etc.) (7 tests)
+- Expand/collapse functionality (2 tests)
+- Configuration enforcement (3 tests)
+
+**Priority 3 - Polish (6 tests):**
+- Modal interactions (2 tests)
+- Error handling (2 tests)
+- Accessibility (2 tests)
+
+#### Example Test
+
 ```typescript
 import { test, expect } from '@playwright/test';
 import { ConstantHelper } from "@umbraco/playwright-testhelpers";
@@ -721,6 +769,28 @@ test.describe("UmbNav", () => {
         // ... test implementation
     });
 });
+```
+
+#### Running E2E Tests
+
+```bash
+# Install Playwright browsers (first time only)
+npx playwright install
+
+# Run all tests
+npx playwright test
+
+# Run specific test file
+npx playwright test add-content-item.spec.ts
+
+# Run with UI
+npx playwright test --headed
+
+# Debug mode
+npx playwright test --debug
+
+# Generate HTML report
+npx playwright test --reporter=html
 ```
 
 ---
