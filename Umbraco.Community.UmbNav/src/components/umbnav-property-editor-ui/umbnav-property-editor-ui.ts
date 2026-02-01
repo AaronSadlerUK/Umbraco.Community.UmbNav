@@ -1,6 +1,7 @@
-import { html, customElement, LitElement, property, state } from '@umbraco-cms/backoffice/external/lit';
+import { html, customElement, property, state } from '@umbraco-cms/backoffice/external/lit';
 import { UmbPropertyEditorConfigCollection, UmbPropertyEditorConfigProperty, UmbPropertyEditorUiElement } from "@umbraco-cms/backoffice/property-editor";
-import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
+import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
+import { UmbFormControlMixin } from "@umbraco-cms/backoffice/validation";
 import '../umbnav-group/umbnav-group.js';
 import type { UmbNavGroup } from '../umbnav-group/umbnav-group.js';
 import { ModelEntryType } from "../../tokens/umbnav.token.ts";
@@ -9,9 +10,25 @@ import { UmbNavPropertyEditorUIStyles } from './umbnav-property-editor-ui.styles
 import { ensureNavItemKeys } from '../../umbnav-utils.ts';
 
 @customElement('umbnav-property-editor-ui')
-export default class UmbNavSorterPropertyEditorUIElement extends UmbElementMixin(LitElement) implements UmbPropertyEditorUiElement {
+export default class UmbNavSorterPropertyEditorUIElement extends UmbFormControlMixin<ModelEntryType[] | undefined, typeof UmbLitElement, undefined>(UmbLitElement) implements UmbPropertyEditorUiElement {
+
+    constructor() {
+        super();
+
+        this.addValidator(
+            'valueMissing',
+            () => this.localize.term('umbnav_requiredMessage'),
+            () => !this.value || this.value.length === 0
+        );
+    }
+
     @property({ type: Array })
-    value: ModelEntryType[] = [];
+    override set value(value: ModelEntryType[] | undefined) {
+        super.value = value;
+    }
+    override get value(): ModelEntryType[] | undefined {
+        return super.value;
+    }
 
     @property({ attribute: false })
     config: UmbPropertyEditorConfigCollection | undefined;

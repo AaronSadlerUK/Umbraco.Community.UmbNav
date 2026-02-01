@@ -3,7 +3,11 @@ using System.Text.Json.Serialization;
 using Umbraco.Cms.Core;
 namespace Umbraco.Community.UmbNav.Core.Converters
 {
-    internal class UmbNavJsonUdiConverter : JsonConverter<Udi>
+    /// <summary>
+    /// JSON converter for Umbraco UDI types used in UmbNav serialization.
+    /// This class can be extended to customize UDI serialization behavior.
+    /// </summary>
+    public class UmbNavJsonUdiConverter : JsonConverter<Udi>
     {
         /// <inheritdoc />
         public override bool CanConvert(Type typeToConvert)

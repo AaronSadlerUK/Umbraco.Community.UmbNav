@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors;
@@ -44,11 +44,8 @@ public class UmbNavValueConverter : PropertyValueConverterBase, IDeliveryApiProp
                 return null;
             }
 
-            var hideNoopener = HideNoopener(propertyType);
-            var hideNoreferrer = HideNoreferrer(propertyType);
-            var hideIncludeChildren = HideIncludeChildren(propertyType);
-
-            return _umbNavMenuBuilderService.BuildMenu(items, 0, hideNoopener, hideNoreferrer, hideIncludeChildren);
+            var options = GetBuildOptions(propertyType);
+            return _umbNavMenuBuilderService.BuildMenu(items, options);
         }
         catch (Exception ex)
         {
@@ -57,15 +54,6 @@ public class UmbNavValueConverter : PropertyValueConverterBase, IDeliveryApiProp
 
         return Enumerable.Empty<UmbNavItem>();
     }
-    
-    private static bool HideNoopener(IPublishedPropertyType propertyType) =>
-        propertyType.DataType.ConfigurationAs<UmbNavConfiguration>()?.HideNoopener ?? false;
-    
-    private static bool HideNoreferrer(IPublishedPropertyType propertyType) =>
-        propertyType.DataType.ConfigurationAs<UmbNavConfiguration>()?.HideNoreferrer ?? false;
-
-    private static bool HideIncludeChildren(IPublishedPropertyType propertyType) =>
-        propertyType.DataType.ConfigurationAs<UmbNavConfiguration>()?.HideIncludeChildren ?? false;
 
     public PropertyCacheLevel GetDeliveryApiPropertyCacheLevel(IPublishedPropertyType propertyType)
         => PropertyCacheLevel.Elements;
@@ -91,11 +79,8 @@ public class UmbNavValueConverter : PropertyValueConverterBase, IDeliveryApiProp
                 return null;
             }
 
-            var hideNoopener = HideNoopener(propertyType);
-            var hideNoreferrer = HideNoreferrer(propertyType);
-            var hideIncludeChildren = HideIncludeChildren(propertyType);
-
-            return _umbNavMenuBuilderService.BuildMenu(items, 0, hideNoopener, hideNoreferrer, hideIncludeChildren);
+            var options = GetBuildOptions(propertyType);
+            return _umbNavMenuBuilderService.BuildMenu(items, options);
         }
         catch (Exception ex)
         {
@@ -103,5 +88,24 @@ public class UmbNavValueConverter : PropertyValueConverterBase, IDeliveryApiProp
         }
 
         return Enumerable.Empty<UmbNavItem>();
+    }
+
+    /// <summary>
+    /// Creates build options from the property type configuration.
+    /// </summary>
+    private static UmbNavBuildOptions GetBuildOptions(IPublishedPropertyType propertyType)
+    {
+        var config = propertyType.DataType.ConfigurationAs<UmbNavConfiguration>();
+
+        return new UmbNavBuildOptions
+        {
+            RemoveNoopener = config?.HideNoopener ?? false,
+            RemoveNoreferrer = config?.HideNoreferrer ?? false,
+            HideIncludeChildren = config?.HideIncludeChildren ?? false,
+            RemoveDescription = !(config?.AllowDescription ?? false),
+            RemoveCustomClasses = !(config?.AllowCustomClasses ?? false),
+            RemoveImages = !(config?.AllowImageIcon ?? false),
+            MaxDepth = config?.MaxDepth ?? 0
+        };
     }
 }

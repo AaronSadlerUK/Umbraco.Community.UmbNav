@@ -27,5 +27,11 @@ namespace Umbraco.Community.UmbNav.Core.PropertyEditors
 
         [ConfigurationField("hideIncludeChildren")]
         public bool HideIncludeChildren { get; set; }
+
+        [ConfigurationField("allowDescription")]
+        public bool AllowDescription { get; set; }
+
+        [ConfigurationField("maxDepth")]
+        public int MaxDepth { get; set; }
     }
 }

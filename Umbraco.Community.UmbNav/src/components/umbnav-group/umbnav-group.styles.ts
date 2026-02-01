@@ -20,7 +20,7 @@ export const UmbNavGroupStyles = [
             gap: 1px;
         }
 
-        .collapsed {
+        :host(.collapsed) {
             block-size: 0;
             overflow: clip;
             visibility: hidden;
@@ -28,12 +28,26 @@ export const UmbNavGroupStyles = [
             transition: block-size 0.5s ease, visibility 0.5s ease, opacity 0.5s ease;
         }
 
-        .expanded {
+        :host(.expanded) {
             display: flex;
             block-size: auto;
             visibility: visible;
             opacity: 1;
             transition: block-size 0.5s ease, visibility 0.5s ease, opacity 0.5s ease;
+        }
+
+        /* Drop zone placeholder for empty nested containers */
+        .drop-zone {
+            min-block-size: 60px;
+            background: var(--uui-color-surface-alt);
+            border: 2px dashed var(--uui-color-border);
+            border-radius: var(--uui-border-radius);
+            margin: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--uui-color-text-alt);
+            font-size: var(--uui-type-small-size);
         }
 
         .margin-left {
@@ -45,7 +59,7 @@ export const UmbNavGroupStyles = [
             padding-bottom: 3px;
         }
 
-        .disallowed {
+        :host(.disallowed) {
             cursor: not-allowed;
             background: red;
         }

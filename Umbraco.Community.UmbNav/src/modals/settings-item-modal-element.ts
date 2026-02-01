@@ -38,6 +38,11 @@ export class UmbNavModalElement extends
         return <Boolean>this.data?.config.find(item => item.alias === 'hideIncludeChildren')?.value ?? false;
     }
 
+    @state()
+    public get enableDescription(): Boolean {
+        return <Boolean>this.data?.config.find(item => item.alias === 'allowDescription')?.value ?? false;
+    }
+
     customCssClasses: string = '';
 
     @state()
@@ -59,7 +64,8 @@ export class UmbNavModalElement extends
             customCssClasses: this.value?.customCssClasses ?? '',
             noreferrer: this.value?.noreferrer ?? '',
             noopener: this.value?.noopener ?? '',
-            includeChildNodes: this.value?.includeChildNodes ?? false}
+            includeChildNodes: this.value?.includeChildNodes ?? false,
+            description: this.value?.description ?? null}
         ;
         this.modalContext?.submit();
     }
@@ -70,6 +76,10 @@ export class UmbNavModalElement extends
 
     #contentChange(event: UUIInputEvent) {
         this.updateValue({customCssClasses: event.target.value.toString()});
+    }
+
+    #descriptionChange(event: UUIInputEvent) {
+        this.updateValue({ description: event.target.value.toString() });
     }
 
     #handleNoReferrerToggle(event: UUIBooleanInputEvent) {
@@ -109,6 +119,11 @@ export class UmbNavModalElement extends
         return html`
 			<umb-body-layout headline=${ifDefined(this.data?.headline)}>
 				<uui-box>
+                    ${when(
+                        this.enableDescription,
+                        () => html`${this.#renderDescriptionInput()}`,
+                    )}
+
                     ${when(
                         this.enableCustomCssClasses,
                         () => html`${this.#renderCustomCssClassesInput()}`,
@@ -150,6 +165,26 @@ export class UmbNavModalElement extends
                             label=${this.localize.term('umbnav_settingsItemModalCustomCssClassesLabel')}
                             .value=${this.data?.customCssClasses ?? ''}
                             @input=${this.#contentChange} />
+						</uui-input>
+					</umb-property-layout>
+				</div>
+			</umb-property-layout>
+		`;
+    }
+
+    #renderDescriptionInput() {
+        return html`
+			<umb-property-layout orientation="vertical">
+				<div class="side-by-side" slot="editor">
+					<umb-property-layout
+						orientation="vertical"
+						label="#umbnav_settingsItemModalDescriptionLabel"
+						style="padding:0;">
+						<uui-input
+							slot="editor"
+                            label=${this.localize.term('umbnav_settingsItemModalDescriptionLabel')}
+                            .value=${this.data?.description ?? ''}
+                            @input=${this.#descriptionChange} />
 						</uui-input>
 					</umb-property-layout>
 				</div>

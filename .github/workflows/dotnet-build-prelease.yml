@@ -15,7 +15,7 @@ jobs:
     
     env:
       CONFIG: 'Release'
-      SOLUTION_FILE: './UmbNav.sln'
+      SOLUTION_FILE: './UmbNav.slnx'
       OUT_FOLDER: './build.out/'
 
     steps:
@@ -107,6 +107,12 @@ jobs:
 
       - name: Restore Umbraco.Community.UmbNav.Core
         run: dotnet restore ./Umbraco.Community.UmbNav.Core/Umbraco.Community.UmbNav.Core.csproj
+
+      - name: Restore Umbraco.Community.UmbNav.Core.Tests
+        run: dotnet restore ./Umbraco.Community.UmbNav.Core.Tests/Umbraco.Community.UmbNav.Core.Tests.csproj
+
+      - name: Run Tests
+        run: dotnet test ./Umbraco.Community.UmbNav.Core.Tests/Umbraco.Community.UmbNav.Core.Tests.csproj --no-restore -c Debug
 
       - name: Build Umbraco.Community.UmbNav
         run: dotnet pack ./Umbraco.Community.UmbNav/Umbraco.Community.UmbNav.csproj --no-restore -c ${{env.CONFIG}} --output ${{env.OUT_FOLDER}} /p:version=${{steps.gitversion.outputs.nuGetVersionV2}}

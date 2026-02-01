@@ -1,53 +1,92 @@
+# UmbNav
+
 UmbNav adds a drag and drop menu builder to the Umbraco V17+ backoffice.
 
-## Getting started
+[![NuGet](https://img.shields.io/nuget/v/Umbraco.Community.UmbNav.svg)](https://www.nuget.org/packages/Umbraco.Community.UmbNav)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/Umbraco.Community.UmbNav.svg)](https://www.nuget.org/packages/Umbraco.Community.UmbNav)
 
-UmbNav V4.X only supports Umbraco 17+
+## Documentation
 
-For Umbraco versions 13 and below please see the repository linked below:
-https://github.com/AaronSadlerUK/Our.Umbraco.UmbNav
+**Full documentation is available on [GitBook](https://umbnavdocs.aaronsadler.dev/)**.
 
-### Features
-
-- Set maximum child levels
-- Hide menu items where `umbracoNaviHide` is true
-- Auto expand the backoffice menu tree on hover
-- Set the delay of the auto expand on hover (in ms)
-- Add `noopener` to external links by clicking a checkbox
-- Add `noreferrer` to external links by clicking a checkbox
-- Auto add child nodes when rendering on the front end
-- Allow menu items to be shown / hidden depending on member authentication status
-- Add custom CSS classes to each menu item in the backoffice
-- Display the property editor as full width in the back office (Hide the label)
-- Add an image to a menu item
-- TagHelper
-- Add label items
+## Quick Start
 
 ### Installation
 
-UmbNav is available from [NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbNav), or as a manual download directly from GitHub.
+```bash
+dotnet add package Umbraco.Community.UmbNav
+```
 
-#### NuGet package repository
-To [install UI from NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbNav), run the following command in your instance of Visual Studio.
+For headless/API-only scenarios (Core package without UI):
 
-    PM> Install-Package Umbraco.Community.UmbNav
-	
-To [install Core from NuGet](https://www.nuget.org/packages/Umbraco.Community.UmbNav.Core), run the following command in your instance of Visual Studio.
+```bash
+dotnet add package Umbraco.Community.UmbNav.Core
+```
 
-    PM> Install-Package Umbraco.Community.UmbNav.Core
+### Basic Usage
 
-### Documentation
+```cshtml
+@using Umbraco.Community.UmbNav.Core.Models
 
-After installing the package, you will have a new property editor called UmbNav in the Umbraco backoffice, typically this would get added to your sites "Site Settings" or "Home" node.
+@{
+    var menuItems = Model.Value<IEnumerable<UmbNavItem>>("navigation");
+}
 
-Check out the [documentation](https://umbnavdocs.aaronsadler.dev/) to learn how to embed the package in your site.
+<nav>
+    <ul>
+        @foreach (var item in menuItems)
+        {
+            <li>
+                <umbnavitem menu-item="@item"
+                            active-class="active"
+                            current-page="@Model">
+                </umbnavitem>
+            </li>
+        }
+    </ul>
+</nav>
+```
 
-### Contribution guidelines
+## Features
 
-To raise a new bug, create an issue on the GitHub repository. To fix a bug or add new features, fork the repository and send a pull request with your changes. Feel free to add ideas to the repository's issues list if you would to discuss anything related to the package.
+- **Drag and drop menu builder** with nested children support
+- **Multiple item types**: Content nodes, external links, and text labels
+- **TagHelper** for easy frontend rendering
+- **Fully extensible** - add custom toolbar actions, item types, and more
+- **Advanced options**:
+  - Custom CSS classes
+  - Menu item images
+  - Description fields
+  - Member visibility rules
+  - Auto-include child nodes
+  - noopener/noreferrer support
 
-### Who do I talk to?
-This project is maintained by [Aaron Sadler](https://aaronsadler.uk) and contributors.
+### Versions
+
+There are 3 versions of UmbNav, depending on the Umbraco version you are installing into you will need to use the version outlined below:
+
+| Umbraco Version           | UmbNav Version                                                                                |
+| ------------------------- | --------------------------------------------------------------------------------------------- |
+| Umbraco Version 17        | 4.0.0 - Latest - Active development                                                           |
+| Umbraco Version 16        | 4.0.0-beta0030 - (Not all features available) - No further development planned                |
+| Umbraco Version 15        | 4.0.0-beta0001 - 4.0.0-beta0021 (Not all features available) - No further development planned |
+| Umbraco Version 14        | Not Supported                                                                                 |
+| Umbraco Versions 11 -> 13 | 3.x                                                                                           |
+| Umbraco Version 10        | 2.x - End-of-Life or 3.x                                                                      |
+| Umbraco Version 9         | 1.x - End-of-Life                                                                             |
+| Umbraco Version 8         | 1.x - End-of-Life                                                                             |
+
+For Umbraco versions 13 and below, see the [legacy repository](https://github.com/AaronSadlerUK/Our.Umbraco.UmbNav).
+
+## Contributing
+
+To raise a new bug, create an issue on the GitHub repository. To fix a bug or add new features, fork the repository and send a pull request with your changes.
+
+See [Contributing Guide](https://umbnavdocs.aaronsadler.dev/umbnav-documentation/reference/contributing) for detailed instructions.
+
+## Who do I talk to?
+
+This project is maintained by [Aaron Sadler](https://aaronsadler.dev) and contributors.
 
 ## License
 
@@ -55,4 +94,4 @@ Copyright &copy; 2025 [Aaron Sadler](https://aaronsadler.dev), and other contrib
 
 Licensed under the MIT License.
 
-As per the spirit of the MIT Licence, feel free to fork and do what you wish with the source code, all I ask is that if you find a bug or add a feature please create a to PR this repository.
+As per the spirit of the MIT Licence, feel free to fork and do what you wish with the source code, all I ask is that if you find a bug or add a feature please create a PR to this repository.
