@@ -8,9 +8,6 @@ updates:
       day: "monday"
     target-branch: "develop"
     open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "nuget"
     # Stay on Umbraco v17, only create PRs for security vulnerabilities
     ignore:
       # Block all version updates to v18+
@@ -29,9 +26,6 @@ updates:
       day: "monday"
     target-branch: "develop"
     open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "npm"
 
   # Monitor GitHub Actions
   - package-ecosystem: "github-actions"
@@ -41,6 +35,3 @@ updates:
       day: "monday"
     target-branch: "develop"
     open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "github-actions"
