@@ -1,0 +1,50 @@
+version: 2
+updates:
+  # Monitor NuGet packages
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    target-branch: "develop"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "nuget"
+    # Stay on Umbraco v17, only create PRs for security vulnerabilities
+    ignore:
+      # Block all version updates to v18+
+      - dependency-name: "Umbraco.*"
+        versions: [">= 18.0.0"]
+      # Block routine minor/patch updates within v17
+      # Security updates will still be created (they bypass ignore rules)
+      - dependency-name: "Umbraco.*"
+        update-types: ["version-update:semver-minor", "version-update:semver-patch"]
+      # For transitive dependencies: only non-breaking security updates (patch only)
+      - dependency-name: "*"
+        dependency-type: "indirect"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+
+  # Monitor npm packages
+  - package-ecosystem: "npm"
+    directory: "/Umbraco.Community.UmbNav"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    target-branch: "develop"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "npm"
+
+  # Monitor GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    target-branch: "develop"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
