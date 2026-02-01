@@ -101,9 +101,25 @@ Umbraco.Community.UmbNav/
 │   ├── NotificationHandlers/           # Telemetry
 │   └── UmbNavConstants.cs              # Constants
 │
-├── Umbraco.Community.UmbNav.Core.Tests/ # Unit tests
-│   └── Services/
-│       └── UmbNavMenuBuilderServiceTests.cs
+├── Umbraco.Community.UmbNav.Core.Tests/ # Unit tests (138 tests)
+│   ├── Services/
+│   │   └── UmbNavMenuBuilderServiceTests.cs
+│   ├── Models/
+│   │   ├── UmbNavBuildOptionsTests.cs
+│   │   └── UmbNavItemTests.cs
+│   ├── Extensions/
+│   │   └── UmbNavItemExtensionsTests.cs
+│   ├── Migrations/
+│   │   └── UmbNavLegacyModelMigrationTests.cs
+│   ├── Converters/
+│   │   ├── UmbNavValueConverterTests.cs
+│   │   └── UmbNavJsonUdiConverterTests.cs
+│   ├── TagHelpers/
+│   │   └── UmbnavItemTagHelperTests.cs
+│   ├── NotificationHandlers/
+│   │   └── TelemetryNotificationHandlerTests.cs
+│   └── PropertyEditors/
+│       └── UmbNavConfigurationTests.cs
 │
 ├── TestSite.V17/                       # Development test site
 │   ├── Program.cs
@@ -543,6 +559,23 @@ public class CustomNavItemTagHelper : UmbnavitemTagHelper
 
 Location: `Umbraco.Community.UmbNav.Core.Tests/`
 
+**Current Coverage: ~89% (10 out of 19 components tested, 138 tests)**
+
+#### Test Files
+
+| Test File | Tests | Coverage |
+|-----------|-------|----------|
+| `UmbNavMenuBuilderServiceTests.cs` | 19 | Comprehensive - menu building, options, depth limiting, visibility |
+| `UmbNavItemExtensionsTests.cs` | 16 | Very good - HTML rendering, active state, CSS classes |
+| `UmbNavBuildOptionsTests.cs` | 3 | Adequate - default values, property setting |
+| `UmbNavLegacyModelMigrationTests.cs` | 14 | Comprehensive - legacy JSON transformation, error handling |
+| `UmbNavValueConverterTests.cs` | 5 | Basic - converter detection, return types |
+| `UmbNavJsonUdiConverterTests.cs` | 16 | Very good - UDI serialization/deserialization |
+| `UmbnavItemTagHelperTests.cs` | 20 | Comprehensive - HTML rendering, attributes, item types |
+| `TelemetryNotificationHandlerTests.cs` | 7 | Good - opt-out logic, error handling |
+| `UmbNavConfigurationTests.cs` | 14 | Comprehensive - all properties, defaults |
+| `UmbNavItemTests.cs` | 24 | Comprehensive - JSON serialization, all properties |
+
 ```csharp
 public class UmbNavMenuBuilderServiceTests
 {
@@ -559,6 +592,116 @@ public class UmbNavMenuBuilderServiceTests
         // Assert
         Assert.NotNull(result);
         Assert.NotEmpty(result);
+    }
+}
+```
+
+### Integration Tests Needed
+
+The following components are tightly coupled with Umbraco's infrastructure and would benefit from **integration tests**:
+
+#### 1. **UmbNavValueConverter** (High Priority)
+**Why:** Requires full Umbraco Published Content infrastructure
+- Test `ConvertIntermediateToObject` with real `IPublishedPropertyType` and `IPublishedDataType`
+- Validate configuration extraction from `DataType.ConfigurationAs<T>()`
+- Test menu building with various configuration combinations
+- Verify Delivery API conversion path
+
+**Recommended Test Scenarios:**
+```csharp
+[Fact]
+public void ConvertIntermediateToObject_WithConfiguration_AppliesOptions()
+{
+    // Test with real DataType that has UmbNavConfiguration
+    // Verify RemoveDescription, RemoveCustomClasses, MaxDepth work correctly
+}
+
+[Fact]
+public void ConvertIntermediateToDeliveryApiObject_ReturnsProcessedItems()
+{
+    // Test Delivery API path with expanding/preview flags
+}
+```
+
+#### 2. **RegisterUmbNavServicesComposer** (Medium Priority)
+**Why:** DI container setup requires Umbraco runtime
+- Verify all services are correctly registered
+- Test service resolution from DI container
+- Validate singleton vs transient lifetimes
+
+**Recommended Test Scenarios:**
+```csharp
+[Fact]
+public void Compose_RegistersAllServices()
+{
+    // Use Umbraco TestHelper to create builder
+    // Verify IUmbNavMenuBuilderService resolves correctly
+}
+```
+
+#### 3. **UmbNavPropertyEditor** (Low Priority)
+**Why:** Framework-specific registration
+- Verify property editor registration with Umbraco
+- Test Data Type creation with UmbNavConfiguration
+- Validate editor UI alias matches expectations
+
+#### 4. **Full Migration Workflow** (High Priority)
+**Why:** Current tests only cover the transformation method
+- Test complete migration with real database
+- Verify data type updates succeed
+- Test content service Save operations
+- Validate paged content processing
+
+**Recommended Test Scenarios:**
+```csharp
+[Fact]
+public async Task MigrateAsync_WithLegacyData_UpdatesContentAndDataTypes()
+{
+    // Setup test database with legacy content
+    // Run migration
+    // Verify all content updated, data types changed
+}
+
+[Fact]
+public void ProcessContentType_WithPaginatedContent_ProcessesAllPages()
+{
+    // Test with 250+ content items to verify pagination
+}
+```
+
+#### 5. **TelemetryNotificationHandler - HTTP Interaction** (Medium Priority)
+**Why:** Current tests mock HTTP, should test actual HTTP behavior
+- Test actual HTTP POST to telemetry endpoint (with mock server)
+- Verify payload encoding (Base64)
+- Test timeout handling
+- Validate retry logic (if applicable)
+
+**Recommended Test Scenarios:**
+```csharp
+[Fact]
+public async Task HandleAsync_WithValidData_SendsCorrectPayload()
+{
+    // Use WireMock or similar to create mock HTTP server
+    // Verify POST body contains correct Base64-encoded JSON
+    // Verify headers are correct
+}
+```
+
+### Integration Test Setup Recommendations
+
+```csharp
+// Example using Umbraco.Cms.Tests.Integration
+public class UmbNavValueConverterIntegrationTests : UmbracoIntegrationTest
+{
+    [Test]
+    public async Task ConvertValue_WithRealConfiguration_Works()
+    {
+        // Use real Umbraco services from GetRequiredService<T>()
+        var converter = GetRequiredService<UmbNavValueConverter>();
+        var dataTypeService = GetRequiredService<IDataTypeService>();
+
+        // Create real data type with configuration
+        // Test conversion with real infrastructure
     }
 }
 ```
