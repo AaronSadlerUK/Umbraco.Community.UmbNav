@@ -387,3 +387,5 @@ MigrationBackup/
 
 **/umbraco/mediacache/
 Umbraco.Community.UmbNav/.env
+
+**/*.local.json

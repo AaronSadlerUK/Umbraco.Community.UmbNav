@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(dir:*)",
-      "WebSearch",
-      "mcp__ide__getDiagnostics"
-    ]
-  }
-}
