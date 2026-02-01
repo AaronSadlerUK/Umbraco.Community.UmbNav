@@ -19,7 +19,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.56.1",
+    "@playwright/test": "^1.58.1",
     "@types/node": "^24.5.0",
     "@umbraco-cms/backoffice": "~17.0.0",
     "typescript": "^5.9.3",
