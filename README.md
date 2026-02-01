@@ -7,7 +7,7 @@ UmbNav adds a drag and drop menu builder to the Umbraco V17+ backoffice.
 
 ## Documentation
 
-**Full documentation is available at [umbnavdocs.aaronsadler.dev](https://umbnavdocs.aaronsadler.dev/)** or in the [Docs folder](./Docs/README.md).
+**Full documentation is available on [GitBook](https://umbnavdocs.aaronsadler.dev/)**.
 
 ## Quick Start
 
@@ -18,6 +18,7 @@ dotnet add package Umbraco.Community.UmbNav
 ```
 
 For headless/API-only scenarios (Core package without UI):
+
 ```bash
 dotnet add package Umbraco.Community.UmbNav.Core
 ```
@@ -60,58 +61,32 @@ dotnet add package Umbraco.Community.UmbNav.Core
   - Auto-include child nodes
   - noopener/noreferrer support
 
-## Version Compatibility
+### Versions
 
-| UmbNav Version | Umbraco Version |
-|----------------|-----------------|
-| 4.x | 17+ |
-| 3.x | 14-16 |
-| 2.x | 10-13 |
-| 1.x | 8-9 |
+There are 3 versions of UmbNav, depending on the Umbraco version you are installing into you will need to use the version outlined below:
+
+| Umbraco Version           | UmbNav Version                                                                                |
+| ------------------------- | --------------------------------------------------------------------------------------------- |
+| Umbraco Version 17        | 4.0.0 - Latest - Active development                                                           |
+| Umbraco Version 16        | 4.0.0-beta0030 - (Not all features available) - No further development planned                |
+| Umbraco Version 15        | 4.0.0-beta0001 - 4.0.0-beta0021 (Not all features available) - No further development planned |
+| Umbraco Version 14        | Not Supported                                                                                 |
+| Umbraco Versions 11 -> 13 | 3.x                                                                                           |
+| Umbraco Version 10        | 2.x - End-of-Life or 3.x                                                                      |
+| Umbraco Version 9         | 1.x - End-of-Life                                                                             |
+| Umbraco Version 8         | 1.x - End-of-Life                                                                             |
 
 For Umbraco versions 13 and below, see the [legacy repository](https://github.com/AaronSadlerUK/Our.Umbraco.UmbNav).
-
-## Documentation Topics
-
-- [Getting Started](./Docs/getting-started.md)
-- [Installation](./Docs/installation.md)
-- [Upgrading](./Docs/upgrading.md) - Migration from v3.x to v4.x
-- [Configuration](./Docs/configuration.md)
-- **Rendering**
-  - [TagHelper](./Docs/rendering/taghelper.md)
-  - [Extension Methods](./Docs/rendering/extension-methods.md)
-  - [Menu Builder Service](./Docs/rendering/menu-builder-service.md)
-- **Models**
-  - [UmbNavItem](./Docs/models/umbnav-item.md)
-  - [Build Options](./Docs/models/build-options.md)
-- **Extensibility**
-  - [Overview](./Docs/extensibility/overview.md)
-  - [Frontend Extensions](./Docs/extensibility/frontend/README.md)
-  - [Backend Extensions](./Docs/extensibility/backend/README.md)
-- **Examples**
-  - [Basic Navigation](./Docs/examples/basic-navigation.md)
-  - [Multi-Level Dropdown](./Docs/examples/multi-level-dropdown.md)
-  - [Mega Menu](./Docs/examples/mega-menu.md)
-  - [Bootstrap Integration](./Docs/examples/bootstrap-integration.md)
-  - [Tailwind Integration](./Docs/examples/tailwind-integration.md)
-  - [Mobile Navigation](./Docs/examples/mobile-navigation.md)
-- **Testing**
-  - [Playwright E2E Tests](./Docs/testing/playwright.md)
-  - [C# Unit Tests](./Docs/testing/unit-tests.md)
-- **Reference**
-  - [API Reference](./Docs/reference/api-reference.md)
-  - [Changelog](./Docs/reference/changelog.md)
-  - [Troubleshooting](./Docs/reference/troubleshooting.md)
 
 ## Contributing
 
 To raise a new bug, create an issue on the GitHub repository. To fix a bug or add new features, fork the repository and send a pull request with your changes.
 
-See [Contributing Guide](./Docs/reference/contributing.md) for detailed instructions.
+See [Contributing Guide](https://umbnavdocs.aaronsadler.dev/umbnav-documentation/reference/contributing) for detailed instructions.
 
 ## Who do I talk to?
 
-This project is maintained by [Aaron Sadler](https://aaronsadler.uk) and contributors.
+This project is maintained by [Aaron Sadler](https://aaronsadler.dev) and contributors.
 
 ## License
 
