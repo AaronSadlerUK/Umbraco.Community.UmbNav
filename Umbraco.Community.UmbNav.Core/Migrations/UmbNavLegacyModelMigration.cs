@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
@@ -240,7 +240,7 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
             ItemType = MapItemType(oldItem.ItemType),
             ContentKey = udi?.Guid,
             Anchor = oldItem.Anchor,
-            Children = oldItem.Children?.Select(c => MapToNewModel(c, level++)),
+            Children = oldItem.Children?.Select(c => MapToNewModel(c, level + 1)),
             Level = oldItem.Level,
             Target = oldItem.Target,
             ImageArray = oldItem.ImageArray,
