@@ -32,6 +32,15 @@ updates:
     labels:
       - "dependencies"
       - "npm"
+    # Stay on Umbraco v17, only create PRs for security vulnerabilities
+    ignore:
+      # Block all version updates to v18+
+      - dependency-name: "@umbraco/*"
+        versions: [">= 18.0.0"]
+      # Block routine minor/patch updates within v17
+      # Security updates will still be created (they bypass ignore rules)
+      - dependency-name: "@umbraco/*"
+        update-types: ["version-update:semver-minor", "version-update:semver-patch"]
 
   # Monitor GitHub Actions
   - package-ecosystem: "github-actions"
