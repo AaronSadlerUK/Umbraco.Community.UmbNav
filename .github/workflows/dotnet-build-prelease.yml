@@ -15,7 +15,7 @@ jobs:
     
     env:
       CONFIG: 'Release'
-      SOLUTION_FILE: './UmbNav.sln'
+      SOLUTION_FILE: './UmbNav.slnx'
       OUT_FOLDER: './build.out/'
 
     steps:
