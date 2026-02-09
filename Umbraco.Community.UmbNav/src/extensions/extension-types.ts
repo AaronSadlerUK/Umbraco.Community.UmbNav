@@ -48,6 +48,8 @@ export interface UmbNavItemTypeRegistration {
     icon: string;
     /** Whether this type can have children */
     allowChildren?: boolean;
+    /** Default values to apply when creating an item of this type */
+    defaultValues?: Partial<ModelEntryType>;
     /** Custom render function for the item display */
     render?: (item: ModelEntryType) => TemplateResult;
     /** Modal token to open when editing this type */

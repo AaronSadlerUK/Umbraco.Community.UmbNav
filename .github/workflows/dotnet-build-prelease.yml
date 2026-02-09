@@ -1,7 +1,8 @@
 name: Package up Prerelease.
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - develop
       - rc
@@ -10,6 +11,8 @@ on:
 jobs:
 
   build:
+    # Only run on PR merge (skip Dependabot PRs) or manual dispatch
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && github.event.pull_request.user.login != 'dependabot[bot]')
     runs-on: windows-latest
     # runs-on: self-hosted
     
@@ -21,22 +24,22 @@ jobs:
     steps:
 
       - name: Setup dotnet
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             10.x
 
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0.12.0
+        uses: gittools/actions/gitversion/setup@v4.2.0
         with:
-          versionSpec: '5.x'
+          versionSpec: '6.x'
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 23
           cache: 'npm'
@@ -65,7 +68,7 @@ jobs:
       #    retention-days: 30
 
       - name: Retrieve cache
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.nuget/packages
@@ -75,14 +78,14 @@ jobs:
 
       - name: Determine Version with GitVersion (MSBuild in Proj will do this)
         id:   gitversion
-        uses: gittools/actions/gitversion/execute@v0.9.15
+        uses: gittools/actions/gitversion/execute@v4.2.0
         with:
           useConfigFile: true
           configFilePath: ./GitVersion.yml
 
       - name: Display GitVersion SemVer
         run: |
-          echo "FullSemVer: ${{ steps.gitversion.outputs.nuGetVersionV2 }}"
+          echo "FullSemVer: ${{ steps.gitversion.outputs.semVer }}"
 
 
       - name: Update umbraco-package.json version
@@ -90,7 +93,7 @@ jobs:
         with:
           file:  Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/umbraco-package.json
           field: version
-          value: ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+          value: ${{ steps.gitversion.outputs.semVer }}
 
       - name: Update package.json version
         uses: jossef/action-set-json-field@v2.2
@@ -115,30 +118,28 @@ jobs:
         run: dotnet test ./Umbraco.Community.UmbNav.Core.Tests/Umbraco.Community.UmbNav.Core.Tests.csproj --no-restore -c Debug
 
       - name: Build Umbraco.Community.UmbNav
-        run: dotnet pack ./Umbraco.Community.UmbNav/Umbraco.Community.UmbNav.csproj --no-restore -c ${{env.CONFIG}} --output ${{env.OUT_FOLDER}} /p:version=${{steps.gitversion.outputs.nuGetVersionV2}}
+        run: dotnet pack ./Umbraco.Community.UmbNav/Umbraco.Community.UmbNav.csproj --no-restore -c ${{env.CONFIG}} --output ${{env.OUT_FOLDER}} /p:version=${{steps.gitversion.outputs.semVer}}
 
       - name: Build Umbraco.Community.UmbNav.Core
-        run: dotnet pack ./Umbraco.Community.UmbNav.Core/Umbraco.Community.UmbNav.Core.csproj --no-restore -c ${{env.CONFIG}} --output ${{env.OUT_FOLDER}} /p:version=${{steps.gitversion.outputs.nuGetVersionV2}}
+        run: dotnet pack ./Umbraco.Community.UmbNav.Core/Umbraco.Community.UmbNav.Core.csproj --no-restore -c ${{env.CONFIG}} --output ${{env.OUT_FOLDER}} /p:version=${{steps.gitversion.outputs.semVer}}
 
       - name: Push to GitHub Nuget Repo
-        if: ${{ github.event_name != 'pull_request' }}
         run: |
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
 
       - name: Push to Nuget Repo
-        if: ${{ github.event_name != 'pull_request' }}
         run: |
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
 
       - name: Create Release
-        uses: "softprops/action-gh-release@v2"
-        with:
-          name: ${{steps.gitversion.outputs.fullSemVer}}
-          tag_name: ${{steps.gitversion.outputs.fullSemVer}}
-          prerelease: true
-          generate_release_notes: true
-          files: |
-            ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg
-            ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg
+        run: |
+          gh release create ${{steps.gitversion.outputs.fullSemVer}} `
+            ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.semVer}}.nupkg `
+            ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.semVer}}.nupkg `
+            --title "${{steps.gitversion.outputs.fullSemVer}}" `
+            --prerelease `
+            --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

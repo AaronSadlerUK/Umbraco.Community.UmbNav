@@ -14,16 +14,16 @@
     "config": "node config.cjs"
   },
   "dependencies": {
-    "@umbraco/playwright-testhelpers": "^17.0.25",
-    "lit": "^3.3.0",
+    "@umbraco/playwright-testhelpers": "^17.0.33",
+    "lit": "^3.3.2",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.56.1",
-    "@types/node": "^24.5.0",
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.2.2",
     "@umbraco-cms/backoffice": "~17.0.0",
-    "typescript": "^5.8.3",
-    "vite": "^7.1.11",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
      "prompt": "^1.2.0"
   }
 }
