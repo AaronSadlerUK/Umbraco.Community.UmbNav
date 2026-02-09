@@ -11,8 +11,8 @@ on:
 jobs:
 
   build:
-    # Only run on PR merge, skip Dependabot PRs
-    if: github.event.pull_request.merged == true && github.event.pull_request.user.login != 'dependabot[bot]'
+    # Only run on PR merge (skip Dependabot PRs) or manual dispatch
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && github.event.pull_request.user.login != 'dependabot[bot]')
     runs-on: windows-latest
     # runs-on: self-hosted
     
@@ -124,13 +124,11 @@ jobs:
         run: dotnet pack ./Umbraco.Community.UmbNav.Core/Umbraco.Community.UmbNav.Core.csproj --no-restore -c ${{env.CONFIG}} --output ${{env.OUT_FOLDER}} /p:version=${{steps.gitversion.outputs.nuGetVersionV2}}
 
       - name: Push to GitHub Nuget Repo
-        if: ${{ github.event_name != 'pull_request' }}
         run: |
           dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
           dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
 
       - name: Push to Nuget Repo
-        if: ${{ github.event_name != 'pull_request' }}
         run: |
           dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
           dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.nuGetVersionV2}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
