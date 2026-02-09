@@ -1,54 +1,58 @@
 assembly-versioning-scheme: MajorMinorPatch
-mode: ContinuousDeployment
+mode: ContinuousDelivery
 next-version: 4.1.0
 branches:
   main:
     regex: ^main$
-    mode: ContinuousDelivery
-    tag: ''
+    mode: ManualDeployment
+    label: ~
     increment: Patch
-    prevent-increment-of-merged-branch-version: true
+    prevent-increment:
+      of-merged-branch: true
     track-merge-target: false
     source-branches: [ 'rc', 'release' ]
     tracks-release-branches: false
     is-release-branch: true
-    is-mainline: true
+    is-main-branch: true
     pre-release-weight: 55000
   develop:
     regex: ^dev(elop)?(ment)?$
-    mode: ContinuousDeployment
-    tag: beta
-    increment: Patch  # Changed from Minor to Patch
-    prevent-increment-of-merged-branch-version: false
+    mode: ContinuousDelivery
+    label: beta
+    increment: Patch
+    prevent-increment:
+      of-merged-branch: false
     track-merge-target: true
     source-branches: []
     tracks-release-branches: true
     is-release-branch: false
-    is-mainline: false
+    is-main-branch: false
     pre-release-weight: 0
   rc:
     regex: ^rc$
-    mode: ContinuousDeployment
-    tag: rc
+    mode: ContinuousDelivery
+    label: rc
     increment: Patch
-    prevent-increment-of-merged-branch-version: false
+    prevent-increment:
+      of-merged-branch: false
     track-merge-target: true
     source-branches: [ 'develop' ]
     tracks-release-branches: false
     is-release-branch: false
-    is-mainline: false
+    is-main-branch: false
     pre-release-weight: 30000
   release:
     regex: ^releases?[/-]
-    mode: ContinuousDelivery
-    tag: rc
+    mode: ManualDeployment
+    label: rc
     increment: None
-    prevent-increment-of-merged-branch-version: true
+    prevent-increment:
+      of-merged-branch: true
     track-merge-target: false
     source-branches: [ 'develop', 'main', 'support', 'release' ]
     tracks-release-branches: false
     is-release-branch: true
-    is-mainline: false
+    is-main-branch: false
     pre-release-weight: 30000
 ignore:
   sha: []
