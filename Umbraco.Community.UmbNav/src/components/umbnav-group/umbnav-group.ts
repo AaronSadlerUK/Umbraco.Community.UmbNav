@@ -14,6 +14,9 @@ import { Guid, ModelEntryType } from "../../tokens/umbnav.token.ts";
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 import { UmbSorterController } from "@umbraco-cms/backoffice/sorter";
 import { UmbDocumentUrlRepository, UmbDocumentUrlsDataResolver } from '@umbraco-cms/backoffice/document';
+import { UmbNavExtensionRegistry } from '../../extensions/extension-registry.js';
+import type { UmbNavItemTypeRegistration } from '../../extensions/extension-types.js';
+import { v4 as uuidv4 } from 'uuid';
 
 @customElement('umbnav-group')
 export class UmbNavGroup extends UmbElementMixin(LitElement) {
@@ -58,6 +61,11 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
 
     @state()
     private _resolvedUrls: Map<string, string> = new Map();
+
+    @state()
+    private _customItemTypes: UmbNavItemTypeRegistration[] = [];
+
+    private _unsubscribeRegistry?: () => void;
 
     private _expandAll: boolean = false;
 
@@ -111,6 +119,19 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (_instance) => {
             this.#modalContext = _instance;
         });
+    }
+
+    override connectedCallback(): void {
+        super.connectedCallback();
+        this._customItemTypes = UmbNavExtensionRegistry.getItemTypes();
+        this._unsubscribeRegistry = UmbNavExtensionRegistry.onChange(() => {
+            this._customItemTypes = UmbNavExtensionRegistry.getItemTypes();
+        });
+    }
+
+    override disconnectedCallback(): void {
+        super.disconnectedCallback();
+        this._unsubscribeRegistry?.();
     }
 
     async #resolveUrlsForDisplay(items: ModelEntryType[]) {
@@ -336,6 +357,32 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         return menuItem;
     }
 
+    #addCustomTypeItem(registration: UmbNavItemTypeRegistration): void {
+        const defaults = registration.defaultValues ?? {};
+        const newItem: ModelEntryType = {
+            key: uuidv4() as Guid,
+            name: defaults.name ?? registration.label,
+            icon: defaults.icon ?? registration.icon,
+            itemType: defaults.itemType ?? 'Title',
+            url: defaults.url ?? null,
+            udi: defaults.udi ?? null,
+            contentKey: defaults.contentKey ?? null,
+            anchor: defaults.anchor ?? null,
+            published: defaults.published ?? null,
+            target: defaults.target ?? null,
+            customClasses: defaults.customClasses ?? null,
+            description: defaults.description ?? null,
+            hideLoggedIn: defaults.hideLoggedIn ?? false,
+            hideLoggedOut: defaults.hideLoggedOut ?? false,
+            includeChildNodes: defaults.includeChildNodes ?? false,
+            noopener: defaults.noopener ?? null,
+            noreferrer: defaults.noreferrer ?? null,
+            image: defaults.image ?? [],
+            children: [],
+        };
+        this.#addItem(newItem);
+    }
+
     #addItem(newItem: ModelEntryType, siblingKey?: string | null | undefined): void {
         let newValue = [...this.value];
 
@@ -445,6 +492,9 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                         ? html`<uui-button label=${this.localize.term('umbnav_addTextItemToggleButton')} id="AddTextButton" look="placeholder" class="add-menuitem-button" @click=${() => this.#toggleTextModal(null)}></uui-button>`
                         : ''}
                     <uui-button label=${this.localize.term('umbnav_addLinkItemToggleButton')} id="AddLinkButton" look="placeholder" class="add-menuitem-button" @click=${() => this.#newNode()}></uui-button>
+                    ${this._customItemTypes.map(
+                        (itemType) => html`<uui-button label=${itemType.label} look="placeholder" class="add-menuitem-button" @click=${() => this.#addCustomTypeItem(itemType)}></uui-button>`
+                    )}
                 </uui-button-group>
             </div>
         `;

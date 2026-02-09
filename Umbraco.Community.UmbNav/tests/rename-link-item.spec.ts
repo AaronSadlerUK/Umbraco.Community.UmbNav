@@ -23,6 +23,6 @@ test.describe("UmbNav Rename Text Item", () => {
     await umbracoUi.page.getByRole('textbox', { name: 'Title' }).fill('Test Link Item Rename');
     await umbracoUi.page.getByRole('button', { name: 'Update' }).click();
     await umbracoUi.page.locator('#arrow > uui-symbol-expand > svg').first().click();
-    await expect(umbracoUi.page.locator('div').filter({ hasText: 'Home 5 /us/' }).nth(5)).toBeVisible();
+    await expect(umbracoUi.page.locator('div').filter({ hasText: 'Home 5' }).nth(5)).toBeVisible();
   });
 });

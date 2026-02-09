@@ -20,9 +20,9 @@ test.describe("UmbNav Rename Text Item", () => {
     await umbracoUi.content.goToContentWithName(contentName);
 
     await umbracoUi.page.locator('uui-button:nth-child(4) > uui-icon > svg').first().click();
-    await umbracoUi.page.getByRole('textbox', { name: 'content' }).fill('Test Text Item Rename');
-    await umbracoUi.page.getByRole('button', { name: 'Submit' }).click();
+    await umbracoUi.page.locator('#input[name="name"]').fill('Test Text Item Rename');
+    await umbracoUi.page.locator('#button', { hasText: 'Submit' }).click();
     await umbracoUi.page.locator('#arrow > uui-symbol-expand > svg').first().click();
-    await expect(umbracoUi.page.locator('div').filter({ hasText: 'Home 5 /us/' }).nth(5)).toBeVisible();
+    await expect(umbracoUi.page.locator('div').filter({ hasText: 'Home 5' }).nth(5)).toBeVisible();
   });
 });

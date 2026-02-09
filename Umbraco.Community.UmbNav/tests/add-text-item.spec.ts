@@ -22,8 +22,8 @@ test.describe("UmbNav Add Text Item", () => {
     await addTextBtn.waitFor({ state: 'visible' });
     await addTextBtn.click();
 
-    await umbracoUi.page.getByRole('textbox', { name: 'content' }).fill('Test Text Item');
-    await umbracoUi.page.getByRole('button', { name: 'Submit' }).click();
+    await umbracoUi.page.locator('#input[name="name"]').fill('Test Text Item');
+    await umbracoUi.page.locator('#button', { hasText: 'Submit' }).click();
     await expect(umbracoUi.page.locator('umbnav-item div').filter({ hasText: 'Test Text Item' }).first()).toBeVisible();
   });
 });
