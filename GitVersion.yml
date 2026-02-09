@@ -1,20 +1,26 @@
-workflow: GitFlow/v1
 assembly-versioning-scheme: MajorMinorPatch
 mode: ContinuousDelivery
 label: ~
 next-version: 4.1.0
+semantic-version-format: Strict
+strategies:
+  - Fallback
+  - ConfiguredNextVersion
+  - MergeMessage
+  - TaggedCommit
+  - TrackReleaseBranches
+  - VersionInBranchName
 branches:
   main:
     regex: ^main$
-    mode: ManualDeployment
     label: ~
     increment: Patch
     prevent-increment:
       of-merged-branch: true
     track-merge-target: false
-    source-branches: [ 'rc', 'release' ]
-    tracks-release-branches: false
-    is-release-branch: true
+    track-merge-message: true
+    source-branches: []
+    is-release-branch: false
     is-main-branch: true
     pre-release-weight: 55000
   develop:
@@ -23,9 +29,11 @@ branches:
     label: beta
     increment: Patch
     prevent-increment:
-      of-merged-branch: false
+      when-current-commit-tagged: false
     track-merge-target: true
-    source-branches: []
+    track-merge-message: true
+    source-branches:
+      - main
     tracks-release-branches: true
     is-release-branch: false
     is-main-branch: false
@@ -36,9 +44,10 @@ branches:
     label: rc
     increment: Patch
     prevent-increment:
-      of-merged-branch: false
+      when-current-commit-tagged: false
     track-merge-target: true
-    source-branches: [ 'develop' ]
+    source-branches:
+      - develop
     tracks-release-branches: false
     is-release-branch: false
     is-main-branch: false
@@ -50,12 +59,28 @@ branches:
     increment: None
     prevent-increment:
       of-merged-branch: true
+      when-current-commit-tagged: false
     track-merge-target: false
-    source-branches: [ 'develop', 'main', 'support', 'release' ]
+    source-branches:
+      - develop
+      - main
+      - support
+      - release
     tracks-release-branches: false
     is-release-branch: true
     is-main-branch: false
     pre-release-weight: 30000
+  unknown:
+    mode: ManualDeployment
+    label: '{BranchName}'
+    increment: Inherit
+    regex: (?<BranchName>.+)
+    source-branches:
+      - main
+      - develop
+      - release
+      - rc
+    is-main-branch: false
 ignore:
   sha: []
 merge-message-formats: {}
