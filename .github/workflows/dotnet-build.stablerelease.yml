@@ -81,7 +81,7 @@ jobs:
 
       - name: Display GitVersion SemVer
         run: |
-          echo "FullSemVer: ${{ steps.gitversion.outputs.semVer }}"
+          echo "FullSemVer: ${{ steps.gitversion.outputs.majorMinorPatch }}"
 
 
       - name: Update umbraco-package.json version
@@ -89,14 +89,14 @@ jobs:
         with:
           file:  Umbraco.Community.UmbNav/wwwroot/App_Plugins/UmbNav/umbraco-package.json
           field: version
-          value: ${{ steps.gitversion.outputs.semVer }}
+          value: ${{ steps.gitversion.outputs.majorMinorPatch }}
 
       - name: Update package.json version
         uses: jossef/action-set-json-field@v2.2
         with:
           file:  Umbraco.Community.UmbNav/package.json
           field: version
-          value: ${{ steps.gitversion.outputs.semVer }}
+          value: ${{ steps.gitversion.outputs.majorMinorPatch }}
       
       # ------------------------
       # actual builds / packages 
@@ -114,29 +114,29 @@ jobs:
         run: dotnet test ./Umbraco.Community.UmbNav.Core.Tests/Umbraco.Community.UmbNav.Core.Tests.csproj --no-restore -c Debug
 
       - name: Build Umbraco.Community.UmbNav
-        run: dotnet pack ./Umbraco.Community.UmbNav/Umbraco.Community.UmbNav.csproj --no-restore -c ${{env.CONFIG}} --output ${{env.OUT_FOLDER}} /p:version=${{steps.gitversion.outputs.semVer}}
+        run: dotnet pack ./Umbraco.Community.UmbNav/Umbraco.Community.UmbNav.csproj --no-restore -c ${{env.CONFIG}} --output ${{env.OUT_FOLDER}} /p:version=${{steps.gitversion.outputs.majorMinorPatch}}
 
       - name: Build Umbraco.Community.UmbNav.Core
-        run: dotnet pack ./Umbraco.Community.UmbNav.Core/Umbraco.Community.UmbNav.Core.csproj --no-restore -c ${{env.CONFIG}} --output ${{env.OUT_FOLDER}} /p:version=${{steps.gitversion.outputs.semVer}}
+        run: dotnet pack ./Umbraco.Community.UmbNav.Core/Umbraco.Community.UmbNav.Core.csproj --no-restore -c ${{env.CONFIG}} --output ${{env.OUT_FOLDER}} /p:version=${{steps.gitversion.outputs.majorMinorPatch}}
 
       - name: Push to GitHub Nuget Repo
         if: ${{ github.event_name != 'pull_request' }}
         run: |
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
 
       - name: Push to Nuget Repo
         if: ${{ github.event_name != 'pull_request' }}
         run: |
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
 
       - name: Create Release
         run: |
-          gh release create ${{steps.gitversion.outputs.semVer}} `
-            ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.semVer}}.nupkg `
-            ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.semVer}}.nupkg `
-            --title "${{steps.gitversion.outputs.semVer}}" `
+          gh release create ${{steps.gitversion.outputs.majorMinorPatch}} `
+            ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg `
+            ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg `
+            --title "${{steps.gitversion.outputs.majorMinorPatch}}" `
             --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}
