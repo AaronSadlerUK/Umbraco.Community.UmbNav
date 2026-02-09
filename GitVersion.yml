@@ -1,6 +1,6 @@
 assembly-versioning-scheme: MajorMinorPatch
 mode: ContinuousDelivery
-label: ~
+label:
 next-version: 4.1.0
 semantic-version-format: Strict
 strategies:
@@ -13,7 +13,7 @@ strategies:
 branches:
   main:
     regex: ^main$
-    label: ~
+    label:
     increment: Patch
     prevent-increment:
       of-merged-branch: true
