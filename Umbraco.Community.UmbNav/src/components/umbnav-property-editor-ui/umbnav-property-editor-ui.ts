@@ -18,7 +18,7 @@ export default class UmbNavSorterPropertyEditorUIElement extends UmbFormControlM
         this.addValidator(
             'valueMissing',
             () => this.localize.term('umbnav_requiredMessage'),
-            () => !this.value || this.value.length === 0
+            () => this.mandatory === true && (!this.value || this.value.length === 0)
         );
     }
 
@@ -45,6 +45,9 @@ export default class UmbNavSorterPropertyEditorUIElement extends UmbFormControlM
 
         return <Boolean>this.config?.find(item => item.alias === 'enableToggleAllButton')?.value ?? false;
     }
+
+    @property({ type: Boolean })
+    mandatory?: boolean;
 
     @state()
     expandAll: boolean = false;
