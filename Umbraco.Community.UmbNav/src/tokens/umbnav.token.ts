@@ -18,6 +18,7 @@ export type ModelEntryType = {
     id?: number | null | undefined,
     contentKey: Guid | null | undefined,
     children: ModelEntryType[],
+    allowChildren?: boolean | null | undefined,
     expanded?: boolean,
     target?: string | null | undefined,
     image?: ImageItem[],
