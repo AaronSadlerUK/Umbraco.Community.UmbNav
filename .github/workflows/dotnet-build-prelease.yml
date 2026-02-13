@@ -137,11 +137,11 @@ jobs:
 
       - name: Create Release
         run: |
-          gh release create ${{steps.gitversion.outputs.fullSemVer}} `
-            ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.semVer}}.nupkg `
-            ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.semVer}}.nupkg `
-            --title "${{steps.gitversion.outputs.fullSemVer}}" `
-            --prerelease `
+          gh release create ${{steps.gitversion.outputs.fullSemVer}} \
+            ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.semVer}}.nupkg \
+            ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.semVer}}.nupkg \
+            --title "${{steps.gitversion.outputs.fullSemVer}}" \
+            --prerelease \
             --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}
