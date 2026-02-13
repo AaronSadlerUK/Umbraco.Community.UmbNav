@@ -9,13 +9,15 @@ on:
 jobs:
 
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     # runs-on: self-hosted
     
     env:
       CONFIG: 'Release'
       SOLUTION_FILE: './UmbNav.slnx'
       OUT_FOLDER: './build.out/'
+      NUGET_KEY: ${{ secrets.NUGET_API_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
     steps:
 
@@ -122,21 +124,21 @@ jobs:
       - name: Push to GitHub Nuget Repo
         if: ${{ github.event_name != 'pull_request' }}
         run: |
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ env.GITHUB_TOKEN }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ env.GITHUB_TOKEN }}
 
       - name: Push to Nuget Repo
         if: ${{ github.event_name != 'pull_request' }}
         run: |
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ env.NUGET_KEY }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ env.NUGET_KEY }}
 
       - name: Create Release
         run: |
-          gh release create ${{steps.gitversion.outputs.majorMinorPatch}} `
-            ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg `
-            ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg `
-            --title "${{steps.gitversion.outputs.majorMinorPatch}}" `
+          gh release create ${{steps.gitversion.outputs.majorMinorPatch}} \
+            ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg \
+            ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg \
+            --title "${{steps.gitversion.outputs.majorMinorPatch}}" \
             --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}
