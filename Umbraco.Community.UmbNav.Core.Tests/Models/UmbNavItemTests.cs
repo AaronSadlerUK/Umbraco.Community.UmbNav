@@ -273,7 +273,7 @@ public class UmbNavItemTests
     }
 
     [Fact]
-    public void Published_DefaultsToFalse()
+    public void Published_DefaultsToNull()
     {
         var item = new UmbNavItem
         {
@@ -281,7 +281,7 @@ public class UmbNavItemTests
             ItemType = UmbNavItemType.External
         };
 
-        Assert.False(item.Published);
+        Assert.Null(item.Published);
     }
 
     [Fact]
