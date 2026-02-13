@@ -413,7 +413,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             noreferrer: defaults.noreferrer ?? null,
             image: defaults.image ?? [],
             children: [],
-            allowChildren: registration.allowChildren
+            allowChildren: registration.allowChildren ?? true
         };
         this.#addItem(newItem);
     }
