@@ -32,7 +32,7 @@ public class UmbNavItem
     public string? Anchor { get; set; }
 
     [JsonPropertyName("published")]
-    public bool Published { get; set; }
+    public bool? Published { get; set; }
 
     [JsonPropertyName("children")]
     public IEnumerable<UmbNavItem>? Children { get; set; }
