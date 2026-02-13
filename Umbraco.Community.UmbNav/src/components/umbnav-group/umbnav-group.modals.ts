@@ -58,7 +58,7 @@ export async function openSettingsModal(
         let item: ModelEntryType = {
             key: key,
             name: '',
-            itemType: 'title',
+            itemType: 'Title',
             icon: 'icon-tag',
             published: true,
             udi: null,
@@ -109,7 +109,7 @@ export async function openVisibilityModal(
         let item: ModelEntryType = {
             key: key,
             name: '',
-            itemType: 'title',
+            itemType: 'Title',
             icon: 'icon-tag',
             published: true,
             udi: null,

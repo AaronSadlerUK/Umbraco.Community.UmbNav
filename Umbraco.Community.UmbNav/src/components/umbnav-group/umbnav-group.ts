@@ -216,15 +216,18 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         const item = this.value.find(i => i.key === event.detail.key);
         if (!item) return;
 
-        // Check for registered custom type - skip default modals
+        // Check for registered custom type
         const registration = this._customItemTypes.find(
             t => t.type === item.itemType
         );
         if (registration) {
+            if (registration.editModalToken) {
+                this.#openCustomEditModal(item, registration);
+            }
             return;
         }
 
-        if (item.itemType === "title" || item.itemType === 'nolink' || item.itemType === 'Title') {
+        if (item.itemType === 'Title' || item.itemType === 'nolink') {
             this.#toggleTextModal(event.detail.key);
         } else {
             this.#toggleLinkPicker(event.detail.key);
@@ -339,6 +342,21 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             }
         } catch (error) {
             console.error('Error in #toggleVisibilityModal:', error);
+        }
+    }
+
+    async #openCustomEditModal(item: ModelEntryType, registration: UmbNavItemTypeRegistration): Promise<void> {
+        try {
+            const modalHandler = this.#modalContext?.open(this, registration.editModalToken as any, {
+                data: item
+            } as any);
+            const result = await modalHandler?.onSubmit().catch(() => undefined);
+            if (!modalHandler || !result) return;
+
+            const updatedItem = { ...item, ...result as Partial<ModelEntryType>, children: item.children ?? [] };
+            this.#updateItem(updatedItem);
+        } catch (error) {
+            console.error('Error in #openCustomEditModal:', error);
         }
     }
 
