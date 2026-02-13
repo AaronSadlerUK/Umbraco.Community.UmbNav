@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -16,6 +15,7 @@ using Umbraco.Cms.Core.Strings;
 using Umbraco.Cms.Infrastructure.Migrations;
 using Umbraco.Cms.Infrastructure.Packaging;
 using Umbraco.Community.UmbNav.Core.Models;
+using Umbraco.Extensions;
 
 namespace Umbraco.Community.UmbNav.Core.Migrations;
 
@@ -317,7 +317,24 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
         public IEnumerable<OldUmbNavItem>? Children { get; set; }        
 
         [JsonPropertyName("itemType")]
-        public OldUmbNavItemType ItemType { get; set; }
+        public string? ItemTypeOriginal { get; set; }
+        
+        [JsonIgnore]
+        public OldUmbNavItemType ItemType { 
+            get {
+                if (ItemTypeOriginal.IsNullOrWhiteSpace())
+                {
+                    return Url.IsNullOrWhiteSpace() ? OldUmbNavItemType.Label : OldUmbNavItemType.Link;
+                }
+
+                return ItemTypeOriginal.ToLowerInvariant() switch
+                {
+                    "link" => !string.IsNullOrWhiteSpace(Udi) && UdiParser.TryParse(Udi, out _) ? OldUmbNavItemType.Content : OldUmbNavItemType.Link,
+                    "nolink" => OldUmbNavItemType.Label,
+                    _ => Enum.TryParse<OldUmbNavItemType>(ItemTypeOriginal, out var res) ? res : throw new ArgumentOutOfRangeException(nameof(ItemTypeOriginal), ItemTypeOriginal, null)
+                };
+            }
+        }
 
         [JsonIgnore]
         public int Level { get; set; }
