@@ -67,6 +67,9 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
     @property({ type: Boolean, reflect: true })
     hideIncludesChildNodes: boolean = false;
 
+    @property({ type: Boolean, reflect: true })
+    allowChildren: boolean = true;
+
     @property({ type: Number, reflect: true })
     maxDepth: number = 0;
 
@@ -257,6 +260,9 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
      * Override to customize expand behavior.
      */
     protected renderExpandArrow(): TemplateResult {
+        if (this.allowChildren === false) {
+            return html``;
+        }
         if (this.maxDepth == 0 || (this.maxDepth !== 1 && this.currentDepth < this.maxDepth)) {
             return html`
                 <div id="arrow">

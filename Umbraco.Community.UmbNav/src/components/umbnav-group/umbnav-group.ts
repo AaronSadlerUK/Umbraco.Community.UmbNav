@@ -379,6 +379,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             noreferrer: defaults.noreferrer ?? null,
             image: defaults.image ?? [],
             children: [],
+            allowChildren: registration.allowChildren
         };
         this.#addItem(newItem);
     }
@@ -450,7 +451,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                             key="${item.key ?? ''}"
                             description="${this.#getDescriptionText(item)}"
                             url="${this.#getUrlText(item)}"
-                            .expanded=${this._expandAll || (item.key != null && this.expandedItems.includes(item.key))}
+                            .expanded=${item.allowChildren !== false && (this._expandAll || (item.key != null && this.expandedItems.includes(item.key)))}
                             .hasImage=${Boolean(item.image?.length)}
                             .enableMediaPicker=${this.enableMediaPicker}
                             .enableVisibility=${this.enableVisibility}
@@ -460,6 +461,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                             .hideIncludesChildNodes=${!!item.includeChildNodes}
                             .currentDepth=${item.depth ?? 0}
                             .maxDepth=${this.maxDepth}
+                            .allowChildren=${item.allowChildren !== false}
                             .itemData=${item}
                             .config=${this.config}
                             icon="${item.icon ?? ''}"
@@ -475,7 +477,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                         >
                             <umbnav-group
                                 ?nested=${true}
-                                class="${this.expandAll || (item.key != null && this.expandedItems.includes(item.key)) ? 'expanded' : 'collapsed'}"
+                                class="${item.allowChildren !== false && (this.expandAll || (item.key != null && this.expandedItems.includes(item.key))) ? 'expanded' : 'collapsed'}"
                                 .config=${this.config}
                                 .value=${item.children ?? []}
                                 .depth=${this.depth + 1}
