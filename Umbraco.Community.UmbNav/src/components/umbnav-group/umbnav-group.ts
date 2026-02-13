@@ -214,7 +214,17 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
     // Modal/Picker Event Handlers
     #toggleLinkPickerEvent(event: CustomEvent<{ key: Guid | null | undefined }>) {
         const item = this.value.find(i => i.key === event.detail.key);
-        if (item && (item.itemType === "title" || item.itemType === 'nolink')) {
+        if (!item) return;
+
+        // Check for registered custom type - skip default modals
+        const registration = this._customItemTypes.find(
+            t => t.type === item.itemType
+        );
+        if (registration) {
+            return;
+        }
+
+        if (item.itemType === "title" || item.itemType === 'nolink' || item.itemType === 'Title') {
             this.#toggleTextModal(event.detail.key);
         } else {
             this.#toggleLinkPicker(event.detail.key);
@@ -357,13 +367,19 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         return menuItem;
     }
 
+    #isItemEditable(item: ModelEntryType): boolean {
+        const registration = this._customItemTypes.find(t => t.type === item.itemType);
+        if (!registration) return true;
+        return !!registration.editModalToken;
+    }
+
     #addCustomTypeItem(registration: UmbNavItemTypeRegistration): void {
         const defaults = registration.defaultValues ?? {};
         const newItem: ModelEntryType = {
             key: uuidv4() as Guid,
             name: defaults.name ?? registration.label,
             icon: defaults.icon ?? registration.icon,
-            itemType: defaults.itemType ?? 'Title',
+            itemType: defaults.itemType ?? registration.type,
             url: defaults.url ?? null,
             udi: defaults.udi ?? null,
             contentKey: defaults.contentKey ?? null,
@@ -464,6 +480,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                             .allowChildren=${item.allowChildren !== false}
                             .itemData=${item}
                             .config=${this.config}
+                            .editable=${this.#isItemEditable(item)}
                             icon="${item.icon ?? ''}"
                             ?unpublished=${item.published === false && item.itemType === "Document"}
                             @toggle-children-event=${this.#toggleNode}

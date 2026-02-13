@@ -1,15 +1,9 @@
-﻿using System.Runtime.Serialization;
-
 namespace Umbraco.Community.UmbNav.Core.Models;
 
-public enum UmbNavItemType
+public static class UmbNavItemType
 {
-    [EnumMember(Value = "document")]
-    Document,
-    [EnumMember(Value = "external")]
-    External,
-    [EnumMember(Value = "media")]
-    Media,
-    [EnumMember(Value = "title")]
-    Title
+    public const string Document = "Document";
+    public const string External = "External";
+    public const string Media = "Media";
+    public const string Title = "Title";
 }

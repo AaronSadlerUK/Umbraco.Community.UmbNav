@@ -55,14 +55,17 @@ export const UmbNavItemStyles = [
 
             #name {
                 font-weight: 700;
-                cursor: pointer;
             }
-            
+
             #description,
             #url {
                 color: #515054;
                 font-size: 12px;
                 line-height: 1.5em;
+            }
+
+            .name {
+                cursor: pointer;
             }
 
             .name:hover {

@@ -1,7 +1,7 @@
 
 export type Guid = '' |`${string}-${string}-${string}-${string}-${string}`;
 export type GuidUdi = '' | `umb://document/${string}` | `umb://media/${string}`
-export type UmbNavLinkPickerLinkType = 'title' | 'nolink' | 'Document' | 'External' | 'Media' | 'Title' | 'NoLink';
+export type UmbNavLinkPickerLinkType = string;
 export type ModelEntryType = {
     key: Guid | null | undefined,
     name: string | null | undefined,

@@ -21,9 +21,8 @@ public class UmbNavItem
     [JsonPropertyName("icon")]
     public string? Icon { get; set; }
 
-    [JsonConverter(typeof(JsonStringEnumConverter))]
     [JsonPropertyName("itemType")]
-    public UmbNavItemType ItemType { get; set; }
+    public string ItemType { get; set; } = string.Empty;
 
     [JsonPropertyName("contentKey")]
     public Guid? ContentKey { get; set; }
@@ -32,7 +31,7 @@ public class UmbNavItem
     public string? Anchor { get; set; }
 
     [JsonPropertyName("published")]
-    public bool Published { get; set; }
+    public bool? Published { get; set; }
 
     [JsonPropertyName("children")]
     public IEnumerable<UmbNavItem>? Children { get; set; }

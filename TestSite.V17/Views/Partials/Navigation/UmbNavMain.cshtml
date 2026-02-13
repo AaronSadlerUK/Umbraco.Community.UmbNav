@@ -24,6 +24,10 @@
                     </div>
                 </div>
             }
+            else if (umbNavItem.ItemType == "divider")
+            {
+                <strong style="color: #fff"> | </strong>
+            }
             else
             {
                 @* <a class="nav-link @(UmbracoContext?.PublishedRequest?.PublishedContent != null && umbNavItem.IsActive(UmbracoContext?.PublishedRequest?.PublishedContent) ? "nav-link--active" : null)" href="@umbNavItem.Url()">@umbNavItem.Name</a> *@
