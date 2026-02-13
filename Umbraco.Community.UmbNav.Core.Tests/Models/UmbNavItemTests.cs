@@ -331,4 +331,41 @@ public class UmbNavItemTests
 
         Assert.False(item.HideLoggedOut);
     }
+
+    [Fact]
+    public void Deserialize_WithNullPublished_DeserializesCorrectly()
+    {
+        var json = """
+            {
+                "key": "11111111-1111-1111-1111-111111111111",
+                "name": "Custom Item",
+                "itemType": "Title",
+                "published": null
+            }
+            """;
+
+        var item = JsonSerializer.Deserialize<UmbNavItem>(json);
+
+        Assert.NotNull(item);
+        Assert.Null(item.Published);
+        Assert.Equal("Custom Item", item.Name);
+    }
+
+    [Fact]
+    public void Deserialize_WithMissingPublished_DeserializesCorrectly()
+    {
+        var json = """
+            {
+                "key": "11111111-1111-1111-1111-111111111111",
+                "name": "Custom Item",
+                "itemType": "Title"
+            }
+            """;
+
+        var item = JsonSerializer.Deserialize<UmbNavItem>(json);
+
+        Assert.NotNull(item);
+        Assert.Null(item.Published);
+        Assert.Equal("Custom Item", item.Name);
+    }
 }
