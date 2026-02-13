@@ -13,13 +13,15 @@ jobs:
   build:
     # Only run on PR merge (skip Dependabot PRs) or manual dispatch
     if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && github.event.pull_request.user.login != 'dependabot[bot]')
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     # runs-on: self-hosted
     
     env:
       CONFIG: 'Release'
       SOLUTION_FILE: './UmbNav.slnx'
       OUT_FOLDER: './build.out/'
+      NUGET_KEY: ${{ secrets.NUGET_API_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
     steps:
 
@@ -125,13 +127,13 @@ jobs:
 
       - name: Push to GitHub Nuget Repo
         run: |
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ secrets.GH_PAT }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ env.GITHUB_TOKEN }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://nuget.pkg.github.com/AaronSadlerUK/index.json --api-key ${{ env.GITHUB_TOKEN }}
 
       - name: Push to Nuget Repo
         run: |
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
-          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ env.NUGET_KEY }}
+          dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.semVer}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ env.NUGET_KEY }}
 
       - name: Create Release
         run: |
