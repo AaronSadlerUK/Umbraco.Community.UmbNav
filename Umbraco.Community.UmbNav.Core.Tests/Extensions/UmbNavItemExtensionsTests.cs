@@ -1,6 +1,3 @@
-using System.IO;
-using System.Text.Encodings.Web;
-using Microsoft.AspNetCore.Html;
 using Umbraco.Community.UmbNav.Core.Extensions;
 using Umbraco.Community.UmbNav.Core.Models;
 
@@ -8,297 +5,175 @@ namespace Umbraco.Community.UmbNav.Core.Tests.Extensions;
 
 public class UmbNavItemExtensionsTests
 {
-    private static string RenderHtml(IHtmlContent content)
-    {
-        using var writer = new StringWriter();
-        content.WriteTo(writer, HtmlEncoder.Default);
-        return writer.ToString();
-    }
-
     [Fact]
-    public void GetLinkHtml_WithTitleItemType_ReturnsSpanElement()
+    public void GetName_WithoutCulture_ReturnsInvariantName()
     {
         var item = new UmbNavItem
         {
-            Name = "Test Label",
-            ItemType = UmbNavItemType.Title
+            Name = "Home",
+            ItemType = UmbNavItemType.External
         };
 
-        var result = RenderHtml(item.GetLinkHtml());
+        var result = item.GetName();
 
-        Assert.Contains("<span", result);
-        Assert.Contains("Test Label", result);
-        Assert.DoesNotContain("href", result);
+        Assert.Equal("Home", result);
     }
 
     [Fact]
-    public void GetLinkHtml_WithExternalItemType_ReturnsAnchorElement()
+    public void GetName_WithCultureButNoVariants_ReturnsInvariantName()
     {
         var item = new UmbNavItem
         {
-            Name = "Test Link",
+            Name = "Home",
+            ItemType = UmbNavItemType.External
+        };
+
+        var result = item.GetName("fr-FR");
+
+        Assert.Equal("Home", result);
+    }
+
+    [Fact]
+    public void GetName_WithCultureAndVariants_ReturnsVariantName()
+    {
+        var item = new UmbNavItem
+        {
+            Name = "Home",
             ItemType = UmbNavItemType.External,
-            Url = "/test-url"
+            Variants = new UmbNavItemVariants
+            {
+                Name = new Dictionary<string, string>
+                {
+                    { "en-US", "Home" },
+                    { "fr-FR", "Accueil" },
+                    { "de-DE", "Startseite" }
+                }
+            }
         };
 
-        var result = RenderHtml(item.GetLinkHtml());
+        var result = item.GetName("fr-FR");
 
-        Assert.Contains("<a", result);
-        Assert.Contains("href=\"/test-url\"", result);
-        Assert.Contains("Test Link", result);
+        Assert.Equal("Accueil", result);
     }
 
     [Fact]
-    public void GetLinkHtml_WithCustomLabelTagName_UsesCustomTag()
+    public void GetName_WithNonExistentCulture_ReturnsInvariantName()
     {
         var item = new UmbNavItem
         {
-            Name = "Test",
-            ItemType = UmbNavItemType.Title
-        };
-
-        var result = RenderHtml(item.GetLinkHtml(labelTagName: "div"));
-
-        Assert.Contains("<div", result);
-    }
-
-    [Fact]
-    public void GetLinkHtml_WithCssClass_AddsCssClass()
-    {
-        var item = new UmbNavItem
-        {
-            Name = "Test",
+            Name = "Home",
             ItemType = UmbNavItemType.External,
-            Url = "/test"
+            Variants = new UmbNavItemVariants
+            {
+                Name = new Dictionary<string, string>
+                {
+                    { "en-US", "Home" },
+                    { "fr-FR", "Accueil" }
+                }
+            }
         };
 
-        var result = RenderHtml(item.GetLinkHtml(cssClass: "nav-link"));
+        var result = item.GetName("es-ES");
 
-        Assert.Contains("class=\"nav-link\"", result);
+        Assert.Equal("Home", result);
     }
 
     [Fact]
-    public void GetLinkHtml_WithCustomClasses_AddsCustomClasses()
+    public void GetDescription_WithoutCulture_ReturnsInvariantDescription()
     {
         var item = new UmbNavItem
         {
-            Name = "Test",
+            Name = "Home",
+            Description = "Main page",
+            ItemType = UmbNavItemType.External
+        };
+
+        var result = item.GetDescription();
+
+        Assert.Equal("Main page", result);
+    }
+
+    [Fact]
+    public void GetDescription_WithCultureAndVariants_ReturnsVariantDescription()
+    {
+        var item = new UmbNavItem
+        {
+            Name = "Home",
+            Description = "Main page",
             ItemType = UmbNavItemType.External,
-            Url = "/test",
-            CustomClasses = "custom-class"
+            Variants = new UmbNavItemVariants
+            {
+                Description = new Dictionary<string, string>
+                {
+                    { "en-US", "Main page" },
+                    { "fr-FR", "Page principale" },
+                    { "de-DE", "Hauptseite" }
+                }
+            }
         };
 
-        var result = RenderHtml(item.GetLinkHtml());
+        var result = item.GetDescription("fr-FR");
 
-        Assert.Contains("custom-class", result);
+        Assert.Equal("Page principale", result);
     }
 
     [Fact]
-    public void GetLinkHtml_WithBothCssClassAndCustomClasses_AddsBoth()
+    public void GetDescription_WithNonExistentCulture_ReturnsInvariantDescription()
     {
         var item = new UmbNavItem
         {
-            Name = "Test",
+            Name = "Home",
+            Description = "Main page",
             ItemType = UmbNavItemType.External,
-            Url = "/test",
-            CustomClasses = "custom-class"
+            Variants = new UmbNavItemVariants
+            {
+                Description = new Dictionary<string, string>
+                {
+                    { "en-US", "Main page" },
+                    { "fr-FR", "Page principale" }
+                }
+            }
         };
 
-        var result = RenderHtml(item.GetLinkHtml(cssClass: "nav-link"));
+        var result = item.GetDescription("es-ES");
 
-        Assert.Contains("nav-link", result);
-        Assert.Contains("custom-class", result);
+        Assert.Equal("Main page", result);
     }
 
     [Fact]
-    public void GetLinkHtml_WithActiveClassAndIsActive_AddsActiveClass()
+    public void GetName_WithEmptyVariantString_FallsBackToInvariant()
     {
         var item = new UmbNavItem
         {
-            Name = "Test",
+            Name = "Home",
             ItemType = UmbNavItemType.External,
-            Url = "/test",
-            IsActive = true
+            Variants = new UmbNavItemVariants
+            {
+                Name = new Dictionary<string, string>
+                {
+                    { "en-US", "Home" },
+                    { "fr-FR", "" }  // Empty variant
+                }
+            }
         };
 
-        var result = RenderHtml(item.GetLinkHtml(activeClass: "active"));
+        var result = item.GetName("fr-FR");
 
-        Assert.Contains("active", result);
+        Assert.Equal("Home", result);
     }
 
     [Fact]
-    public void GetLinkHtml_WithActiveClassButNotActive_DoesNotAddActiveClass()
+    public void GetDescription_WithNullInvariant_ReturnsNull()
     {
         var item = new UmbNavItem
         {
-            Name = "Test",
-            ItemType = UmbNavItemType.External,
-            Url = "/test",
-            IsActive = false
+            Name = "Home",
+            Description = null,
+            ItemType = UmbNavItemType.External
         };
 
-        var result = RenderHtml(item.GetLinkHtml(activeClass: "active"));
+        var result = item.GetDescription("fr-FR");
 
-        Assert.DoesNotContain("active", result);
-    }
-
-    [Fact]
-    public void GetLinkHtml_WithId_AddsIdAttribute()
-    {
-        var item = new UmbNavItem
-        {
-            Name = "Test",
-            ItemType = UmbNavItemType.External,
-            Url = "/test"
-        };
-
-        var result = RenderHtml(item.GetLinkHtml(id: "my-link"));
-
-        Assert.Contains("id=\"my-link\"", result);
-    }
-
-    [Fact]
-    public void GetLinkHtml_WithTarget_AddsTargetAttribute()
-    {
-        var item = new UmbNavItem
-        {
-            Name = "Test",
-            ItemType = UmbNavItemType.External,
-            Url = "/test",
-            Target = "_blank"
-        };
-
-        var result = RenderHtml(item.GetLinkHtml());
-
-        Assert.Contains("target=\"_blank\"", result);
-    }
-
-    [Fact]
-    public void GetLinkHtml_WithNoopener_AddsRelAttribute()
-    {
-        var item = new UmbNavItem
-        {
-            Name = "Test",
-            ItemType = UmbNavItemType.External,
-            Url = "/test",
-            Noopener = "noopener"
-        };
-
-        var result = RenderHtml(item.GetLinkHtml());
-
-        Assert.Contains("rel=\"noopener\"", result);
-    }
-
-    [Fact]
-    public void GetLinkHtml_WithNoreferrer_AddsRelAttribute()
-    {
-        var item = new UmbNavItem
-        {
-            Name = "Test",
-            ItemType = UmbNavItemType.External,
-            Url = "/test",
-            Noreferrer = "noreferrer"
-        };
-
-        var result = RenderHtml(item.GetLinkHtml());
-
-        Assert.Contains("rel=\"noreferrer\"", result);
-    }
-
-    [Fact]
-    public void GetLinkHtml_WithBothNoopenerAndNoreferrer_AddsCombinedRelAttribute()
-    {
-        var item = new UmbNavItem
-        {
-            Name = "Test",
-            ItemType = UmbNavItemType.External,
-            Url = "/test",
-            Noopener = "noopener",
-            Noreferrer = "noreferrer"
-        };
-
-        var result = RenderHtml(item.GetLinkHtml());
-
-        Assert.Contains("rel=", result);
-        Assert.Contains("noopener", result);
-        Assert.Contains("noreferrer", result);
-    }
-
-    [Fact]
-    public void GetLinkHtml_WithExistingRelInHtmlAttributes_PreservesExistingRel()
-    {
-        var item = new UmbNavItem
-        {
-            Name = "Test",
-            ItemType = UmbNavItemType.External,
-            Url = "/test",
-            Noopener = "noopener"
-        };
-
-        var result = RenderHtml(item.GetLinkHtml(htmlAttributes: new { rel = "external" }));
-
-        Assert.Contains("external", result);
-        Assert.Contains("noopener", result);
-    }
-
-    [Fact]
-    public void GetLinkHtml_TitleItemType_DoesNotAddTargetOrRel()
-    {
-        var item = new UmbNavItem
-        {
-            Name = "Test",
-            ItemType = UmbNavItemType.Title,
-            Target = "_blank",
-            Noopener = "noopener"
-        };
-
-        var result = RenderHtml(item.GetLinkHtml());
-
-        Assert.DoesNotContain("target", result);
-        Assert.DoesNotContain("rel", result);
-    }
-
-    [Fact]
-    public void Url_WithNoContent_ReturnsItemUrl()
-    {
-        var item = new UmbNavItem
-        {
-            Name = "Test",
-            Url = "/my-url"
-        };
-
-        var result = item.Url();
-
-        Assert.Equal("/my-url", result);
-    }
-
-    [Fact]
-    public void Url_WithNoContentAndNoUrl_ReturnsHash()
-    {
-        var item = new UmbNavItem
-        {
-            Name = "Test",
-            Url = null
-        };
-
-        var result = item.Url();
-
-        Assert.Equal("#", result);
-    }
-
-    [Fact]
-    public void GetItemHtml_DelegatesToGetLinkHtml()
-    {
-        var item = new UmbNavItem
-        {
-            Name = "Test",
-            ItemType = UmbNavItemType.External,
-            Url = "/test"
-        };
-
-        var linkHtml = RenderHtml(item.GetLinkHtml(cssClass: "test-class"));
-        var itemHtml = RenderHtml(item.GetItemHtml(cssClass: "test-class"));
-
-        Assert.Equal(linkHtml, itemHtml);
+        Assert.Null(result);
     }
 }

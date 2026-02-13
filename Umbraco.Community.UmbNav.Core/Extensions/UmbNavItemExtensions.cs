@@ -9,6 +9,57 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
 {
     public static class UmbNavItemExtensions
     {
+        /// <summary>
+        /// Gets the name for the specified culture, falling back to the invariant name if no variant exists.
+        /// </summary>
+        /// <param name="item">The navigation item</param>
+        /// <param name="culture">The culture code (e.g., "en-US", "fr-FR"). If null, returns invariant name.</param>
+        /// <returns>The culture-specific name or invariant fallback</returns>
+        public static string GetName(this UmbNavItem item, string? culture = null)
+        {
+            // If culture specified and variant exists, use it
+            if (culture != null &&
+                item.Variants?.Name?.TryGetValue(culture, out var variantName) == true &&
+                !string.IsNullOrWhiteSpace(variantName))
+            {
+                return variantName;
+            }
+
+            // For Document items, optionally get name from content node
+            // This allows using Umbraco's built-in content variants
+            if (item.Content != null && culture != null)
+            {
+                var contentName = item.Content.Name(culture);
+                if (!string.IsNullOrWhiteSpace(contentName))
+                {
+                    return contentName;
+                }
+            }
+
+            // Fallback to invariant name
+            return item.Name;
+        }
+
+        /// <summary>
+        /// Gets the description for the specified culture, falling back to the invariant description if no variant exists.
+        /// </summary>
+        /// <param name="item">The navigation item</param>
+        /// <param name="culture">The culture code (e.g., "en-US", "fr-FR"). If null, returns invariant description.</param>
+        /// <returns>The culture-specific description or invariant fallback</returns>
+        public static string? GetDescription(this UmbNavItem item, string? culture = null)
+        {
+            // If culture specified and variant exists, use it
+            if (culture != null &&
+                item.Variants?.Description?.TryGetValue(culture, out var variantDesc) == true &&
+                !string.IsNullOrWhiteSpace(variantDesc))
+            {
+                return variantDesc;
+            }
+
+            // Fallback to invariant description
+            return item.Description;
+        }
+
         public static IHtmlContent GetLinkHtml(this UmbNavItem item, string? cssClass = null, string? id = null, string? culture = null, UrlMode mode = UrlMode.Default, string labelTagName = "span", object? htmlAttributes = null, string? activeClass = null)
         {
             var htmlAttributesConverted = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
@@ -16,7 +67,9 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
                 ? new TagBuilder(labelTagName)
                 : new TagBuilder("a");
 
-            tagBuilder.InnerHtml.Append(item.Name);
+            // Use culture-aware name if culture is specified
+            var displayName = culture != null ? item.GetName(culture) : item.Name;
+            tagBuilder.InnerHtml.Append(displayName);
 
             if (!string.IsNullOrEmpty(cssClass))
             {

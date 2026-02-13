@@ -2,6 +2,12 @@
 export type Guid = '' |`${string}-${string}-${string}-${string}-${string}`;
 export type GuidUdi = '' | `umb://document/${string}` | `umb://media/${string}`
 export type UmbNavLinkPickerLinkType = 'title' | 'nolink' | 'Document' | 'External' | 'Media' | 'Title' | 'NoLink';
+
+export type UmbNavItemVariants = {
+    name?: Record<string, string> | null | undefined;
+    description?: Record<string, string> | null | undefined;
+};
+
 export type ModelEntryType = {
     key: Guid | null | undefined,
     name: string | null | undefined,
@@ -28,7 +34,8 @@ export type ModelEntryType = {
     includeChildNodes?: boolean | null | undefined,
     noopener?: string | null | undefined,
     noreferrer?: string | null | undefined,
-    depth?: number
+    depth?: number,
+    variants?: UmbNavItemVariants | null | undefined
 };
 
 export type ImageItem = {

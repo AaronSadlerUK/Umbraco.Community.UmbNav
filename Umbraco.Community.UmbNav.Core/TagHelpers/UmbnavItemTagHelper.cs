@@ -61,9 +61,10 @@ namespace Umbraco.Community.UmbNav.Core.TagHelpers
 
         /// <summary>
         /// Gets the content text for this item.
+        /// Uses culture-aware variant if Culture is specified, otherwise uses invariant name.
         /// Override to customize content rendering.
         /// </summary>
-        protected virtual string? GetContent() => MenuItem.Name;
+        protected virtual string? GetContent() => MenuItem.GetName(Culture);
 
         /// <summary>
         /// Gets the URL for this item.

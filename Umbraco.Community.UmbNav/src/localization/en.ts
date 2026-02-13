@@ -50,5 +50,15 @@ export default {
         visibilityItemModalHeadline: 'Custom dialog',
         visibilityItemHideLoggedInLabel: 'Hide for logged in users',
         visibilityItemHideLoggedOutLabel: 'Hide for logged out users',
+        translationsModalHeadline: 'Manage Translations',
+        translationsModalNoLanguages: 'No languages configured. Please configure languages in Umbraco settings.',
+        translationsModalEditingFor: 'Editing for',
+        translationsModalInvariant: 'Default (Invariant) Values',
+        translationsModalName: 'Name',
+        translationsModalDescription: 'Description',
+        translationsModalClear: 'Clear',
+        translationsModalWillUseTranslation: 'Will use this translation',
+        translationsModalWillUseFallback: 'Will use default value (shown above)',
+        buttonsTranslations: 'Translations',
     }
 } as UmbLocalizationDictionary;

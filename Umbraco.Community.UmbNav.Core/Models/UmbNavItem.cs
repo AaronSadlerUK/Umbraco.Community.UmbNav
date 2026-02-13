@@ -72,4 +72,12 @@ public class UmbNavItem
 
     [JsonPropertyName("includeChildNodes")]
     public bool IncludeChildNodes { get; set; }
+
+    /// <summary>
+    /// Optional culture-specific variants for multi-lingual sites.
+    /// Allows the same navigation structure to display different names/descriptions per language.
+    /// Falls back to <see cref="Name"/> and <see cref="Description"/> if variant not found.
+    /// </summary>
+    [JsonPropertyName("variants")]
+    public UmbNavItemVariants? Variants { get; set; }
 }

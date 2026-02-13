@@ -24,4 +24,12 @@ const settingsModalManifest: ManifestModal = {
     elementName: "umbnav-settings-item-modal"
 };
 
-export const manifests = [textItemModalManifest, visibilityModalManifest, settingsModalManifest];
+const translationsModalManifest: ManifestModal = {
+    type: 'modal',
+    alias: 'umbnav.translations.modal',
+    name: 'UmbNav (Translations Modal)',
+    element: () => import('./translations-item-modal-element.ts'),
+    elementName: "umbnav-translations-modal"
+};
+
+export const manifests = [textItemModalManifest, visibilityModalManifest, settingsModalManifest, translationsModalManifest];

@@ -368,4 +368,58 @@ public class UmbNavItemTests
         Assert.Null(item.Published);
         Assert.Equal("Custom Item", item.Name);
     }
+
+    [Fact]
+    public void Deserialize_WithVariants_DeserializesCorrectly()
+    {
+        var json = """
+            {
+                "key": "11111111-1111-1111-1111-111111111111",
+                "name": "Home",
+                "itemType": "External",
+                "variants": {
+                    "name": {
+                        "en-US": "Home",
+                        "fr-FR": "Accueil",
+                        "de-DE": "Startseite"
+                    },
+                    "description": {
+                        "en-US": "Main page",
+                        "fr-FR": "Page principale",
+                        "de-DE": "Hauptseite"
+                    }
+                }
+            }
+            """;
+
+        var item = JsonSerializer.Deserialize<UmbNavItem>(json);
+
+        Assert.NotNull(item);
+        Assert.Equal("Home", item.Name);
+        Assert.NotNull(item.Variants);
+        Assert.NotNull(item.Variants.Name);
+        Assert.Equal("Accueil", item.Variants.Name["fr-FR"]);
+        Assert.Equal("Startseite", item.Variants.Name["de-DE"]);
+        Assert.Equal("Page principale", item.Variants.Description["fr-FR"]);
+    }
+
+    [Fact]
+    public void Deserialize_WithoutVariants_RemainsBackwardsCompatible()
+    {
+        var json = """
+            {
+                "key": "11111111-1111-1111-1111-111111111111",
+                "name": "Home",
+                "description": "Main page",
+                "itemType": "External"
+            }
+            """;
+
+        var item = JsonSerializer.Deserialize<UmbNavItem>(json);
+
+        Assert.NotNull(item);
+        Assert.Equal("Home", item.Name);
+        Assert.Equal("Main page", item.Description);
+        Assert.Null(item.Variants);
+    }
 }

@@ -2,6 +2,7 @@ import { UmbModalManagerContext } from '@umbraco-cms/backoffice/modal';
 import { UMBNAV_TEXT_ITEM_MODAL } from '../../tokens/text-item-modal-token.ts';
 import { UMBNAV_VISIBILITY_ITEM_MODAL } from '../../tokens/visibility-item-modal-token.ts';
 import { UMBNAV_SETTINGS_ITEM_MODAL } from '../../tokens/settings-item-modal-token.ts';
+import { UMBNAV_TRANSLATIONS_MODAL } from '../../tokens/translations-item-modal-token.ts';
 import { Guid, ModelEntryType } from '../../tokens/umbnav.token.ts';
 import { v4 as uuidv4 } from 'uuid';
 import { findItemByKey } from '../../umbnav-utils.ts';
@@ -143,6 +144,39 @@ export async function openVisibilityModal(
         return { ...item, hideLoggedIn: data.hideLoggedIn, hideLoggedOut: data.hideLoggedOut };
     } catch (error) {
         console.error('Error in openVisibilityModal:', error);
+        return;
+    }
+}
+
+export async function openTranslationsModal(
+    modalContext: UmbModalManagerContext | undefined,
+    key: Guid | null | undefined,
+    value: ModelEntryType[],
+    host: UmbControllerHost
+): Promise<ModelEntryType | undefined> {
+    try {
+        if (!key) return;
+
+        let localize = new UmbLocalizationController(host);
+        let item: ModelEntryType | undefined = findItemByKey(key, value);
+        if (!item) return;
+
+        const modalHandler = modalContext?.open(host, UMBNAV_TRANSLATIONS_MODAL, {
+            data: {
+                key: key,
+                headline: localize.term('umbnav_translationsModalHeadline'),
+                invariantName: item.name ?? '',
+                invariantDescription: item.description ?? null,
+                variants: item.variants ?? null
+            }
+        });
+
+        const data = await modalHandler?.onSubmit().catch(() => undefined);
+        if (!modalHandler || !data) return;
+
+        return { ...item, variants: data.variants };
+    } catch (error) {
+        console.error('Error in openTranslationsModal:', error);
         return;
     }
 }
