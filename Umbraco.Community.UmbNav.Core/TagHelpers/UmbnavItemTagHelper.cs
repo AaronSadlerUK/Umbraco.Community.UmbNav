@@ -51,7 +51,7 @@ namespace Umbraco.Community.UmbNav.Core.TagHelpers
         /// <summary>
         /// Determines if the current item is a label (non-link) item.
         /// </summary>
-        protected virtual bool IsLabel => MenuItem?.ItemType == UmbNavItemType.Title;
+        protected virtual bool IsLabel => string.Equals(MenuItem?.ItemType, UmbNavItemType.Title, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Gets the tag name to render for this item.

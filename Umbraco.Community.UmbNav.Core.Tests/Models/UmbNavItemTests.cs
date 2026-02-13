@@ -129,7 +129,7 @@ public class UmbNavItemTests
         var item = JsonSerializer.Deserialize<UmbNavItem>(json);
 
         Assert.NotNull(item);
-        Assert.Equal(Enum.Parse<UmbNavItemType>(itemTypeString), item.ItemType);
+        Assert.Equal(itemTypeString, item.ItemType);
     }
 
     [Fact]
@@ -330,6 +330,39 @@ public class UmbNavItemTests
         };
 
         Assert.False(item.HideLoggedOut);
+    }
+
+    [Fact]
+    public void Deserialize_WithCustomItemType_DeserializesCorrectly()
+    {
+        var json = """
+            {
+                "key": "11111111-1111-1111-1111-111111111111",
+                "name": "Divider",
+                "itemType": "divider"
+            }
+            """;
+
+        var item = JsonSerializer.Deserialize<UmbNavItem>(json);
+
+        Assert.NotNull(item);
+        Assert.Equal("divider", item.ItemType);
+        Assert.Equal("Divider", item.Name);
+    }
+
+    [Fact]
+    public void Serialize_WithCustomItemType_SerializesCorrectly()
+    {
+        var item = new UmbNavItem
+        {
+            Key = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            Name = "Divider",
+            ItemType = "divider"
+        };
+
+        var json = JsonSerializer.Serialize(item);
+
+        Assert.Contains("\"itemType\":\"divider\"", json);
     }
 
     [Fact]

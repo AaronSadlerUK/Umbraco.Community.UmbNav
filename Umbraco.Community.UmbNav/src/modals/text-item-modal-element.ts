@@ -38,7 +38,7 @@ export class UmbNavModalElement extends
                 name: this.value?.name ?? '',
                 url: null,
                 icon: 'icon-tag',
-                itemType: 'title',
+                itemType: 'Title',
                 udi: null,
                 contentKey: null,
                 anchor: null,

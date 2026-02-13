@@ -76,6 +76,9 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
     @property({ type: Number, reflect: true })
     currentDepth: number = -1;
 
+    @property({ type: Boolean, reflect: true })
+    editable: boolean = true;
+
     /**
      * The full item data for extension access.
      */
@@ -294,7 +297,9 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
         return html`
             <div id="name">
                 ${this.renderExtensionSlots('before-name')}
-                <span class="name" @click=${() => this.editNode(this.key)}>${this.name}</span>
+                ${this.editable
+                    ? html`<span class="name" @click=${() => this.editNode(this.key)}>${this.name}</span>`
+                    : html`<span class="name-static">${this.name}</span>`}
                 ${this.hideIncludesChildNodes && this.hideIncludesChildNodes ? html` <span class="umbnav-badge">Includes Child Nodes</span>` : ''}
                 ${this.enableMediaPicker ? html`<span class="image" @click=${() => this.addImage(this.key)}>${this.hasImage ? html`<umb-icon name="picture"></umb-icon>` : ''}</span>` : ''}
                 ${this.enableVisibility && this.hideLoggedOut ? html`<span class="image" @click=${() => this.toggleVisibility(this.key)}>${this.hideLoggedOut ? html`<umb-icon name="lock"></umb-icon>` : ''}</span>` : ''}
@@ -345,10 +350,12 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
                 </uui-button>
             ` : ''}
 
-            <uui-button look="secondary" label=${this.localize.term('umbnav_buttonsEdit')}
-                        @click=${() => this.editNode(this.key)}>
-                <uui-icon name="edit"></uui-icon>
-            </uui-button>
+            ${this.editable ? html`
+                <uui-button look="secondary" label=${this.localize.term('umbnav_buttonsEdit')}
+                            @click=${() => this.editNode(this.key)}>
+                    <uui-icon name="edit"></uui-icon>
+                </uui-button>
+            ` : ''}
 
             <uui-button look="secondary" label=${this.localize.term('umbnav_buttonsDelete')}
                         @click=${() => this.requestDelete()}>

@@ -161,7 +161,7 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
         }
 
         var contentKey = item.ContentKey.Value;
-        var umbracoContent = item.ItemType == UmbNavItemType.Media
+        var umbracoContent = string.Equals(item.ItemType, UmbNavItemType.Media, StringComparison.OrdinalIgnoreCase)
             ? _publishedMediaCache.GetById(contentKey)
             : _publishedContentCache.GetById(contentKey);
 

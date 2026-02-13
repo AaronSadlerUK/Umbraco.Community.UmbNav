@@ -1,0 +1,13 @@
+{
+  "id": "test-divider",
+  "name": "Test Divider",
+  "version": "1.0.0",
+  "extensions": [
+    {
+      "type": "backofficeEntryPoint",
+      "alias": "test.divider.entrypoint",
+      "name": "Test Divider Entry Point",
+      "js": "/App_Plugins/TestDivider/register.js"
+    }
+  ]
+}

@@ -12,7 +12,7 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
         public static IHtmlContent GetLinkHtml(this UmbNavItem item, string? cssClass = null, string? id = null, string? culture = null, UrlMode mode = UrlMode.Default, string labelTagName = "span", object? htmlAttributes = null, string? activeClass = null)
         {
             var htmlAttributesConverted = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
-            var tagBuilder = item.ItemType == UmbNavItemType.Title
+            var tagBuilder = string.Equals(item.ItemType, UmbNavItemType.Title, StringComparison.OrdinalIgnoreCase)
                 ? new TagBuilder(labelTagName)
                 : new TagBuilder("a");
 
@@ -40,7 +40,7 @@ namespace Umbraco.Community.UmbNav.Core.Extensions
 
             tagBuilder.MergeAttributes(htmlAttributesConverted);
 
-            if (item.ItemType == UmbNavItemType.Title)
+            if (string.Equals(item.ItemType, UmbNavItemType.Title, StringComparison.OrdinalIgnoreCase))
             {
                 return tagBuilder;
             }

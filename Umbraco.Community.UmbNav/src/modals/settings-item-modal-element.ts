@@ -135,7 +135,7 @@ export class UmbNavModalElement extends
                     )}
 
                     ${when(
-                            !this.includeChildNodesToggle && this.data?.itemType === 'document',
+                            !this.includeChildNodesToggle && this.data?.itemType === 'Document',
                             () => html`${this.#renderIncludeChildNodesToggle()}`,
                     )}
 				</uui-box>
