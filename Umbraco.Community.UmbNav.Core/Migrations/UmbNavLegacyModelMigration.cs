@@ -198,8 +198,7 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
     // Add this static readonly field to cache the JsonSerializerOptions instance
     private static readonly JsonSerializerOptions CachedJsonSerializerOptions = new JsonSerializerOptions
     {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        Converters = { new JsonStringEnumConverter() }
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     public static bool TryTransformLegacyValue(ILogger logger, string legacyValue, out string newValue)
@@ -255,7 +254,7 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
         };
     }
 
-    private static UmbNavItemType MapItemType(OldUmbNavItemType oldItemType) => oldItemType switch
+    private static string MapItemType(OldUmbNavItemType oldItemType) => oldItemType switch
     {
         OldUmbNavItemType.Link => UmbNavItemType.External,
         OldUmbNavItemType.Content => UmbNavItemType.Document,

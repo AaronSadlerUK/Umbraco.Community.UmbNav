@@ -214,7 +214,20 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
     // Modal/Picker Event Handlers
     #toggleLinkPickerEvent(event: CustomEvent<{ key: Guid | null | undefined }>) {
         const item = this.value.find(i => i.key === event.detail.key);
-        if (item && (item.itemType === "title" || item.itemType === 'nolink')) {
+        if (!item) return;
+
+        // Check for registered custom type
+        const registration = this._customItemTypes.find(
+            t => t.type === item.itemType
+        );
+        if (registration) {
+            if (registration.editModalToken) {
+                this.#openCustomEditModal(item, registration);
+            }
+            return;
+        }
+
+        if (item.itemType === 'Title' || item.itemType === 'nolink') {
             this.#toggleTextModal(event.detail.key);
         } else {
             this.#toggleLinkPicker(event.detail.key);
@@ -332,6 +345,21 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         }
     }
 
+    async #openCustomEditModal(item: ModelEntryType, registration: UmbNavItemTypeRegistration): Promise<void> {
+        try {
+            const modalHandler = this.#modalContext?.open(this, registration.editModalToken as any, {
+                data: item
+            } as any);
+            const result = await modalHandler?.onSubmit().catch(() => undefined);
+            if (!modalHandler || !result) return;
+
+            const updatedItem = { ...item, ...result as Partial<ModelEntryType>, children: item.children ?? [] };
+            this.#updateItem(updatedItem);
+        } catch (error) {
+            console.error('Error in #openCustomEditModal:', error);
+        }
+    }
+
     async #handleMediaLink(menuItem: UmbLinkPickerLink) {
         const media = await getMedia(this, menuItem.unique);
         if (media) {
@@ -357,13 +385,19 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         return menuItem;
     }
 
+    #isItemEditable(item: ModelEntryType): boolean {
+        const registration = this._customItemTypes.find(t => t.type === item.itemType);
+        if (!registration) return true;
+        return !!registration.editModalToken;
+    }
+
     #addCustomTypeItem(registration: UmbNavItemTypeRegistration): void {
         const defaults = registration.defaultValues ?? {};
         const newItem: ModelEntryType = {
             key: uuidv4() as Guid,
             name: defaults.name ?? registration.label,
             icon: defaults.icon ?? registration.icon,
-            itemType: defaults.itemType ?? 'Title',
+            itemType: defaults.itemType ?? registration.type,
             url: defaults.url ?? null,
             udi: defaults.udi ?? null,
             contentKey: defaults.contentKey ?? null,
@@ -379,7 +413,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
             noreferrer: defaults.noreferrer ?? null,
             image: defaults.image ?? [],
             children: [],
-            allowChildren: registration.allowChildren
+            allowChildren: registration.allowChildren ?? true
         };
         this.#addItem(newItem);
     }
@@ -464,6 +498,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
                             .allowChildren=${item.allowChildren !== false}
                             .itemData=${item}
                             .config=${this.config}
+                            .editable=${this.#isItemEditable(item)}
                             icon="${item.icon ?? ''}"
                             ?unpublished=${item.published === false && item.itemType === "Document"}
                             @toggle-children-event=${this.#toggleNode}
