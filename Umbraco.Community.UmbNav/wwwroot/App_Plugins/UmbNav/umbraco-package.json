@@ -2,6 +2,11 @@
     "$schema": "../../umbraco-package-schema.json",
     "name": "Umbraco.Community.UmbNav",
     "version": "4.0.0",
+    "importmap": {
+        "imports": {
+            "@umbraco-community/umbnav/api": "/App_Plugins/UmbNav/dist/api.js"
+        }
+    },
     "extensions": [
         {
             "name": "UmbNav Bundle",
