@@ -11,7 +11,7 @@ async function registerDivider() {
         attempts++;
 
         try {
-            const { UmbNavExtensionRegistry } = await import('/App_Plugins/UmbNav/dist/api.js');
+            const { UmbNavExtensionRegistry } = await import('@umbraco-community/umbnav/api');
 
             UmbNavExtensionRegistry.registerItemType({
                 type: 'divider',
