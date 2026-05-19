@@ -150,24 +150,16 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
                     {
                         if (property.PropertyType.PropertyEditorAlias == UmbNavConstants.LegacyEditorAlias)
                         {
-                            var legacyValue = property.GetValue()?.ToString();
-                            if (!string.IsNullOrWhiteSpace(legacyValue))
+                            if (property.PropertyType.VariesByCulture())
                             {
-                                try
+                                foreach (var culture in content.AvailableCultures)
                                 {
-                                    // Example transformation logic; adjust as needed
-                                    var hasTransformed = TryTransformLegacyValue(_logger, legacyValue, out var newValue);
-                                    if (hasTransformed)
-                                    {
-                                        property.SetValue(newValue);
-                                        saveContent = true;
-                                    }
+                                    saveContent |= GetValueAndTryTransform(saveContent, property, culture);
                                 }
-                                catch (Exception ex)
-                                {
-                                    _logger.LogError(ex, "Something went wrong migrating legacy content.{legacyValue}", legacyValue);
-                                }
-
+                            }
+                            else
+                            {
+                                saveContent = GetValueAndTryTransform(saveContent, property, null);
                             }
                         }
                     }
@@ -193,6 +185,31 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
 
         } while (loop);
 
+    }
+
+    private bool GetValueAndTryTransform(bool saveContent, IProperty property, string? culture)
+    {
+        var legacyValue = property.GetValue(culture)?.ToString();
+        if (!string.IsNullOrWhiteSpace(legacyValue))
+        {
+            try
+            {
+                // Example transformation logic; adjust as needed
+                var hasTransformed = TryTransformLegacyValue(_logger, legacyValue, out var newValue);
+                if (hasTransformed)
+                {
+                    property.SetValue(newValue, culture);
+                    saveContent = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Something went wrong migrating legacy content.{legacyValue}", legacyValue);
+            }
+
+        }
+
+        return saveContent;
     }
 
     // Add this static readonly field to cache the JsonSerializerOptions instance
