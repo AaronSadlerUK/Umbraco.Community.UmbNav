@@ -228,13 +228,26 @@ export function convertToImageType(image: Guid): ImageItem {
     }
 }
 
+function normalizeItemType(value: UmbNavLinkPickerLinkType | null | undefined): UmbNavLinkPickerLinkType | null | undefined {
+    if (!value) return value;
+    switch (value.toLowerCase()) {
+        case 'title': return 'Title';
+        case 'document': return 'Document';
+        case 'media': return 'Media';
+        case 'external': return 'External';
+        default: return value;
+    }
+}
+
 export function ensureNavItemKeys(value: ModelEntryType[]): ModelEntryType[] {
     return value.map(item => ({
         ...item,
         key: item.key ?? (uuidv4() as Guid),
         unique: item.udi != null && (item.udi.startsWith('umb://document/') || item.udi.startsWith('umb://media/')) ? item.key : undefined,
-        itemType: item.udi != null && item.udi.startsWith('umb://document/') ? 'Document' :
-                  item.udi != null && item.udi.startsWith('umb://media/') ? 'Media' : item.itemType,
+        itemType: normalizeItemType(
+            item.udi != null && item.udi.startsWith('umb://document/') ? 'Document' :
+            item.udi != null && item.udi.startsWith('umb://media/') ? 'Media' : item.itemType
+        ),
         // Always ensure children is an array so nested sorters can initialize
         children: Array.isArray(item.children) ? ensureNavItemKeys(item.children) : []
     }));
