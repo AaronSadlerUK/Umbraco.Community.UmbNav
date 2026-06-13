@@ -17,9 +17,9 @@ export * from './extensions/index.js';
 export type { ModelEntryType, Guid, GuidUdi, UmbNavLinkPickerLinkType, ImageItem } from './tokens/umbnav.token.js';
 
 // Export components for extension/subclassing
-export { UmbNavItem, UmbNavToolbarActionEvent } from './components/umbnav-item/umbnav-item.js';
-export { UmbNavGroup } from './components/umbnav-group/umbnav-group.js';
-export { default as UmbNavSorterPropertyEditorUIElement } from './components/umbnav-property-editor-ui/umbnav-property-editor-ui.js';
+export { UmbNavItem, UmbNavToolbarActionEvent } from './components/umbnav-item/umbnav-item.element.js';
+export { UmbNavGroup } from './components/umbnav-group/umbnav-group.element.js';
+export { default as UmbNavSorterPropertyEditorUIElement } from './components/umbnav-property-editor-ui/umbnav-property-editor-ui.element.js';
 
 // Export modal tokens for custom modal integration
 export { UMBNAV_TEXT_ITEM_MODAL, type UmbNavTextItemModalData } from './tokens/text-item-modal-token.js';

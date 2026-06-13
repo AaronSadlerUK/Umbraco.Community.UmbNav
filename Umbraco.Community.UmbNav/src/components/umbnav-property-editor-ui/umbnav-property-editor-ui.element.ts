@@ -2,8 +2,8 @@ import { html, customElement, property, state } from '@umbraco-cms/backoffice/ex
 import { UmbPropertyEditorConfigCollection, UmbPropertyEditorConfigProperty, UmbPropertyEditorUiElement } from "@umbraco-cms/backoffice/property-editor";
 import { UmbLitElement } from "@umbraco-cms/backoffice/lit-element";
 import { UmbFormControlMixin } from "@umbraco-cms/backoffice/validation";
-import '../umbnav-group/umbnav-group.js';
-import type { UmbNavGroup } from '../umbnav-group/umbnav-group.js';
+import '../umbnav-group/umbnav-group.element.js';
+import type { UmbNavGroup } from '../umbnav-group/umbnav-group.element.js';
 import { ModelEntryType } from "../../tokens/umbnav.token.ts";
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 import { UmbNavPropertyEditorUIStyles } from './umbnav-property-editor-ui.styles.ts';
@@ -65,8 +65,8 @@ export default class UmbNavSorterPropertyEditorUIElement extends UmbFormControlM
     }
 
     toggleAllNodes() {
+        // expandAll is a @state() field, so reassignment schedules a re-render automatically.
         this.expandAll = !this.expandAll;
-        this.requestUpdate();
     }
 
     toggleAllNodesEvent(event: CustomEvent<{ expandAll: boolean }>) {

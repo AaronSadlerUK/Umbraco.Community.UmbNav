@@ -1,5 +1,5 @@
 import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
-import '../modals/text-item-modal-element.ts'
+import '../modals/text-item-modal.element.ts'
 import {Guid, ModelEntryType} from "../tokens/umbnav.token.ts";
 
 export interface UmbNavTextItemModalData {
