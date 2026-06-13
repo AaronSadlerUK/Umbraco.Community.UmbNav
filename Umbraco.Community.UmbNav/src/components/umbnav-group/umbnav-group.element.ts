@@ -2,29 +2,27 @@ import { UmbNavGroupStyles } from './umbnav-group.styles.ts';
 import { findItemByKey, convertToUmbLinkPickerLink, convertToUmbNavLink, convertToImageType, setItemDepths } from '../../umbnav-utils.ts';
 import { openTextModal, openSettingsModal, openVisibilityModal } from './umbnav-group.modals.ts';
 import { getDocument, getMedia } from './umbnav-group.data.ts';
-import { customElement, html, LitElement, property, repeat, state } from '@umbraco-cms/backoffice/external/lit';
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
+import { customElement, html, property, repeat, state } from '@umbraco-cms/backoffice/external/lit';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UMB_LINK_PICKER_MODAL, UmbLinkPickerLink } from '@umbraco-cms/backoffice/multi-url-picker';
-import { UMB_MEDIA_PICKER_MODAL, UmbMediaUrlRepository } from '@umbraco-cms/backoffice/media';
-import '../umbnav-item/umbnav-item.ts';
-import UmbNavItem from '../umbnav-item/umbnav-item.ts';
+import { UMB_MEDIA_PICKER_MODAL } from '@umbraco-cms/backoffice/media';
+import '../umbnav-item/umbnav-item.element.ts';
+import UmbNavItem from '../umbnav-item/umbnav-item.element.ts';
 import { UMB_MODAL_MANAGER_CONTEXT, UmbModalManagerContext } from '@umbraco-cms/backoffice/modal';
 import { UmbPropertyEditorConfigProperty } from "@umbraco-cms/backoffice/property-editor";
 import { Guid, ModelEntryType } from "../../tokens/umbnav.token.ts";
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 import { UmbSorterController } from "@umbraco-cms/backoffice/sorter";
-import { UmbDocumentUrlRepository, UmbDocumentUrlsDataResolver } from '@umbraco-cms/backoffice/document';
+import { UmbNavUrlResolverController } from './umbnav-url-resolver.controller.ts';
 import { UmbNavExtensionRegistry } from '../../extensions/extension-registry.js';
 import type { UmbNavItemTypeRegistration } from '../../extensions/extension-types.js';
 import { v4 as uuidv4 } from 'uuid';
 
 @customElement('umbnav-group')
-export class UmbNavGroup extends UmbElementMixin(LitElement) {
+export class UmbNavGroup extends UmbLitElement {
     #modalContext?: UmbModalManagerContext;
 
-    #documentUrlRepository = new UmbDocumentUrlRepository(this);
-    #documentUrlsDataResolver = new UmbDocumentUrlsDataResolver(this);
-    #mediaUrlRepository = new UmbMediaUrlRepository(this);
+    #urlResolver = new UmbNavUrlResolverController(this);
 
     // Sorter setup - following Umbraco's example pattern
     #sorter = new UmbSorterController<ModelEntryType, UmbNavItem>(this, {
@@ -51,7 +49,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         this.#sorter.setModel(this._value);
         this.requestUpdate('value', oldValue);
         if (!this.nested) {
-            this.#resolveUrlsForDisplay(this._value);
+            this.#urlResolver.resolveUrls(this._value);
         }
     }
     private _value?: ModelEntryType[];
@@ -60,7 +58,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
     private expandedItems: string[] = [];
 
     @state()
-    private _resolvedUrls: Map<string, string> = new Map();
+    private _resolvedUrls: Record<string, string> = {};
 
     @state()
     private _customItemTypes: UmbNavItemTypeRegistration[] = [];
@@ -119,6 +117,9 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
         this.consumeContext(UMB_MODAL_MANAGER_CONTEXT, (_instance) => {
             this.#modalContext = _instance;
         });
+        this.observe(this.#urlResolver.urls, (urls) => {
+            this._resolvedUrls = urls;
+        });
     }
 
     override connectedCallback(): void {
@@ -132,41 +133,6 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
     override disconnectedCallback(): void {
         super.disconnectedCallback();
         this._unsubscribeRegistry?.();
-    }
-
-    async #resolveUrlsForDisplay(items: ModelEntryType[]) {
-        if (!items?.length) return;
-        for (const item of items) {
-            if (item.key && item.contentKey) {
-                if (item.itemType === 'Document') {
-                    const url = await this.#getUrlForDocument(item.contentKey as string);
-                    if (url) {
-                        this._resolvedUrls = new Map(this._resolvedUrls).set(item.key, url);
-                    }
-                } else if (item.itemType === 'Media') {
-                    const url = await this.#getUrlForMedia(item.contentKey as string);
-                    if (url) {
-                        this._resolvedUrls = new Map(this._resolvedUrls).set(item.key, url);
-                    }
-                }
-            }
-            if (item.children?.length) {
-                this.#resolveUrlsForDisplay(item.children);
-            }
-        }
-    }
-
-    async #getUrlForDocument(unique: string) {
-        const { data } = await this.#documentUrlRepository.requestItems([unique]);
-        const urlsItem = data?.[0];
-        this.#documentUrlsDataResolver.setData(urlsItem?.urls);
-        const resolvedUrls = await this.#documentUrlsDataResolver.getUrls();
-        return resolvedUrls?.[0]?.url ?? '';
-    }
-
-    async #getUrlForMedia(unique: string) {
-        const { data } = await this.#mediaUrlRepository.requestItems([unique]);
-        return data?.[0]?.url ?? '';
     }
 
     removeItem = (event: CustomEvent<{ key: string }>) => {
@@ -194,7 +160,7 @@ export class UmbNavGroup extends UmbElementMixin(LitElement) {
     #getUrlText(item: ModelEntryType): string {
         // For Document/Media items, use resolved URL from map (don't show until resolved)
         if (item.key && (item.itemType === 'Document' || item.itemType === 'Media')) {
-            const resolvedUrl = this._resolvedUrls.get(item.key);
+            const resolvedUrl = this._resolvedUrls[item.key];
             return resolvedUrl ? `${resolvedUrl}${item.anchor ?? ''}` : '';
         }
         // For external links, use stored url
