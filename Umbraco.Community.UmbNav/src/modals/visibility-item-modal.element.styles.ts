@@ -18,6 +18,9 @@ export const UmbNavVisibilityModalStyles = [
         uui-input {
             width: 100%;
         }
+        umb-property-layout.no-padding {
+            padding: 0;
+        }
         .visibility-toggles uui-toggle:not(:last-child) {
             display: block;
             margin-bottom: var(--uui-size-space-5);

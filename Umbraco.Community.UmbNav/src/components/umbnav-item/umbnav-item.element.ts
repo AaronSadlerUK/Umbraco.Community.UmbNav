@@ -5,8 +5,8 @@ import { UmbNavExtensionRegistry } from '../../extensions/extension-registry.js'
 import type { UmbNavToolbarAction, UmbNavActionContext, UmbNavItemSlot } from '../../extensions/extension-types.js';
 import type { ModelEntryType, Guid } from '../../tokens/umbnav.token.js';
 
-import { html, customElement, LitElement, property, state, TemplateResult } from '@umbraco-cms/backoffice/external/lit';
-import { UmbElementMixin } from '@umbraco-cms/backoffice/element-api';
+import { html, customElement, property, state, TemplateResult } from '@umbraco-cms/backoffice/external/lit';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbPropertyEditorConfigProperty } from '@umbraco-cms/backoffice/property-editor';
 
 /**
@@ -24,7 +24,7 @@ export class UmbNavToolbarActionEvent extends CustomEvent<{ action: UmbNavToolba
 }
 
 @customElement('umbnav-item')
-export class UmbNavItem extends UmbElementMixin(LitElement) {
+export class UmbNavItem extends UmbLitElement {
     @property({ type: String, reflect: true })
     name: string = '';
 
@@ -116,9 +116,19 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
     }
 
     private _loadExtensions(): void {
+        // Assigning new array references to @state() fields schedules a re-render automatically.
         this._extensionActions = UmbNavExtensionRegistry.getToolbarActions();
         this._extensionSlots = UmbNavExtensionRegistry.getItemSlots();
-        this.requestUpdate();
+    }
+
+    /**
+     * Activates a click handler from keyboard (Enter/Space) for non-button interactive elements.
+     */
+    #activateOnKey(event: KeyboardEvent, action: () => void): void {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            action();
+        }
     }
 
     /**
@@ -298,12 +308,20 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
             <div id="name">
                 ${this.renderExtensionSlots('before-name')}
                 ${this.editable
-                    ? html`<span class="name" @click=${() => this.editNode(this.key)}>${this.name}</span>`
+                    ? html`<span class="name" role="button" tabindex="0"
+                            @click=${() => this.editNode(this.key)}
+                            @keydown=${(e: KeyboardEvent) => this.#activateOnKey(e, () => this.editNode(this.key))}>${this.name}</span>`
                     : html`<span class="name-static">${this.name}</span>`}
-                ${this.hideIncludesChildNodes && this.hideIncludesChildNodes ? html` <span class="umbnav-badge">Includes Child Nodes</span>` : ''}
-                ${this.enableMediaPicker ? html`<span class="image" @click=${() => this.addImage(this.key)}>${this.hasImage ? html`<umb-icon name="picture"></umb-icon>` : ''}</span>` : ''}
-                ${this.enableVisibility && this.hideLoggedOut ? html`<span class="image" @click=${() => this.toggleVisibility(this.key)}>${this.hideLoggedOut ? html`<umb-icon name="lock"></umb-icon>` : ''}</span>` : ''}
-                ${this.enableVisibility && this.hideLoggedIn ? html`<span class="image" @click=${() => this.toggleVisibility(this.key)}>${this.hideLoggedIn ? html`<umb-icon name="icon-unlocked"></umb-icon>` : ''}</span>` : ''}
+                ${this.hideIncludesChildNodes ? html` <span class="umbnav-badge">${this.localize.term('umbnav_includesChildNodesBadge')}</span>` : ''}
+                ${this.enableMediaPicker ? html`<span class="image" role="button" tabindex="0" aria-label=${this.localize.term('umbnav_buttonsImage')}
+                            @click=${() => this.addImage(this.key)}
+                            @keydown=${(e: KeyboardEvent) => this.#activateOnKey(e, () => this.addImage(this.key))}>${this.hasImage ? html`<umb-icon name="picture"></umb-icon>` : ''}</span>` : ''}
+                ${this.enableVisibility && this.hideLoggedOut ? html`<span class="image" role="button" tabindex="0" aria-label=${this.localize.term('umbnav_buttonsVisibility')}
+                            @click=${() => this.toggleVisibility(this.key)}
+                            @keydown=${(e: KeyboardEvent) => this.#activateOnKey(e, () => this.toggleVisibility(this.key))}>${this.hideLoggedOut ? html`<umb-icon name="lock"></umb-icon>` : ''}</span>` : ''}
+                ${this.enableVisibility && this.hideLoggedIn ? html`<span class="image" role="button" tabindex="0" aria-label=${this.localize.term('umbnav_buttonsVisibility')}
+                            @click=${() => this.toggleVisibility(this.key)}
+                            @keydown=${(e: KeyboardEvent) => this.#activateOnKey(e, () => this.toggleVisibility(this.key))}>${this.hideLoggedIn ? html`<umb-icon name="icon-unlocked"></umb-icon>` : ''}</span>` : ''}
                 ${this.renderExtensionSlots('after-name')}
             </div>
         `;
@@ -383,7 +401,7 @@ export class UmbNavItem extends UmbElementMixin(LitElement) {
 
     override render() {
         return html`
-            <div class="tree-node ${this.unpublished ? 'unpublished' : ''} ${this.expanded ? 'expanded' : ''}" title="${this.expanded ? 'Collapse to drag' : ''}">
+            <div class="tree-node ${this.unpublished ? 'unpublished' : ''} ${this.expanded ? 'expanded' : ''}" title="${this.expanded ? this.localize.term('umbnav_collapseToDrag') : ''}">
                 ${this.renderExpandArrow()}
                 ${this.renderIcon()}
                 ${this.renderInfo()}

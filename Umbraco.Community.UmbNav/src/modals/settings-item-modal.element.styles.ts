@@ -29,7 +29,11 @@ export const UmbNavSettingsModalStyles = [
         .invalid {
             color: var(--uui-color-danger);
         }
-        
+
+        umb-property-layout.no-padding {
+            padding: 0;
+        }
+
         .seo-toggles uui-toggle:not(:last-child) {
             display: block;
             margin-bottom: var(--uui-size-space-5);

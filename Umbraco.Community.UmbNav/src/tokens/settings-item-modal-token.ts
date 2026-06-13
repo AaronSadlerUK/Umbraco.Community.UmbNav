@@ -1,5 +1,5 @@
 import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
-import '../modals/text-item-modal-element'
+import '../modals/settings-item-modal.element'
 import { UmbPropertyEditorConfigProperty } from "@umbraco-cms/backoffice/property-editor";
 
 export interface UmbNavSettingsItemModalData {

@@ -1,10 +1,10 @@
-import { ManifestPropertyEditorSchema, ManifestPropertyEditorUi } from '@umbraco-cms/backoffice/property-editor';
+import { ManifestPropertyEditorUi } from '@umbraco-cms/backoffice/property-editor';
 
 const umbNavPropertyEditorUiManifest: ManifestPropertyEditorUi = {
     type: 'propertyEditorUi',
     alias: 'Umbraco.Community.UmbNav',
     name: 'UmbNav',
-    element: () => import('./components/umbnav-property-editor-ui/umbnav-property-editor-ui'),
+    element: () => import('./components/umbnav-property-editor-ui/umbnav-property-editor-ui.element'),
     elementName: "umbnav-property-editor-ui",
     meta: {
          label : "UmbNav",
@@ -119,12 +119,4 @@ const umbNavPropertyEditorUiManifest: ManifestPropertyEditorUi = {
         }
     }
 };
-export const styledTextSchema : ManifestPropertyEditorSchema = {
-    type: 'propertyEditorSchema',
-    name: 'UmbNav Schema',
-    alias: 'umbnav.editor.schema',
-    meta: {
-        defaultPropertyEditorUiAlias: 'Umbraco.Plain.Json'
-    }
-};
-export const manifests = [umbNavPropertyEditorUiManifest, styledTextSchema];
+export const manifests = [umbNavPropertyEditorUiManifest];

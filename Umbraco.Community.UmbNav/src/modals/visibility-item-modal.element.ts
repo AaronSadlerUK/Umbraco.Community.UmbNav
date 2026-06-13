@@ -3,10 +3,10 @@ import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
 import type { UUIButtonState } from '@umbraco-cms/backoffice/external/uui';
 import {UmbNavItemVisibility, UmbNavVisibilityItemModalData} from "../tokens/visibility-item-modal-token.ts";
 import type { UUIBooleanInputEvent } from '@umbraco-cms/backoffice/external/uui';
-import { UmbNavVisibilityModalStyles } from './visibility-item-modal-element.styles.ts';
+import { UmbNavVisibilityModalStyles } from './visibility-item-modal.element.styles.ts';
 
 @customElement('umbnav-visibility-item-modal')
-export class UmbNavModalElement extends
+export class UmbNavVisibilityItemModalElement extends
     UmbModalBaseElement<UmbNavVisibilityItemModalData, UmbNavItemVisibility>
 {
     constructor() {
@@ -27,10 +27,10 @@ export class UmbNavModalElement extends
     hideLoggedOut: boolean = false;
 
     @state()
-    private _submitButtonState: UUIButtonState;
+    private _submitButtonState?: UUIButtonState;
 
     #handleConfirm() {
-        this._submitButtonState = 'success';
+        this._submitButtonState = 'waiting';
 
         this.value = {
             hideLoggedIn: this.hideLoggedIn,
@@ -78,9 +78,8 @@ export class UmbNavModalElement extends
 				<div class="side-by-side" slot="editor">
 					<umb-property-layout
 						orientation="vertical"
-						label='Toggle Visibility'
-						style="padding:0;"
-                        class="visibility-toggles">
+						label=${this.localize.term('umbnav_visibilityToggleGroupLabel')}
+                        class="visibility-toggles no-padding">
                         <uui-toggle label=${this.localize.term('umbnav_visibilityItemHideLoggedInLabel')}
                                     slot="editor"
                                     ?checked="${this.hideLoggedIn}"
@@ -100,4 +99,4 @@ export class UmbNavModalElement extends
 
 }
 
-export default UmbNavModalElement;
+export default UmbNavVisibilityItemModalElement;

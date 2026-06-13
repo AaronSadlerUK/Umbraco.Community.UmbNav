@@ -3,10 +3,10 @@ import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
 import {type UUIBooleanInputEvent, UUIInputEvent} from "@umbraco-cms/backoffice/external/uui";
 import type { UUIButtonState } from '@umbraco-cms/backoffice/external/uui';
 import {UmbNavSettingsItem, UmbNavSettingsItemModalData} from "../tokens/settings-item-modal-token.ts";
-import { UmbNavSettingsModalStyles } from './settings-item-modal-element.styles.ts';
+import { UmbNavSettingsModalStyles } from './settings-item-modal.element.styles.ts';
 
 @customElement('umbnav-settings-item-modal')
-export class UmbNavModalElement extends
+export class UmbNavSettingsItemModalElement extends
     UmbModalBaseElement<UmbNavSettingsItemModalData, UmbNavSettingsItem>
 {
     constructor() {
@@ -55,7 +55,7 @@ export class UmbNavModalElement extends
     includeChildNodes: boolean = false;
 
     @state()
-    private _submitButtonState: UUIButtonState;
+    private _submitButtonState?: UUIButtonState;
 
     #handleConfirm() {
         this._submitButtonState = 'waiting';
@@ -159,7 +159,7 @@ export class UmbNavModalElement extends
 					<umb-property-layout
 						orientation="vertical"
 						label="#umbnav_settingsItemModalCustomCssClassesLabel"
-						style="padding:0;">
+						class="no-padding">
 						<uui-input
 							slot="editor"
                             label=${this.localize.term('umbnav_settingsItemModalCustomCssClassesLabel')}
@@ -179,7 +179,7 @@ export class UmbNavModalElement extends
 					<umb-property-layout
 						orientation="vertical"
 						label="#umbnav_settingsItemModalDescriptionLabel"
-						style="padding:0;">
+						class="no-padding">
 						<uui-input
 							slot="editor"
                             label=${this.localize.term('umbnav_settingsItemModalDescriptionLabel')}
@@ -199,8 +199,7 @@ export class UmbNavModalElement extends
 					<umb-property-layout
 						orientation="vertical"
 						label='#umbnav_settingsItemModalSeoGroupLabel'
-						style="padding:0;"
-                        class="seo-toggles">
+                        class="seo-toggles no-padding">
                         ${when(
                                 !this.hideNoReferrerToggle,
                                 () => html`
@@ -231,8 +230,7 @@ export class UmbNavModalElement extends
 					<umb-property-layout
 						orientation="vertical"
 						label='#umbnav_settingsItemModalIncludeChildNodesGroupLabel'
-						style="padding:0;"
-                        class="misc-toggles">
+                        class="misc-toggles no-padding">
                         ${when(
                                 !this.includeChildNodesToggle,
                                 () => html`
@@ -251,4 +249,4 @@ export class UmbNavModalElement extends
 
 }
 
-export default UmbNavModalElement;
+export default UmbNavSettingsItemModalElement;

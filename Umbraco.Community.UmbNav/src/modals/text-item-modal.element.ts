@@ -6,10 +6,10 @@ import {umbBindToValidation, UmbValidationContext} from "@umbraco-cms/backoffice
 import type { UUIButtonState } from '@umbraco-cms/backoffice/external/uui';
 import {ModelEntryType} from "../tokens/umbnav.token.ts";
 import { umbFocus } from '@umbraco-cms/backoffice/lit-element';
-import { UmbNavTextItemStyles } from './text-item-modal-element.styles.ts';
+import { UmbNavTextItemStyles } from './text-item-modal.element.styles.ts';
 
 @customElement('umbnav-text-item-modal')
-export class UmbNavModalElement extends
+export class UmbNavTextItemModalElement extends
     UmbModalBaseElement<UmbNavTextItemModalData, ModelEntryType>
 {
     constructor() {
@@ -25,7 +25,7 @@ export class UmbNavModalElement extends
     name: string = '';
 
     @state()
-    private _submitButtonState: UUIButtonState;
+    private _submitButtonState?: UUIButtonState;
 
     #handleConfirm() {
         this._submitButtonState = 'waiting';
@@ -109,4 +109,4 @@ export class UmbNavModalElement extends
 
 }
 
-export default UmbNavModalElement;
+export default UmbNavTextItemModalElement;
