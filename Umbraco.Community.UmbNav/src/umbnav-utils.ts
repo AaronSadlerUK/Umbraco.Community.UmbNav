@@ -3,7 +3,8 @@ import { UmbLinkPickerLink } from '@umbraco-cms/backoffice/multi-url-picker';
 import { v4 as uuidv4 } from 'uuid';
 import { getDocument, getMedia } from "./components/umbnav-group/umbnav-group.data";
 import { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
-import { DocumentVariantStateModel } from "@umbraco-cms/backoffice/external/backend-api";
+
+const DRAFT_VARIANT_STATE = "Draft";
 
 // Recursively calculate the total depth of children (sum of all levels)
 export function calculateTotalDepth(children: ModelEntryType[]): number {
@@ -60,7 +61,7 @@ export async function convertToUmbLinkPickerLink(context: UmbControllerHost, ite
                 unique = item.contentKey;
                 let documentVariant = document?.variants?.[0];
                 const documentName = documentVariant?.name ?? null;
-                isPublished = documentVariant?.state != DocumentVariantStateModel.DRAFT
+                isPublished = String(documentVariant?.state) !== DRAFT_VARIANT_STATE
                 if (documentName !== item.name) {
                     menuItemName = item.name;
                 }else{
@@ -136,7 +137,7 @@ export async function convertToUmbNavLink(
                 itemType = 'Document';
                 let documentVariant = document?.variants?.[0];
                 const documentName = documentVariant?.name ?? null;
-                isPublished = documentVariant?.state != DocumentVariantStateModel.DRAFT
+                isPublished = String(documentVariant?.state) !== DRAFT_VARIANT_STATE
                 if (documentName !== item.name) {
                     menuItemName = item.name;
                 }
