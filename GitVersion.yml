@@ -15,8 +15,21 @@ branches:
     is-release-branch: true
     is-main-branch: true
     pre-release-weight: 55000
-  develop:
-    regex: ^dev(elop)?(ment)?$
+  dev-v17:
+    regex: ^dev/v17$
+    mode: ContinuousDelivery
+    label: beta
+    increment: Patch
+    prevent-increment:
+      of-merged-branch: false
+    track-merge-target: true
+    source-branches: []
+    tracks-release-branches: true
+    is-release-branch: false
+    is-main-branch: false
+    pre-release-weight: 0
+  dev-v18:
+    regex: ^dev/v18$
     mode: ContinuousDelivery
     label: beta
     increment: Patch
@@ -36,7 +49,7 @@ branches:
     prevent-increment:
       of-merged-branch: false
     track-merge-target: true
-    source-branches: [ 'develop' ]
+    source-branches: [ 'dev-v17', 'dev-v18' ]
     tracks-release-branches: false
     is-release-branch: false
     is-main-branch: false
@@ -49,7 +62,7 @@ branches:
     prevent-increment:
       of-merged-branch: true
     track-merge-target: false
-    source-branches: [ 'develop', 'main', 'support', 'release' ]
+    source-branches: [ 'dev-v17', 'dev-v18', 'main', 'support', 'release' ]
     tracks-release-branches: false
     is-release-branch: true
     is-main-branch: false
