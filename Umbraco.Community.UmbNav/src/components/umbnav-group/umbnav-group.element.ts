@@ -48,9 +48,10 @@ export class UmbNavGroup extends UmbLitElement {
         this._value = value;
         this.#sorter.setModel(this._value);
         this.requestUpdate('value', oldValue);
-        if (!this.nested) {
-            this.#urlResolver.resolveUrls(this._value);
-        }
+        // Every group resolves its OWN items into its OWN state, so Document/Media URLs and
+        // names display at any depth — not just the root (each nested group reads its own
+        // resolver state, so a root-only resolve never reaches nested items).
+        this.#urlResolver.resolveUrls(this._value);
     }
     private _value?: ModelEntryType[];
 
@@ -59,6 +60,9 @@ export class UmbNavGroup extends UmbLitElement {
 
     @state()
     private _resolvedUrls: Record<string, string> = {};
+
+    @state()
+    private _resolvedNames: Record<string, string> = {};
 
     @state()
     private _customItemTypes: UmbNavItemTypeRegistration[] = [];
@@ -120,6 +124,9 @@ export class UmbNavGroup extends UmbLitElement {
         this.observe(this.#urlResolver.urls, (urls) => {
             this._resolvedUrls = urls;
         });
+        this.observe(this.#urlResolver.names, (names) => {
+            this._resolvedNames = names;
+        });
     }
 
     override connectedCallback(): void {
@@ -155,6 +162,17 @@ export class UmbNavGroup extends UmbLitElement {
 
     #getDescriptionText(item: ModelEntryType): string {
         return item.description ?? '';
+    }
+
+    #getNameText(item: ModelEntryType): string {
+        // Prefer a stored/overridden name; fall back to the live content title for
+        // Document/Media items whose stored name is empty (|| so '' also falls through).
+        const stored = item.name || item.title;
+        if (stored) return stored;
+        if (item.key && (item.itemType === 'Document' || item.itemType === 'Media')) {
+            return this._resolvedNames[item.key] ?? '';
+        }
+        return '';
     }
 
     #getUrlText(item: ModelEntryType): string {
@@ -447,7 +465,7 @@ export class UmbNavGroup extends UmbLitElement {
                     (item) => html`
                         <uui-button-inline-create @click=${() => this.#newNode(item.key)}></uui-button-inline-create>
                         <umbnav-item
-                            name=${item.name ?? item.title ?? ''}
+                            name=${this.#getNameText(item)}
                             key="${item.key ?? ''}"
                             description="${this.#getDescriptionText(item)}"
                             url="${this.#getUrlText(item)}"

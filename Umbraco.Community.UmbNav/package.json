@@ -11,7 +11,10 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "watch": "vite build --watch",
-    "config": "node config.cjs"
+    "config": "node config.cjs",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:drag": "playwright test --config=playwright.harness.config.ts"
   },
   "dependencies": {
     "@umbraco/playwright-testhelpers": "^17.0.33",
@@ -22,8 +25,9 @@
     "@playwright/test": "^1.59.1",
     "@types/node": "^25.2.3",
     "@umbraco-cms/backoffice": "~17.0.0",
+    "prompt": "^1.2.0",
     "typescript": "^6.0.3",
     "vite": "^7.3.1",
-     "prompt": "^1.2.0"
+    "vitest": "^3.2.7"
   }
 }
