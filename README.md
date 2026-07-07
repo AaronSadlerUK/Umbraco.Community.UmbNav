@@ -5,6 +5,16 @@ UmbNav adds a drag and drop menu builder to the Umbraco V17+ backoffice.
 [![NuGet](https://img.shields.io/nuget/v/Umbraco.Community.UmbNav.svg)](https://www.nuget.org/packages/Umbraco.Community.UmbNav)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/Umbraco.Community.UmbNav.svg)](https://www.nuget.org/packages/Umbraco.Community.UmbNav)
 
+## Version compatibility
+
+| Umbraco | UmbNav | Support | Status |
+|---------|--------|---------|--------|
+| 18.x    | 5.x    | STS     | Forward-port of the LTS line |
+| 17.x    | 4.x    | LTS     | Active development |
+
+Install the UmbNav major that matches your Umbraco major. The 4.x (LTS) line is
+where new work lands first; 5.x tracks it for Umbraco 18.
+
 ## Documentation
 
 **Full documentation is available on [GitBook](https://umbnavdocs.aaronsadler.dev/)**.
