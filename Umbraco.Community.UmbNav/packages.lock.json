@@ -1734,7 +1734,7 @@
       "umbraco.community.umbnav.core": {
         "type": "Project",
         "dependencies": {
-          "Umbraco.Cms.Web.Common": "[17.0.0, )"
+          "Umbraco.Cms.Web.Common": "[17.0.0, 17.999.999)"
         }
       }
     }
