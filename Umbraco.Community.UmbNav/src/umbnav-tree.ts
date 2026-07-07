@@ -40,21 +40,6 @@ export function canDropInto(
     return !isDescendant([draggedItem], draggedItem.key, targetParentKey);
 }
 
-/**
- * Returns a new top-level array in which the item matching `key` has its `children`
- * replaced by `children`. Non-matching items and the passed-in children are kept by
- * reference — the moved subtree must not be cloned, because the sorter tracks its
- * model by object identity and rebuilding it mid-drag corrupts moves of items that
- * carry children.
- */
-export function setChildren(
-    items: ModelEntryType[],
-    key: Guid | string | null | undefined,
-    children: ModelEntryType[],
-): ModelEntryType[] {
-    return items.map((item) => (item.key === key ? { ...item, children } : item));
-}
-
 function containsKey(items: ModelEntryType[], key: Guid | string | null | undefined): boolean {
     for (const item of items) {
         if (item.key === key) return true;

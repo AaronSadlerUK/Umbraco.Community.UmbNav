@@ -1,7 +1,5 @@
-import { UmbDocumentItemRepository, UmbDocumentItemDataResolver, UmbDocumentUrlRepository, UmbDocumentUrlsDataResolver } from '@umbraco-cms/backoffice/document';
-import { UmbMediaItemRepository, UmbMediaUrlRepository } from '@umbraco-cms/backoffice/media';
-import { DocumentService, MediaService } from '@umbraco-cms/backoffice/external/backend-api';
-import { tryExecute } from '@umbraco-cms/backoffice/resources';
+import { UmbDocumentItemRepository, UmbDocumentItemDataResolver, UmbDocumentUrlRepository, UmbDocumentUrlsDataResolver, UmbDocumentDetailRepository } from '@umbraco-cms/backoffice/document';
+import { UmbMediaItemRepository, UmbMediaUrlRepository, UmbMediaDetailRepository } from '@umbraco-cms/backoffice/media';
 import { Guid, ModelEntryType } from '../../tokens/umbnav.token.ts';
 import { UmbControllerHost } from '@umbraco-cms/backoffice/controller-api';
 
@@ -34,7 +32,8 @@ export async function getMediaUrl(context: UmbControllerHost, unique: Guid) {
 export async function getDocument(context: UmbControllerHost, entityKey: string | undefined | null) {
     try {
         if (!entityKey) return;
-        const { data, error } = await tryExecute(context, DocumentService.getDocumentById({ path: { id: entityKey } }));
+        // Use the repository layer rather than DocumentService directly (AR-1).
+        const { data, error } = await new UmbDocumentDetailRepository(context).requestByUnique(entityKey);
         if (error) {
             console.error('Error fetching document:', error);
             return;
@@ -50,7 +49,8 @@ export async function getDocument(context: UmbControllerHost, entityKey: string 
 export async function getMedia(context: UmbControllerHost, entityKey: string | undefined | null) {
     try {
         if (!entityKey) return;
-        const { data, error } = await tryExecute(context, MediaService.getMediaById({ path: { id: entityKey } }));
+        // Use the repository layer rather than MediaService directly (AR-1).
+        const { data, error } = await new UmbMediaDetailRepository(context).requestByUnique(entityKey);
         if (error) {
             console.error('Error fetching media:', error);
             return;

@@ -14,6 +14,7 @@ import { Guid, ModelEntryType } from "../../tokens/umbnav.token.ts";
 import { UmbChangeEvent } from '@umbraco-cms/backoffice/event';
 import { UmbSorterController } from "@umbraco-cms/backoffice/sorter";
 import { UmbNavUrlResolverController } from './umbnav-url-resolver.controller.ts';
+import { canDropInto } from '../../umbnav-tree.ts';
 import { UmbNavExtensionRegistry } from '../../extensions/extension-registry.js';
 import type { UmbNavItemTypeRegistration } from '../../extensions/extension-types.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -37,6 +38,12 @@ export class UmbNavGroup extends UmbLitElement {
             this.requestUpdate('value', oldValue);
             this.dispatchEvent(new CustomEvent('change'));
         },
+        // Reject moving an item into itself or its own subtree — that would detach the
+        // dragged branch from the tree. Only fires for cross-container (reparent) moves,
+        // so it never interferes with same-level reordering.
+        onRequestMove: ({ item }) => canDropInto(item, this.parentKey),
+        onDisallowed: () => this.setAttribute('disallow-drop', ''),
+        onAllowed: () => this.removeAttribute('disallow-drop'),
     });
 
     @property({ type: Array, attribute: false })
@@ -76,6 +83,11 @@ export class UmbNavGroup extends UmbLitElement {
 
     @property({ type: Boolean, reflect: true })
     nested: boolean = false;
+
+    // Key of the item that owns this (nested) container; undefined for the root group.
+    // Used by the sorter's drop guard to block dropping an item into its own subtree.
+    @property({ attribute: false })
+    parentKey?: Guid | null;
 
     @property({ type: Number, reflect: true })
     depth: number = 0;
@@ -499,6 +511,7 @@ export class UmbNavGroup extends UmbLitElement {
                                 class="${item.allowChildren !== false && (this.expandAll || (item.key != null && this.expandedItems.includes(item.key))) ? 'expanded' : 'collapsed'}"
                                 .config=${this.config}
                                 .value=${item.children ?? []}
+                                .parentKey=${item.key}
                                 .depth=${this.depth + 1}
                                 @change=${(e: Event) => {
                                     const newChildren = (e.target as UmbNavGroup).value;
