@@ -64,6 +64,13 @@ export const UmbNavItemStyles = [
                 line-height: 1.5em;
             }
 
+            /* Long manually entered URLs (e.g. with large query strings) have no
+               natural break points, so without this they force the item row wider
+               than the property editor and misalign the "Add Link Item" button. */
+            #url {
+                overflow-wrap: anywhere;
+            }
+
             .name {
                 cursor: pointer;
             }
