@@ -174,8 +174,10 @@ export async function convertToUmbNavLink(
             itemType: itemType,
             target: item.target,
             published: isPublished,
+            // The udi identifies the picked node, so it is built from the content key. Items with
+            // nothing behind them (external links, titles) get no udi at all.
             // @ts-ignore
-            udi: item.type === 'external' ? '' : `umb://${item.type}/${key.replace(/-/g, '')}`,
+            udi: linkId ? `umb://${item.type}/${linkId.replace(/-/g, '')}` : null,
             contentKey: linkId,
             anchor: item.queryString,
             customClasses: menuItem?.customClasses ?? '',
@@ -239,15 +241,21 @@ function normalizeItemType(value: UmbNavLinkPickerLinkType | null | undefined): 
     }
 }
 
+function itemTypeFromUdi(udi: ModelEntryType['udi']): UmbNavLinkPickerLinkType | null | undefined {
+    if (udi == null) return undefined;
+    if (udi.startsWith('umb://document/')) return 'Document';
+    if (udi.startsWith('umb://media/')) return 'Media';
+    return undefined;
+}
+
 export function ensureNavItemKeys(value: ModelEntryType[]): ModelEntryType[] {
     return value.map(item => ({
         ...item,
         key: item.key ?? (uuidv4() as Guid),
-        unique: item.udi != null && (item.udi.startsWith('umb://document/') || item.udi.startsWith('umb://media/')) ? item.key : undefined,
-        itemType: normalizeItemType(
-            item.udi != null && item.udi.startsWith('umb://document/') ? 'Document' :
-            item.udi != null && item.udi.startsWith('umb://media/') ? 'Media' : item.itemType
-        ),
+        // The stored item type is what the item was last saved as, so it wins. The udi is only a
+        // fallback for older data saved before the item type was persisted — reading it first would
+        // send an item that has since been retyped straight back to Document.
+        itemType: normalizeItemType(item.itemType || itemTypeFromUdi(item.udi)),
         // Always ensure children is an array so nested sorters can initialize
         children: Array.isArray(item.children) ? ensureNavItemKeys(item.children) : []
     }));
