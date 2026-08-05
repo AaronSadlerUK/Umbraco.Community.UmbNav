@@ -374,4 +374,85 @@ public class UmbNavMenuBuilderServiceTests
         Assert.NotNull(result[0].Children!.First().Children);
         Assert.Equal("Level 2", result[0].Children!.First().Children!.First().Name);
     }
+
+    [Fact]
+    public void BuildMenu_WithExternalItemCarryingStaleContentKey_KeepsTheExternalUrl()
+    {
+        var staleContentKey = Guid.NewGuid();
+        var oldPage = new Mock<IPublishedContent>();
+        oldPage.Setup(x => x.Key).Returns(staleContentKey);
+        _contentCacheMock.Setup(x => x.GetById(staleContentKey)).Returns(oldPage.Object);
+
+        var items = new List<UmbNavItem>
+        {
+            new()
+            {
+                Name = "Somewhere else",
+                ItemType = UmbNavItemType.External,
+                Url = "https://example.com/",
+                ContentKey = staleContentKey
+            }
+        };
+
+        var result = _service.BuildMenu(items).ToList();
+
+        Assert.Single(result);
+        Assert.Equal("https://example.com/", result[0].Url);
+        Assert.Null(result[0].Content);
+        _contentCacheMock.Verify(x => x.GetById(staleContentKey), Times.Never);
+    }
+
+    [Fact]
+    public void BuildMenu_WithExternalItemCarryingStaleContentKey_ClearsTheContentKey()
+    {
+        var staleContentKey = Guid.NewGuid();
+
+        var items = new List<UmbNavItem>
+        {
+            new()
+            {
+                Name = "Somewhere else",
+                ItemType = UmbNavItemType.External,
+                Url = "https://example.com/",
+                ContentKey = staleContentKey
+            }
+        };
+
+        var result = _service.BuildMenu(items).ToList();
+
+        Assert.Null(result[0].ContentKey);
+    }
+
+    [Fact]
+    public void BuildMenu_WithTitleItemCarryingUnresolvableContentKey_KeepsItemInTheMenu()
+    {
+        var staleContentKey = Guid.NewGuid();
+        _contentCacheMock.Setup(x => x.GetById(staleContentKey)).Returns((IPublishedContent?)null);
+
+        var items = new List<UmbNavItem>
+        {
+            new() { Name = "Just a label", ItemType = UmbNavItemType.Title, ContentKey = staleContentKey }
+        };
+
+        var result = _service.BuildMenu(items).ToList();
+
+        Assert.Single(result);
+        Assert.Equal("Just a label", result[0].Name);
+    }
+
+    [Fact]
+    public void BuildMenu_WithMediaItem_StillResolvesFromTheMediaCache()
+    {
+        var mediaKey = Guid.NewGuid();
+        _mediaCacheMock.Setup(x => x.GetById(mediaKey)).Returns((IPublishedContent?)null);
+
+        var items = new List<UmbNavItem>
+        {
+            new() { Name = "A file", ItemType = UmbNavItemType.Media, ContentKey = mediaKey }
+        };
+
+        _service.BuildMenu(items).ToList();
+
+        _mediaCacheMock.Verify(x => x.GetById(mediaKey), Times.Once);
+    }
 }

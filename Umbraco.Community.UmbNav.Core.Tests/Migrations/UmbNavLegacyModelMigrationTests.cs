@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System.Text.Json;
 using Umbraco.Community.UmbNav.Core.Migrations;
+using Umbraco.Community.UmbNav.Core.Models;
 
 namespace Umbraco.Community.UmbNav.Core.Tests.Migrations;
 
@@ -340,4 +341,117 @@ public class UmbNavLegacyModelMigrationTests
         Assert.Contains("Level 2", newValue);
         Assert.Contains("Level 3", newValue);
     }
+
+    [Fact]
+    public void TryTransformLegacyValue_WithExplicitLinkTypeAndLeftoverUdi_MapsToExternal()
+    {
+        var legacyJson = """
+            [
+                {
+                    "key": "11111111-1111-1111-1111-111111111111",
+                    "name": "Somewhere else",
+                    "itemType": "Link",
+                    "url": "https://example.com/",
+                    "udi": "umb://document/22222222222222222222222222222222"
+                }
+            ]
+            """;
+
+        UmbNavLegacyModelMigration.TryTransformLegacyValue(_loggerMock.Object, legacyJson, out var newValue);
+
+        var item = Deserialize(newValue).Single();
+        Assert.Equal(UmbNavItemType.External, item.ItemType);
+        Assert.Equal("https://example.com/", item.Url);
+        Assert.Null(item.ContentKey);
+    }
+
+    [Fact]
+    public void TryTransformLegacyValue_WithExplicitLabelTypeAndLeftoverUdi_DoesNotSetContentKey()
+    {
+        var legacyJson = """
+            [
+                {
+                    "key": "11111111-1111-1111-1111-111111111111",
+                    "name": "Just a label",
+                    "itemType": "Label",
+                    "udi": "umb://document/22222222222222222222222222222222"
+                }
+            ]
+            """;
+
+        UmbNavLegacyModelMigration.TryTransformLegacyValue(_loggerMock.Object, legacyJson, out var newValue);
+
+        var item = Deserialize(newValue).Single();
+        Assert.Equal(UmbNavItemType.Title, item.ItemType);
+        Assert.Null(item.ContentKey);
+    }
+
+    [Fact]
+    public void TryTransformLegacyValue_WithExplicitContentTypeAndUdi_KeepsContentKey()
+    {
+        var legacyJson = """
+            [
+                {
+                    "key": "11111111-1111-1111-1111-111111111111",
+                    "name": "About us",
+                    "itemType": "Content",
+                    "url": "/about-us/",
+                    "udi": "umb://document/22222222222222222222222222222222"
+                }
+            ]
+            """;
+
+        UmbNavLegacyModelMigration.TryTransformLegacyValue(_loggerMock.Object, legacyJson, out var newValue);
+
+        var item = Deserialize(newValue).Single();
+        Assert.Equal(UmbNavItemType.Document, item.ItemType);
+        Assert.Equal(Guid.Parse("22222222-2222-2222-2222-222222222222"), item.ContentKey);
+    }
+
+    [Fact]
+    public void TryTransformLegacyValue_WithUdiAndNoItemType_MapsToDocument()
+    {
+        var legacyJson = """
+            [
+                {
+                    "key": "11111111-1111-1111-1111-111111111111",
+                    "name": "About us",
+                    "udi": "umb://document/22222222222222222222222222222222"
+                }
+            ]
+            """;
+
+        UmbNavLegacyModelMigration.TryTransformLegacyValue(_loggerMock.Object, legacyJson, out var newValue);
+
+        var item = Deserialize(newValue).Single();
+        Assert.Equal(UmbNavItemType.Document, item.ItemType);
+        Assert.Equal(Guid.Parse("22222222-2222-2222-2222-222222222222"), item.ContentKey);
+    }
+
+    [Fact]
+    public void TryTransformLegacyValue_WithGenericLowercaseLinkTypeAndUdi_StillMapsToDocument()
+    {
+        // Pre-v3 data used a generic "link" item type for content picks too, where the udi is
+        // the only signal that the item points at a document.
+        var legacyJson = """
+            [
+                {
+                    "key": "11111111-1111-1111-1111-111111111111",
+                    "name": "About us",
+                    "itemType": "link",
+                    "url": "/about-us/",
+                    "udi": "umb://document/22222222222222222222222222222222"
+                }
+            ]
+            """;
+
+        UmbNavLegacyModelMigration.TryTransformLegacyValue(_loggerMock.Object, legacyJson, out var newValue);
+
+        var item = Deserialize(newValue).Single();
+        Assert.Equal(UmbNavItemType.Document, item.ItemType);
+        Assert.Equal(Guid.Parse("22222222-2222-2222-2222-222222222222"), item.ContentKey);
+    }
+
+    private static List<UmbNavItem> Deserialize(string json) =>
+        JsonSerializer.Deserialize<List<UmbNavItem>>(json)!;
 }
