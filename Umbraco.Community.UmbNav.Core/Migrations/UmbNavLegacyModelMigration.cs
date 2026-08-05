@@ -248,13 +248,17 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
         // Title overrides Name if set
         var name = !string.IsNullOrWhiteSpace(oldItem.Title) ? oldItem.Title : oldItem.Name;
         var udi = !string.IsNullOrWhiteSpace(oldItem.Udi) && UdiParser.TryParse(oldItem.Udi, out var parsedUdi) ? parsedUdi as GuidUdi : null;
+        var itemType = MapItemType(oldItem.ItemType);
         return new UmbNavItem
         {
             Key = oldItem.Key == Guid.Empty ? Guid.NewGuid() : oldItem.Key,
             Name = name ?? "Unknown Name Set By Migration",
             Url = oldItem.Url,
-            ItemType = MapItemType(oldItem.ItemType),
-            ContentKey = udi?.Guid,
+            ItemType = itemType,
+            // Only content backed items keep a content key. Legacy data often left a udi behind on
+            // items that were later changed to an external link or a label, and carrying that over
+            // makes the renderer resolve the old node and override the item's URL.
+            ContentKey = UmbNavItemType.Is(itemType, UmbNavItemType.Document) ? udi?.Guid : null,
             Anchor = oldItem.Anchor,
             Children = oldItem.Children?.Select(c => MapToNewModel(c, level + 1)),
             Level = oldItem.Level,
@@ -336,18 +340,36 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
         public string? ItemTypeOriginal { get; set; }
         
         [JsonIgnore]
-        public OldUmbNavItemType ItemType { 
+        public OldUmbNavItemType ItemType {
             get {
+                // An explicit type ("Link", "Content", "Label") is what the item was last saved as,
+                // so it wins over the udi. Without this, an external link that kept a stale udi from
+                // when it pointed at a page would migrate back into a content item. Matched case
+                // sensitively so the older generic "link"/"nolink" values fall through below.
+                if (Enum.TryParse<OldUmbNavItemType>(ItemTypeOriginal, ignoreCase: false, out var explicitType))
+                {
+                    return explicitType;
+                }
+
+                var hasContentUdi = !string.IsNullOrWhiteSpace(Udi) && UdiParser.TryParse(Udi, out _);
+
                 if (ItemTypeOriginal.IsNullOrWhiteSpace())
                 {
+                    // Oldest data carries no item type at all, so the udi is the only signal.
+                    if (hasContentUdi)
+                    {
+                        return OldUmbNavItemType.Content;
+                    }
+
                     return Url.IsNullOrWhiteSpace() ? OldUmbNavItemType.Label : OldUmbNavItemType.Link;
                 }
 
                 return ItemTypeOriginal.ToLowerInvariant() switch
                 {
-                    "link" => !string.IsNullOrWhiteSpace(Udi) && UdiParser.TryParse(Udi, out _) ? OldUmbNavItemType.Content : OldUmbNavItemType.Link,
+                    // The generic "link" type was used for content picks too, so the udi decides.
+                    "link" => hasContentUdi ? OldUmbNavItemType.Content : OldUmbNavItemType.Link,
                     "nolink" => OldUmbNavItemType.Label,
-                    _ => Enum.TryParse<OldUmbNavItemType>(ItemTypeOriginal, out var res) ? res : throw new ArgumentOutOfRangeException(nameof(ItemTypeOriginal), ItemTypeOriginal, null)
+                    _ => throw new ArgumentOutOfRangeException(nameof(ItemTypeOriginal), ItemTypeOriginal, null)
                 };
             }
         }

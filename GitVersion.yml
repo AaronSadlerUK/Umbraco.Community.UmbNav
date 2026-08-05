@@ -41,6 +41,22 @@ branches:
     is-release-branch: false
     is-main-branch: false
     pre-release-weight: 0
+  # The per-major development branches (dev/v17, dev/v18) don't match the `develop` regex above,
+  # so without this they fall back to a branch-named label and prereleases come out as
+  # 4.1.9-dev-v17.1 instead of 4.1.9-beta.1.
+  dev-major:
+    regex: ^dev[/-]
+    mode: ContinuousDelivery
+    label: beta
+    increment: Patch
+    prevent-increment:
+      of-merged-branch: false
+    track-merge-target: true
+    source-branches: []
+    tracks-release-branches: true
+    is-release-branch: false
+    is-main-branch: false
+    pre-release-weight: 0
   rc:
     regex: ^rc$
     mode: ContinuousDelivery
