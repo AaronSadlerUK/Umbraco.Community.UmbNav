@@ -146,6 +146,20 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
     }
 
     /// <summary>
+    /// Determines whether an item takes its URL and name from an Umbraco node.
+    /// Items that are explicitly external links or titles are never content backed, even when they
+    /// still carry a <see cref="UmbNavItem.ContentKey"/> left behind by an earlier item type.
+    /// Override this method to customize which item types resolve content.
+    /// </summary>
+    /// <param name="item">The item to check.</param>
+    /// <returns>True if the item should be resolved against the content or media cache.</returns>
+    protected virtual bool IsContentBacked(UmbNavItem item)
+    {
+        return !UmbNavItemType.Is(item.ItemType, UmbNavItemType.External)
+               && !UmbNavItemType.Is(item.ItemType, UmbNavItemType.Title);
+    }
+
+    /// <summary>
     /// Resolves content from Umbraco for Document/Media items.
     /// Sets the Content, Url, Name, and IsActive properties.
     /// Override this method to customize content resolution.
@@ -155,6 +169,14 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
     /// <returns>False if content-based item cannot be resolved (should be excluded).</returns>
     protected virtual bool ResolveContent(UmbNavItem item, Guid currentContentKey)
     {
+        if (!IsContentBacked(item))
+        {
+            // A stale key would otherwise resolve the old node and override the item's own URL,
+            // or drop the item entirely when that node is gone.
+            item.ContentKey = null;
+            return true;
+        }
+
         if (!item.ContentKey.HasValue)
         {
             return true;

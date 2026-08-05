@@ -242,7 +242,7 @@ The migration runs automatically on first startup after upgrading and:
 
 | Old | New |
 |-----|-----|
-| `udi` (string) | `contentKey` (Guid) |
+| `udi` (string) | `contentKey` (Guid) — only for `Document` items; a udi left behind on an external link or label is discarded |
 | `title`/`name` | `name` (title preferred) |
 | `itemType: Link` | `itemType: External` |
 | `itemType: Content` | `itemType: Document` |
