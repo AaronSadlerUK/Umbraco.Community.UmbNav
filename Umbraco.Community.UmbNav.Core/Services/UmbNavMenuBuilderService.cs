@@ -192,17 +192,40 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
             return false;
         }
 
+        var culture = ResolveCulture();
+
         if (string.IsNullOrWhiteSpace(item.Name))
         {
-            item.Name = umbracoContent.Name;
+            item.Name = GetName(umbracoContent, culture);
         }
 
         item.Content = umbracoContent;
-        item.Url = umbracoContent.Url();
+        item.Url = GetUrl(umbracoContent, culture);
         item.IsActive = umbracoContent.Key.Equals(currentContentKey);
 
         return true;
     }
+
+    /// <summary>
+    /// Resolves the display name of a content node for the given culture.
+    /// Passing the culture explicitly means the name no longer depends on the ambient
+    /// <c>VariationContext</c>, which is the default culture while the value converter runs and
+    /// therefore returned the wrong language on multilingual sites.
+    /// Override this method to customize name resolution.
+    /// </summary>
+    /// <param name="content">The content node.</param>
+    /// <param name="culture">The culture to resolve the name for, or null for the current variation context.</param>
+    /// <returns>The culture-specific name.</returns>
+    protected virtual string GetName(IPublishedContent content, string? culture) => content.Name(culture) ?? content.Name;
+
+    /// <summary>
+    /// Resolves the URL of a content node for the given culture.
+    /// Override this method to customize URL resolution.
+    /// </summary>
+    /// <param name="content">The content node.</param>
+    /// <param name="culture">The culture to resolve the URL for, or null for the current variation context.</param>
+    /// <returns>The culture-specific URL.</returns>
+    protected virtual string GetUrl(IPublishedContent content, string? culture) => content.Url(culture);
 
     /// <summary>
     /// Resolves the image from the media cache.
@@ -304,16 +327,18 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
     /// <returns>A collection of auto-generated child items.</returns>
     protected virtual IEnumerable<UmbNavItem> GetAutoExpandedChildren(IPublishedContent content, int level, Guid currentContentKey)
     {
-        return content.Children()
+        var culture = ResolveCulture();
+
+        return content.Children(culture)
             .Where(x => x.IsVisible())
             .Select(child => new UmbNavItem
             {
-                Name = child.Name,
+                Name = GetName(child, culture),
                 Key = child.Key,
                 ContentKey = child.Key,
                 ItemType = UmbNavItemType.Document,
                 Level = level,
-                Url = child.Url(),
+                Url = GetUrl(child, culture),
                 Content = child,
                 IsActive = child.Key == currentContentKey
             });
@@ -336,5 +361,27 @@ public class UmbNavMenuBuilderService : IUmbNavMenuBuilderService
         }
 
         return Guid.Empty;
+    }
+
+    /// <summary>
+    /// Resolves the culture of the current request so item names and URLs are resolved in the
+    /// right language. Relying on the ambient <c>VariationContext</c> (as a parameterless
+    /// <c>.Name</c>/<c>.Url()</c> call does) yields the default culture while the value converter
+    /// runs, which is why multilingual menus rendered in the wrong language.
+    /// Override this method to customize culture resolution.
+    /// </summary>
+    /// <returns>The current request culture, or null when it cannot be determined.</returns>
+    protected virtual string? ResolveCulture()
+    {
+        if (_umbracoContextAccessor.TryGetUmbracoContext(out var umbracoContext))
+        {
+            var culture = umbracoContext.PublishedRequest?.Culture;
+            if (!string.IsNullOrEmpty(culture))
+            {
+                return culture;
+            }
+        }
+
+        return null;
     }
 }
