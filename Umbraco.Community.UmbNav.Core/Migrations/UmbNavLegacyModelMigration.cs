@@ -148,6 +148,13 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
                     ["ContentNode"] = content.Key
                 }))
                 {
+                    // Snapshot the publish state before transforming the draft, because setting a
+                    // property value flips Edited in memory. We only republish nodes that were
+                    // published with no pending draft changes, so we must capture that up front.
+                    var wasPublished = content.Published;
+                    var hadPendingChanges = content.Edited;
+                    var publishedCultures = content.PublishedCultures?.ToArray() ?? [];
+
                     var saveContent = false;
                     foreach (var property in content.Properties)
                     {
@@ -169,7 +176,7 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
 
                     if (saveContent)
                     {
-                        await SaveOrRepublishAsync(content);
+                        await SaveOrRepublishAsync(content, wasPublished, hadPendingChanges, publishedCultures);
                         if (_logger.IsEnabled(LogLevel.Debug))
                         {
                             _logger.LogDebug("Updated content ID {ContentId} of type {ContentTypeName}.", content.Id, contentType.Name);
@@ -192,19 +199,16 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
 
     // IContentService.Save only rewrites the draft version. For content that was published the
     // front-end reads the published value, which would stay in the legacy shape (no "name") and
-    // make the runtime converter fail. Save the transformed draft and then republish the
-    // previously-published cultures so the published value is rewritten too; draft-only content is
-    // just saved.
-    private async Task SaveOrRepublishAsync(IContent content)
+    // make the runtime converter fail. Save the transformed draft, then republish so the published
+    // value is rewritten too - but only for nodes that were published with no pending draft
+    // changes. Republishing a node that already had unpublished edits would promote those edits,
+    // and a migration must never publish an editor's in-progress draft. Draft-only nodes and nodes
+    // with pending changes are left for the converter's legacy fallback / the editor's next publish.
+    private async Task SaveOrRepublishAsync(IContent content, bool wasPublished, bool hadPendingChanges, string[] publishedCultures)
     {
-        // Capture the published cultures before saving (Save leaves publish state untouched, but
-        // read it up front so intent is clear).
-        var wasPublished = content.Published;
-        var publishedCultures = content.PublishedCultures?.ToArray() ?? [];
-
         _contentService.Save(content);
 
-        if (!wasPublished)
+        if (!wasPublished || hadPendingChanges)
         {
             return;
         }
