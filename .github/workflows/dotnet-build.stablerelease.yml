@@ -1,16 +1,16 @@
 name: Package up Production Release.
 
-# Stable releases are tag-driven (branch-per-major model):
-#   - Tag dev/v17 with 4.x.y (e.g. 4.1.8) to publish an LTS stable release.
-#   - Tag dev/v18 with 5.x.y (e.g. 5.0.1) to publish an Umbraco 18 stable release.
-# GitVersion returns the tag's exact version (no prerelease label) when the build
-# is on the tagged commit. Prerelease tags (containing '-') are ignored here and
-# are handled by the prerelease workflow.
+# Stable releases are cut on every merge/push to a per-major development branch:
+#   - push to dev/v17 -> next 4.x stable (Umbraco 17)
+#   - push to dev/v18 -> next 5.x stable (Umbraco 18)
+# GitVersion's majorMinorPatch gives the stable number; `gh release create` creates the matching
+# tag, so the following merge auto-increments. Prereleases are NOT produced here - run the
+# "Package up Prerelease." workflow manually when you actually want one.
 on:
   push:
-    tags:
-      - '[0-9]*.[0-9]*.[0-9]*'
-      - '!*-*'
+    branches:
+      - dev/v17
+      - dev/v18
   workflow_dispatch:
 
 jobs:
@@ -146,7 +146,6 @@ jobs:
             ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg \
             ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg \
             --title "${{steps.gitversion.outputs.majorMinorPatch}}" \
-            --verify-tag \
             --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}
