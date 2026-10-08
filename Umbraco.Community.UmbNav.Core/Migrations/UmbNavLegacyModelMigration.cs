@@ -7,6 +7,7 @@ using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.IO;
 using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Models.ContentPublishing;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
@@ -24,17 +25,19 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
     private readonly ILogger<UmbNavLegacyModelMigration> _logger;
     private readonly IContentTypeService _contentTypeService;
     private readonly IContentService _contentService;
+    private readonly IContentPublishingService _contentPublishingService;
     private readonly IDataTypeService _dataTypeService;
     private readonly PropertyEditorCollection _propertyEditorCollection;
     private readonly IConfigurationEditorJsonSerializer _configurationEditorJsonSerializer;
     private readonly IMigrationContext _migrationContext;
     private readonly TimeProvider _timeProvider;
 
-    public UmbNavLegacyModelMigration(ILogger<UmbNavLegacyModelMigration> logger, IContentTypeService contentTypeService, IContentService contentService, IDataTypeService dataTypeService, PropertyEditorCollection propertyEditorCollection, IConfigurationEditorJsonSerializer configurationEditorJsonSerializer, TimeProvider timeProvider, IPackagingService packagingService, IMediaService mediaService, MediaFileManager mediaFileManager, MediaUrlGeneratorCollection mediaUrlGenerators, IShortStringHelper shortStringHelper, IContentTypeBaseServiceProvider contentTypeBaseServiceProvider, IMigrationContext context, IOptions<PackageMigrationSettings> packageMigrationsSettings) : base(packagingService, mediaService, mediaFileManager, mediaUrlGenerators, shortStringHelper, contentTypeBaseServiceProvider, context, packageMigrationsSettings)
+    public UmbNavLegacyModelMigration(ILogger<UmbNavLegacyModelMigration> logger, IContentTypeService contentTypeService, IContentService contentService, IContentPublishingService contentPublishingService, IDataTypeService dataTypeService, PropertyEditorCollection propertyEditorCollection, IConfigurationEditorJsonSerializer configurationEditorJsonSerializer, TimeProvider timeProvider, IPackagingService packagingService, IMediaService mediaService, MediaFileManager mediaFileManager, MediaUrlGeneratorCollection mediaUrlGenerators, IShortStringHelper shortStringHelper, IContentTypeBaseServiceProvider contentTypeBaseServiceProvider, IMigrationContext context, IOptions<PackageMigrationSettings> packageMigrationsSettings) : base(packagingService, mediaService, mediaFileManager, mediaUrlGenerators, shortStringHelper, contentTypeBaseServiceProvider, context, packageMigrationsSettings)
     {
         _logger = logger;
         _contentTypeService = contentTypeService;
         _contentService = contentService;
+        _contentPublishingService = contentPublishingService;
         _dataTypeService = dataTypeService;
         _propertyEditorCollection = propertyEditorCollection;
         _configurationEditorJsonSerializer = configurationEditorJsonSerializer;
@@ -69,7 +72,7 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
             }
         }
 
-        bool hadContentToMigrate = MigrateLegacyContent();
+        bool hadContentToMigrate = await MigrateLegacyContentAsync();
         if (!hadContentToMigrate)
         {
             if (_logger.IsEnabled(LogLevel.Information))
@@ -94,13 +97,13 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
         }
     }
 
-    private bool MigrateLegacyContent()
+    private async Task<bool> MigrateLegacyContentAsync()
     {
         var contentTypes = _contentTypeService.GetAll()
                     .Where(ct => ct.PropertyTypes.Any(p => p.PropertyEditorAlias == UmbNavConstants.LegacyEditorAlias) ||
                         ct.CompositionPropertyTypes.Any(cp => cp.PropertyEditorAlias == UmbNavConstants.LegacyEditorAlias)).ToArray();
 
-        if (contentTypes.Length == 0)            
+        if (contentTypes.Length == 0)
             return false;
 
         foreach (var contentType in contentTypes)
@@ -111,14 +114,14 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
                 ["ContentTypeKey"] = contentType.Key
             }))
             {
-                ProcessContentType(contentType);
+                await ProcessContentTypeAsync(contentType);
             }
         }
 
         return true;
     }
 
-    private void ProcessContentType(IContentType contentType)
+    private async Task ProcessContentTypeAsync(IContentType contentType)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
         {
@@ -166,7 +169,7 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
 
                     if (saveContent)
                     {
-                        _contentService.Save(content);
+                        await SaveOrRepublishAsync(content);
                         if (_logger.IsEnabled(LogLevel.Debug))
                         {
                             _logger.LogDebug("Updated content ID {ContentId} of type {ContentTypeName}.", content.Id, contentType.Name);
@@ -185,6 +188,38 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
 
         } while (loop);
 
+    }
+
+    // IContentService.Save only rewrites the draft version. For content that was published the
+    // front-end reads the published value, which would stay in the legacy shape (no "name") and
+    // make the runtime converter fail. Save the transformed draft and then republish the
+    // previously-published cultures so the published value is rewritten too; draft-only content is
+    // just saved.
+    private async Task SaveOrRepublishAsync(IContent content)
+    {
+        // Capture the published cultures before saving (Save leaves publish state untouched, but
+        // read it up front so intent is clear).
+        var wasPublished = content.Published;
+        var publishedCultures = content.PublishedCultures?.ToArray() ?? [];
+
+        _contentService.Save(content);
+
+        if (!wasPublished)
+        {
+            return;
+        }
+
+        // Invariant content reports no published cultures, so publish it with a null (invariant)
+        // culture; variant content republishes only the cultures that were already published.
+        var culturesToPublish = publishedCultures.Length > 0
+            ? publishedCultures.Select(c => new CulturePublishScheduleModel { Culture = c }).ToArray()
+            : [new CulturePublishScheduleModel { Culture = null }];
+
+        var result = await _contentPublishingService.PublishAsync(content.Key, culturesToPublish, Constants.Security.SuperUserKey);
+        if (!result.Success && _logger.IsEnabled(LogLevel.Error))
+        {
+            _logger.LogError("Unable to republish migrated UmbNav content {ContentKey}. Status: {Status}", content.Key, result.Status);
+        }
     }
 
     private bool GetValueAndTryTransform(bool saveContent, IProperty property, string? culture)
@@ -265,11 +300,11 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
             Target = oldItem.Target,
             ImageArray = oldItem.ImageArray,
             CustomClasses = oldItem.CustomClasses,
-            HideLoggedIn = oldItem.HideLoggedIn,
-            HideLoggedOut = oldItem.HideLoggedOut,
-            Noopener = oldItem.Noopener.ToString(),
-            Noreferrer = oldItem.Noreferrer.ToString(),
-            IncludeChildNodes = oldItem.IncludeChildNodes,
+            HideLoggedIn = oldItem.HideLoggedIn ?? false,
+            HideLoggedOut = oldItem.HideLoggedOut ?? false,
+            Noopener = (oldItem.Noopener ?? false).ToString(),
+            Noreferrer = (oldItem.Noreferrer ?? false).ToString(),
+            IncludeChildNodes = oldItem.IncludeChildNodes ?? false,
             Description = oldItem.Description,
             Icon = oldItem.Icon
         };
@@ -324,11 +359,13 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
         [JsonPropertyName("target")]
         public string? Target { get; set; }
 
+        // Nullable: the v3.x editor wrote JSON null for unset flags. A non-nullable bool makes
+        // System.Text.Json throw on null, which aborted the whole value's conversion.
         [JsonPropertyName("noopener")]
-        public bool Noopener { get; set; }
+        public bool? Noopener { get; set; }
 
         [JsonPropertyName("noreferrer")]
-        public bool Noreferrer { get; set; }
+        public bool? Noreferrer { get; set; }
 
         [JsonPropertyName("anchor")]
         public string? Anchor { get; set; }
@@ -378,16 +415,16 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
         public int Level { get; set; }
 
         [JsonPropertyName("hideLoggedIn")]
-        public bool HideLoggedIn { get; set; }
+        public bool? HideLoggedIn { get; set; }
 
         [JsonPropertyName("hideLoggedOut")]
-        public bool HideLoggedOut { get; set; }
+        public bool? HideLoggedOut { get; set; }
 
         [JsonPropertyName("url")]
         public string? Url { get; set; }
 
         [JsonPropertyName("includeChildNodes")]
-        public bool IncludeChildNodes { get; set; }
+        public bool? IncludeChildNodes { get; set; }
 
         [JsonPropertyName("customClasses")]
         public string? CustomClasses { get; set; }
