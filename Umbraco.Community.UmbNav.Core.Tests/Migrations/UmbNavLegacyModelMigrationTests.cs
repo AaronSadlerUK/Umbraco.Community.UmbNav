@@ -452,6 +452,62 @@ public class UmbNavLegacyModelMigrationTests
         Assert.Equal(Guid.Parse("22222222-2222-2222-2222-222222222222"), item.ContentKey);
     }
 
+    [Fact]
+    public void TryTransformLegacyValue_WithNullBooleanFlags_TreatsThemAsFalse()
+    {
+        // The v3.x editor wrote JSON null for unset boolean flags. The legacy model must
+        // tolerate those nulls instead of throwing and leaving the whole value unconverted.
+        var legacyJson = """
+            [
+                {
+                    "key": "11111111-1111-1111-1111-111111111111",
+                    "name": "Test Item",
+                    "url": "https://example.com",
+                    "noopener": null,
+                    "noreferrer": null,
+                    "hideLoggedIn": null,
+                    "hideLoggedOut": null,
+                    "includeChildNodes": null
+                }
+            ]
+            """;
+
+        var result = UmbNavLegacyModelMigration.TryTransformLegacyValue(_loggerMock.Object, legacyJson, out var newValue);
+
+        Assert.True(result);
+        var item = Deserialize(newValue).Single();
+        Assert.Equal("False", item.Noopener);
+        Assert.Equal("False", item.Noreferrer);
+        Assert.False(item.HideLoggedIn);
+        Assert.False(item.HideLoggedOut);
+        Assert.False(item.IncludeChildNodes);
+    }
+
+    [Fact]
+    public void TryTransformLegacyValue_WithMissingBooleanFlags_TreatsThemAsFalse()
+    {
+        // Older data omitted the flags entirely; they must default to false, not throw.
+        var legacyJson = """
+            [
+                {
+                    "key": "11111111-1111-1111-1111-111111111111",
+                    "name": "Test Item",
+                    "url": "https://example.com"
+                }
+            ]
+            """;
+
+        var result = UmbNavLegacyModelMigration.TryTransformLegacyValue(_loggerMock.Object, legacyJson, out var newValue);
+
+        Assert.True(result);
+        var item = Deserialize(newValue).Single();
+        Assert.Equal("False", item.Noopener);
+        Assert.Equal("False", item.Noreferrer);
+        Assert.False(item.HideLoggedIn);
+        Assert.False(item.HideLoggedOut);
+        Assert.False(item.IncludeChildNodes);
+    }
+
     private static List<UmbNavItem> Deserialize(string json) =>
         JsonSerializer.Deserialize<List<UmbNavItem>>(json)!;
 }

@@ -4,6 +4,7 @@ using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.PropertyEditors.DeliveryApi;
 using Umbraco.Community.UmbNav.Core.Abstractions;
+using Umbraco.Community.UmbNav.Core.Migrations;
 using Umbraco.Community.UmbNav.Core.Models;
 using Umbraco.Community.UmbNav.Core.PropertyEditors;
 
@@ -37,7 +38,7 @@ public class UmbNavValueConverter : PropertyValueConverterBase, IDeliveryApiProp
 
         try
         {
-            var items = JsonSerializer.Deserialize<IEnumerable<UmbNavItem>>(inter.ToString()!)?.ToArray() ?? [];
+            var items = DeserializeItems(_logger, inter.ToString()!);
             if (items.Length == 0)
             {
                 _logger.LogWarning("Failed to deserialize UmbNav items on property {PropertyAlias}.", propertyType.Alias);
@@ -72,7 +73,7 @@ public class UmbNavValueConverter : PropertyValueConverterBase, IDeliveryApiProp
 
         try
         {
-            var items = JsonSerializer.Deserialize<IEnumerable<UmbNavItem>>(inter.ToString()!)?.ToArray() ?? [];
+            var items = DeserializeItems(_logger, inter.ToString()!);
             if (items.Length == 0)
             {
                 _logger.LogWarning("Failed to deserialize UmbNav items for Delivery API on property {PropertyAlias}.", propertyType.Alias);
@@ -88,6 +89,29 @@ public class UmbNavValueConverter : PropertyValueConverterBase, IDeliveryApiProp
         }
 
         return Enumerable.Empty<UmbNavItem>();
+    }
+
+    /// <summary>
+    /// Deserializes the stored value into <see cref="UmbNavItem"/>s. If the value is still in the
+    /// pre-v4 shape (for example a published version the upgrade migration could not rewrite), it
+    /// is transformed on the fly so the menu still renders instead of coming back empty.
+    /// </summary>
+    internal static UmbNavItem[] DeserializeItems(ILogger logger, string json)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<IEnumerable<UmbNavItem>>(json)?.ToArray() ?? [];
+        }
+        catch (JsonException)
+        {
+            if (UmbNavLegacyModelMigration.TryTransformLegacyValue(logger, json, out var transformed)
+                && !string.IsNullOrEmpty(transformed))
+            {
+                return JsonSerializer.Deserialize<IEnumerable<UmbNavItem>>(transformed)?.ToArray() ?? [];
+            }
+
+            throw;
+        }
     }
 
     /// <summary>
