@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.PublishedCache;
+using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Web;
 using Umbraco.Community.UmbNav.Core.Models;
 using Umbraco.Community.UmbNav.Core.Services;
@@ -454,5 +455,109 @@ public class UmbNavMenuBuilderServiceTests
         _service.BuildMenu(items).ToList();
 
         _mediaCacheMock.Verify(x => x.GetById(mediaKey), Times.Once);
+    }
+
+    [Fact]
+    public void BuildMenu_ResolvesContentNameAndUrlForTheRequestCulture()
+    {
+        // Regression: the menu builder must resolve names/URLs for the current request culture,
+        // not the ambient VariationContext (which is the default culture while the value converter
+        // runs), otherwise a Norwegian page renders the English menu.
+        const string culture = "nb-NO";
+        var contentKey = Guid.NewGuid();
+
+        var content = new Mock<IPublishedContent>();
+        content.Setup(x => x.Key).Returns(contentKey);
+        _contentCacheMock.Setup(x => x.GetById(contentKey)).Returns(content.Object);
+
+        var publishedRequest = new Mock<IPublishedRequest>();
+        publishedRequest.Setup(x => x.Culture).Returns(culture);
+        var umbracoContext = new Mock<IUmbracoContext>();
+        umbracoContext.Setup(x => x.PublishedRequest).Returns(publishedRequest.Object);
+        var context = umbracoContext.Object;
+        _umbracoContextAccessorMock.Setup(x => x.TryGetUmbracoContext(out context)).Returns(true);
+
+        var service = new CultureCapturingBuilderService(
+            _contentCacheMock.Object,
+            _loggerMock.Object,
+            _httpContextAccessorMock.Object,
+            _umbracoContextAccessorMock.Object,
+            _mediaCacheMock.Object);
+
+        var items = new List<UmbNavItem>
+        {
+            new() { Name = string.Empty, ContentKey = contentKey, ItemType = UmbNavItemType.Document }
+        };
+
+        var result = service.BuildMenu(items).ToList();
+
+        Assert.Single(result);
+        Assert.Equal(culture, service.NameCulture);
+        Assert.Equal(culture, service.UrlCulture);
+        Assert.Equal($"name:{culture}", result[0].Name);
+        Assert.Equal($"url:{culture}", result[0].Url);
+    }
+
+    [Fact]
+    public void BuildMenu_WithoutAPublishedRequest_ResolvesWithNullCulture()
+    {
+        var contentKey = Guid.NewGuid();
+        var content = new Mock<IPublishedContent>();
+        content.Setup(x => x.Key).Returns(contentKey);
+        _contentCacheMock.Setup(x => x.GetById(contentKey)).Returns(content.Object);
+
+        // No Umbraco context available -> fall back to the ambient variation context (null culture).
+        IUmbracoContext? context = null;
+        _umbracoContextAccessorMock.Setup(x => x.TryGetUmbracoContext(out context)).Returns(false);
+
+        var service = new CultureCapturingBuilderService(
+            _contentCacheMock.Object,
+            _loggerMock.Object,
+            _httpContextAccessorMock.Object,
+            _umbracoContextAccessorMock.Object,
+            _mediaCacheMock.Object);
+
+        var items = new List<UmbNavItem>
+        {
+            new() { Name = string.Empty, ContentKey = contentKey, ItemType = UmbNavItemType.Document }
+        };
+
+        service.BuildMenu(items).ToList();
+
+        Assert.Null(service.NameCulture);
+        Assert.Null(service.UrlCulture);
+    }
+
+    /// <summary>
+    /// Captures the culture threaded into name/URL resolution so the regression can be asserted
+    /// without a full Umbraco host (the real extensions resolve services from a static provider).
+    /// </summary>
+    private sealed class CultureCapturingBuilderService : UmbNavMenuBuilderService
+    {
+        public CultureCapturingBuilderService(
+            IPublishedContentCache publishedContentCache,
+            ILogger<UmbNavMenuBuilderService> logger,
+            IHttpContextAccessor httpContextAccessor,
+            IUmbracoContextAccessor umbracoContextAccessor,
+            IPublishedMediaCache publishedMediaCache)
+            : base(publishedContentCache, logger, httpContextAccessor, umbracoContextAccessor, publishedMediaCache)
+        {
+        }
+
+        public string? NameCulture { get; private set; }
+
+        public string? UrlCulture { get; private set; }
+
+        protected override string GetName(IPublishedContent content, string? culture)
+        {
+            NameCulture = culture;
+            return $"name:{culture}";
+        }
+
+        protected override string GetUrl(IPublishedContent content, string? culture)
+        {
+            UrlCulture = culture;
+            return $"url:{culture}";
+        }
     }
 }
