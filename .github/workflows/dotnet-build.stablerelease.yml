@@ -1,9 +1,16 @@
 name: Package up Production Release.
 
+# Stable releases are cut on every merge/push to a per-major development branch:
+#   - push to dev/v17 -> next 4.x stable (Umbraco 17)
+#   - push to dev/v18 -> next 5.x stable (Umbraco 18)
+# GitVersion's majorMinorPatch gives the stable number; `gh release create` creates the matching
+# tag, so the following merge auto-increments. Prereleases are NOT produced here - run the
+# "Package up Prerelease." workflow manually when you actually want one.
 on:
   push:
     branches:
-      - main
+      - dev/v17
+      - dev/v18
   workflow_dispatch:
 
 jobs:
