@@ -1,19 +1,14 @@
 name: Package up Prerelease.
 
+# Prereleases are opt-in only. Run this workflow manually (Actions tab -> "Run workflow", or
+# `gh workflow run`) from whichever branch you want a beta of. Nothing publishes a prerelease
+# automatically - merges to dev/v17 and dev/v18 cut stable releases via the production workflow.
 on:
-  pull_request:
-    types: [closed]
-    branches:
-      - dev/v17
-      - dev/v18
-      - rc
   workflow_dispatch:
 
 jobs:
 
   build:
-    # Only run on PR merge (skip Dependabot PRs) or manual dispatch
-    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && github.event.pull_request.user.login != 'dependabot[bot]')
     runs-on: ubuntu-latest
     # runs-on: self-hosted
     
