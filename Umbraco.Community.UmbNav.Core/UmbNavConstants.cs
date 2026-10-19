@@ -14,5 +14,9 @@
 
         //Needed for legacy migrations
         internal const string LegacyEditorAlias = "AaronSadler.UmbNav";
+
+        internal const string MeganavEditorAlias = "Our.Umbraco.Meganav";
+
+        internal const string MeganavV8EditorAlias = "AaronSadler.MegaNavV8";
     }
 }

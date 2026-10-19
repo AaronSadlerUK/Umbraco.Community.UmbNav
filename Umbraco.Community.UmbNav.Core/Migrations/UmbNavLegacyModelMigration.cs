@@ -20,6 +20,11 @@ using Umbraco.Extensions;
 
 namespace Umbraco.Community.UmbNav.Core.Migrations;
 
+/// <summary>
+/// A content node resolved from a legacy item's udi or node id, used to name and key it.
+/// </summary>
+internal readonly record struct LegacyContentInfo(Guid Key, string? Name);
+
 internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
 {
     private readonly ILogger<UmbNavLegacyModelMigration> _logger;
@@ -31,6 +36,26 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
     private readonly IConfigurationEditorJsonSerializer _configurationEditorJsonSerializer;
     private readonly IMigrationContext _migrationContext;
     private readonly TimeProvider _timeProvider;
+    private Dictionary<Guid, IContentType> _contentTypesByKey = [];
+
+    // Editors whose data types are switched to UmbNav, with their values transformed.
+    private static readonly string[] LegacyEditorAliases =
+    [
+        UmbNavConstants.LegacyEditorAlias,
+        UmbNavConstants.MeganavEditorAlias,
+        UmbNavConstants.MeganavV8EditorAlias,
+        "Meganav",
+        "Cogworks.Meganav"
+    ];
+
+    private static readonly string[] MeganavEditorAliases = LegacyEditorAliases[1..];
+
+    private static readonly HashSet<string> BlockEditorAliases =
+    [
+        Constants.PropertyEditors.Aliases.BlockList,
+        Constants.PropertyEditors.Aliases.BlockGrid,
+        Constants.PropertyEditors.Aliases.RichText
+    ];
 
     public UmbNavLegacyModelMigration(ILogger<UmbNavLegacyModelMigration> logger, IContentTypeService contentTypeService, IContentService contentService, IContentPublishingService contentPublishingService, IDataTypeService dataTypeService, PropertyEditorCollection propertyEditorCollection, IConfigurationEditorJsonSerializer configurationEditorJsonSerializer, TimeProvider timeProvider, IPackagingService packagingService, IMediaService mediaService, MediaFileManager mediaFileManager, MediaUrlGeneratorCollection mediaUrlGenerators, IShortStringHelper shortStringHelper, IContentTypeBaseServiceProvider contentTypeBaseServiceProvider, IMigrationContext context, IOptions<PackageMigrationSettings> packageMigrationsSettings) : base(packagingService, mediaService, mediaFileManager, mediaUrlGenerators, shortStringHelper, contentTypeBaseServiceProvider, context, packageMigrationsSettings)
     {
@@ -52,39 +77,34 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
             _logger.LogInformation("Starting UmbNav legacy model migration.");
         }
 
-        var dataTypes = (await _dataTypeService.GetByEditorAliasAsync(UmbNavConstants.LegacyEditorAlias)).ToArray();
-
-        if (dataTypes.Length == 0)
-        {
-            if (_logger.IsEnabled(LogLevel.Information))
-            {
-                _logger.LogInformation("No instances of legacy UmbNav data types found.");
-                return;
-            }
-        }
-
-        if(!_propertyEditorCollection.TryGet(UmbNavConstants.PropertyEditorAlias, out IDataEditor? dataEditor) || dataEditor == null)
+        if (!_propertyEditorCollection.TryGet(UmbNavConstants.PropertyEditorAlias, out IDataEditor? dataEditor) || dataEditor == null)
         {
             if (_logger.IsEnabled(LogLevel.Information))
             {
                 _logger.LogInformation("Could not find new UmbNav data editor");
-                return;
-            }
-        }
-
-        bool hadContentToMigrate = await MigrateLegacyContentAsync();
-        if (!hadContentToMigrate)
-        {
-            if (_logger.IsEnabled(LogLevel.Information))
-            {
-                _logger.LogInformation("No content types found with the legacy UmbNav property editor.");
             }
             return;
         }
 
+        var dataTypes = new List<IDataType>();
+        foreach (var alias in LegacyEditorAliases)
+        {
+            dataTypes.AddRange(await _dataTypeService.GetByEditorAliasAsync(alias));
+        }
+
+        // Content is migrated before the data types are switched, because the legacy editor alias
+        // is what identifies the properties to transform. This also runs when no legacy data types
+        // are left: data that was copied onto a current UmbNav property, or that sits inside blocks
+        // an earlier version of this migration could not reach, is found by its shape instead.
+        bool hadContentToMigrate = await MigrateLegacyContentAsync();
+        if (!hadContentToMigrate && _logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation("No content types found with a legacy or current UmbNav property.");
+        }
+
         foreach (IDataType datatype in dataTypes)
         {
-            Attempt<IDataType, DataTypeOperationStatus> result = await _dataTypeService.UpdateAsync(GenerateUpdatedDataType(datatype, dataEditor!), Constants.Security.SuperUserKey);
+            Attempt<IDataType, DataTypeOperationStatus> result = await _dataTypeService.UpdateAsync(GenerateUpdatedDataType(datatype, dataEditor), Constants.Security.SuperUserKey);
             if (!result.Success && _logger.IsEnabled(LogLevel.Error))
             {
                 _logger.LogError("Unable to update data type {dataTypeKey} to new UmbNav alias", datatype.Key);
@@ -99,9 +119,16 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
 
     private async Task<bool> MigrateLegacyContentAsync()
     {
-        var contentTypes = _contentTypeService.GetAll()
-                    .Where(ct => ct.PropertyTypes.Any(p => p.PropertyEditorAlias == UmbNavConstants.LegacyEditorAlias) ||
-                        ct.CompositionPropertyTypes.Any(cp => cp.PropertyEditorAlias == UmbNavConstants.LegacyEditorAlias)).ToArray();
+        var allContentTypes = _contentTypeService.GetAll().ToArray();
+        _contentTypesByKey = allContentTypes.ToDictionary(ct => ct.Key);
+
+        // Nav properties on element types are only reachable through the block values of the
+        // documents that use them, so when any exist every document with a block property is walked.
+        var navOnElements = allContentTypes.Any(ct => ct.IsElement && HasNavProperty(ct));
+
+        var contentTypes = allContentTypes
+            .Where(ct => !ct.IsElement && (HasNavProperty(ct) || (navOnElements && HasBlockProperty(ct))))
+            .ToArray();
 
         if (contentTypes.Length == 0)
             return false;
@@ -158,19 +185,22 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
                     var saveContent = false;
                     foreach (var property in content.Properties)
                     {
-                        if (property.PropertyType.PropertyEditorAlias == UmbNavConstants.LegacyEditorAlias)
+                        var editorAlias = property.PropertyType.PropertyEditorAlias;
+                        if (!IsNavEditor(editorAlias) && !BlockEditorAliases.Contains(editorAlias))
                         {
-                            if (property.PropertyType.VariesByCulture())
+                            continue;
+                        }
+
+                        if (property.PropertyType.VariesByCulture())
+                        {
+                            foreach (var culture in content.AvailableCultures)
                             {
-                                foreach (var culture in content.AvailableCultures)
-                                {
-                                    saveContent |= GetValueAndTryTransform(saveContent, property, culture);
-                                }
+                                saveContent |= GetValueAndTryTransform(property, culture);
                             }
-                            else
-                            {
-                                saveContent = GetValueAndTryTransform(saveContent, property, null);
-                            }
+                        }
+                        else
+                        {
+                            saveContent |= GetValueAndTryTransform(property, null);
                         }
                     }
 
@@ -226,30 +256,66 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
         }
     }
 
-    private bool GetValueAndTryTransform(bool saveContent, IProperty property, string? culture)
+    private bool GetValueAndTryTransform(IProperty property, string? culture)
     {
         var legacyValue = property.GetValue(culture)?.ToString();
-        if (!string.IsNullOrWhiteSpace(legacyValue))
+        if (string.IsNullOrWhiteSpace(legacyValue))
         {
-            try
-            {
-                // Example transformation logic; adjust as needed
-                var hasTransformed = TryTransformLegacyValue(_logger, legacyValue, out var newValue);
-                if (hasTransformed)
-                {
-                    property.SetValue(newValue, culture);
-                    saveContent = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Something went wrong migrating legacy content.{legacyValue}", legacyValue);
-            }
-
+            return false;
         }
 
-        return saveContent;
+        try
+        {
+            Func<Guid?, int?, LegacyContentInfo?> resolveContent = (key, id) => ResolveContent(key, id, culture);
+            var newValue = string.Empty;
+            var hasTransformed = IsNavEditor(property.PropertyType.PropertyEditorAlias)
+                ? IsLegacyValue(legacyValue) && TryTransformLegacyValue(_logger, legacyValue, resolveContent, out newValue)
+                : TryTransformBlockValue(_logger, legacyValue, GetElementPropertyEditorAlias, resolveContent, out newValue);
+
+            if (hasTransformed)
+            {
+                property.SetValue(newValue, culture);
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Something went wrong migrating legacy content.{legacyValue}", legacyValue);
+        }
+
+        return false;
     }
+
+    private string? GetElementPropertyEditorAlias(Guid contentTypeKey, string propertyAlias) =>
+        _contentTypesByKey.TryGetValue(contentTypeKey, out var elementType)
+            ? elementType.CompositionPropertyTypes.FirstOrDefault(p => p.Alias == propertyAlias)?.PropertyEditorAlias
+            : null;
+
+    // Meganav stored no name for content picks (it was read from the node at render time) and its
+    // V8 port could store only the node's int id, so both are looked up while migrating.
+    private LegacyContentInfo? ResolveContent(Guid? key, int? id, string? culture)
+    {
+        IContent? content = key.HasValue ? _contentService.GetById(key.Value)
+            : id > 0 ? _contentService.GetById(id.Value)
+            : null;
+
+        if (content == null)
+        {
+            return null;
+        }
+
+        var name = culture != null ? content.GetCultureName(culture) : null;
+        return new LegacyContentInfo(content.Key, name ?? content.Name);
+    }
+
+    private static bool IsNavEditor(string? editorAlias) =>
+        editorAlias == UmbNavConstants.PropertyEditorAlias || (editorAlias != null && LegacyEditorAliases.Contains(editorAlias));
+
+    private static bool HasNavProperty(IContentType contentType) =>
+        contentType.CompositionPropertyTypes.Any(p => IsNavEditor(p.PropertyEditorAlias));
+
+    private static bool HasBlockProperty(IContentType contentType) =>
+        contentType.CompositionPropertyTypes.Any(p => BlockEditorAliases.Contains(p.PropertyEditorAlias));
 
     // Add this static readonly field to cache the JsonSerializerOptions instance
     private static readonly JsonSerializerOptions CachedJsonSerializerOptions = new JsonSerializerOptions
@@ -257,55 +323,235 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    public static bool TryTransformLegacyValue(ILogger logger, string legacyValue, out string newValue)
+    // Item types written by legacy UmbNav. The current editor never writes these, so an item that
+    // has none of them (and does have an item type) is already in the current shape.
+    private static readonly HashSet<string> LegacyItemTypes = new(StringComparer.OrdinalIgnoreCase)
     {
-        var oldItems = JsonSerializer.Deserialize<IEnumerable<OldUmbNavItem>>(legacyValue);
-        if (oldItems == null)
+        "Link", "Content", "Label", "nolink"
+    };
+
+    private static bool IsCurrentItem(JsonObject item) =>
+        item["itemType"] is JsonValue value
+        && value.TryGetValue<string>(out var itemType)
+        && !string.IsNullOrWhiteSpace(itemType)
+        && !LegacyItemTypes.Contains(itemType);
+
+    /// <summary>
+    /// Whether a stored nav value still holds items in a legacy UmbNav or Meganav shape.
+    /// </summary>
+    internal static bool IsLegacyValue(string value)
+    {
+        try
+        {
+            return JsonNode.Parse(value) is JsonArray items && ContainsLegacyItem(items);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static bool ContainsLegacyItem(JsonArray items) =>
+        items.OfType<JsonObject>().Any(item =>
+            !IsCurrentItem(item) || (item["children"] is JsonArray children && ContainsLegacyItem(children)));
+
+    public static bool TryTransformLegacyValue(ILogger logger, string legacyValue, out string newValue) =>
+        TryTransformLegacyValue(logger, legacyValue, null, out newValue);
+
+    /// <summary>
+    /// Transforms a legacy UmbNav or Meganav value into the current model. Items already in the
+    /// current shape are kept as they are, so values that mix both are only partly rewritten.
+    /// </summary>
+    internal static bool TryTransformLegacyValue(ILogger logger, string legacyValue, Func<Guid?, int?, LegacyContentInfo?>? resolveContent, out string newValue)
+    {
+        var items = JsonSerializer.Deserialize<JsonObject[]>(legacyValue);
+        if (items == null)
         {
             logger.LogInformation("Unable to deserialise into legacy UmbNavItem");
             newValue = string.Empty;
             return false;
         }
 
-        var newItems = oldItems.Select(MapToNewModel).ToList();
-
-        var jsonArray = new JsonArray();
-        foreach (var item in newItems)
-        {
-            // Use the cached options instead of creating a new instance every time
-            var node = JsonSerializer.SerializeToNode(item, CachedJsonSerializerOptions)!.AsObject();
-            jsonArray.Add(node);
-        }
-
-        // (Assuming you want to output the serialized array as a string)
-        newValue = jsonArray.ToJsonString(CachedJsonSerializerOptions);
+        newValue = TransformItems(items, resolveContent).ToJsonString(CachedJsonSerializerOptions);
         return true;
     }
 
-    private static UmbNavItem MapToNewModel(OldUmbNavItem oldItem, int level = 0)
+    private static JsonArray TransformItems(IEnumerable<JsonObject?> items, Func<Guid?, int?, LegacyContentInfo?>? resolveContent)
+    {
+        var jsonArray = new JsonArray();
+        foreach (var item in items.OfType<JsonObject>())
+        {
+            if (IsCurrentItem(item))
+            {
+                var current = item.DeepClone().AsObject();
+                if (current["children"] is JsonArray children && ContainsLegacyItem(children))
+                {
+                    current["children"] = TransformItems(children.Select(c => c as JsonObject).ToArray(), resolveContent);
+                }
+                jsonArray.Add(current);
+                continue;
+            }
+
+            var oldItem = item.Deserialize<OldUmbNavItem>()!;
+            jsonArray.Add(JsonSerializer.SerializeToNode(MapToNewModel(oldItem, resolveContent), CachedJsonSerializerOptions));
+        }
+
+        return jsonArray;
+    }
+
+    /// <summary>
+    /// Walks a block editor value (Block List, Block Grid or a Rich Text value with blocks),
+    /// including blocks nested inside blocks, and transforms every legacy nav value it finds.
+    /// </summary>
+    /// <param name="getEditorAlias">Returns the editor alias of a property on an element type.</param>
+    internal static bool TryTransformBlockValue(ILogger logger, string blockValue, Func<Guid, string, string?> getEditorAlias, Func<Guid?, int?, LegacyContentInfo?>? resolveContent, out string newValue)
+    {
+        newValue = blockValue;
+
+        JsonNode? root;
+        try
+        {
+            root = JsonNode.Parse(blockValue);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+
+        if (root is not JsonObject rootObject || !TransformBlocks(logger, rootObject, getEditorAlias, resolveContent))
+        {
+            return false;
+        }
+
+        newValue = rootObject.ToJsonString();
+        return true;
+    }
+
+    private static readonly HashSet<string> BlockItemKeys = ["contentTypeKey", "key", "udi", "values"];
+
+    private static bool TransformBlocks(ILogger logger, JsonObject blockValue, Func<Guid, string, string?> getEditorAlias, Func<Guid?, int?, LegacyContentInfo?>? resolveContent)
+    {
+        var changed = false;
+
+        // Rich text keeps its blocks under "blocks" next to the markup.
+        if (blockValue["blocks"] is JsonObject richTextBlocks)
+        {
+            changed |= TransformBlocks(logger, richTextBlocks, getEditorAlias, resolveContent);
+        }
+
+        foreach (var dataKey in new[] { "contentData", "settingsData" })
+        {
+            if (blockValue[dataKey] is not JsonArray blocks)
+            {
+                continue;
+            }
+
+            foreach (var block in blocks.OfType<JsonObject>())
+            {
+                if (block["contentTypeKey"] is not JsonValue typeValue || !Guid.TryParse(typeValue.ToString(), out var contentTypeKey))
+                {
+                    continue;
+                }
+
+                // Current storage lists properties under "values"; older storage keeps each
+                // property as a key on the block itself. Both are handled.
+                if (block["values"] is JsonArray values)
+                {
+                    foreach (var entry in values.OfType<JsonObject>())
+                    {
+                        var alias = entry["alias"]?.ToString();
+                        if (alias == null)
+                        {
+                            continue;
+                        }
+
+                        var editorAlias = getEditorAlias(contentTypeKey, alias) ?? entry["editorAlias"]?.ToString();
+                        changed |= TransformBlockProperty(logger, entry, "value", editorAlias, getEditorAlias, resolveContent);
+                    }
+                }
+
+                foreach (var propertyAlias in block.Select(p => p.Key).Where(k => !BlockItemKeys.Contains(k)).ToArray())
+                {
+                    var editorAlias = getEditorAlias(contentTypeKey, propertyAlias);
+                    if (editorAlias != null)
+                    {
+                        changed |= TransformBlockProperty(logger, block, propertyAlias, editorAlias, getEditorAlias, resolveContent);
+                    }
+                }
+            }
+        }
+
+        return changed;
+    }
+
+    private static bool TransformBlockProperty(ILogger logger, JsonObject owner, string key, string? editorAlias, Func<Guid, string, string?> getEditorAlias, Func<Guid?, int?, LegacyContentInfo?>? resolveContent)
+    {
+        var node = owner[key];
+        if (node == null)
+        {
+            return false;
+        }
+
+        // Nested values are stored either as JSON or as a string holding JSON; write back the same way.
+        var isString = node is JsonValue value && value.GetValueKind() == JsonValueKind.String;
+        var json = isString ? node.GetValue<string>() : node.ToJsonString();
+
+        if (IsNavEditor(editorAlias))
+        {
+            if (!IsLegacyValue(json) || !TryTransformLegacyValue(logger, json, resolveContent, out var transformed))
+            {
+                return false;
+            }
+
+            owner[key] = isString ? JsonValue.Create(transformed) : JsonNode.Parse(transformed);
+            return true;
+        }
+
+        if (!TryTransformBlockValue(logger, json, getEditorAlias, resolveContent, out var transformedBlocks))
+        {
+            return false;
+        }
+
+        owner[key] = isString ? JsonValue.Create(transformedBlocks) : JsonNode.Parse(transformedBlocks);
+        return true;
+    }
+
+    private static UmbNavItem MapToNewModel(OldUmbNavItem oldItem, Func<Guid?, int?, LegacyContentInfo?>? resolveContent)
     {
         // Title overrides Name if set
         var name = !string.IsNullOrWhiteSpace(oldItem.Title) ? oldItem.Title : oldItem.Name;
         var udi = !string.IsNullOrWhiteSpace(oldItem.Udi) && UdiParser.TryParse(oldItem.Udi, out var parsedUdi) ? parsedUdi as GuidUdi : null;
         var itemType = MapItemType(oldItem.ItemType);
+        var isDocument = UmbNavItemType.Is(itemType, UmbNavItemType.Document);
+
+        // Only content backed items keep a content key. Legacy data often left a udi behind on
+        // items that were later changed to an external link or a label, and carrying that over
+        // makes the renderer resolve the old node and override the item's URL.
+        var content = isDocument ? resolveContent?.Invoke(udi?.Guid, oldItem.Id) : null;
+        var contentKey = isDocument ? content?.Key ?? udi?.Guid : null;
+
+        // Meganav only stored a title when the editor overrode the node name. A content item
+        // left without a name is named from its node, here or by the menu builder at render time.
+        name = !string.IsNullOrWhiteSpace(name) ? name : content?.Name;
+
+        // Meganav's hidden items have no direct equivalent, so they are hidden from everyone.
+        var hidden = oldItem.Visible == false;
+
         return new UmbNavItem
         {
             Key = oldItem.Key == Guid.Empty ? Guid.NewGuid() : oldItem.Key,
-            Name = name ?? "Unknown Name Set By Migration",
+            Name = name ?? (contentKey.HasValue ? string.Empty : "Unknown Name Set By Migration"),
             Url = oldItem.Url,
             ItemType = itemType,
-            // Only content backed items keep a content key. Legacy data often left a udi behind on
-            // items that were later changed to an external link or a label, and carrying that over
-            // makes the renderer resolve the old node and override the item's URL.
-            ContentKey = UmbNavItemType.Is(itemType, UmbNavItemType.Document) ? udi?.Guid : null,
+            ContentKey = contentKey,
             Anchor = oldItem.Anchor,
-            Children = oldItem.Children?.Select(c => MapToNewModel(c, level + 1)),
+            Children = oldItem.Children?.Select(c => MapToNewModel(c, resolveContent)),
             Level = oldItem.Level,
             Target = oldItem.Target,
             ImageArray = oldItem.ImageArray,
             CustomClasses = oldItem.CustomClasses,
-            HideLoggedIn = oldItem.HideLoggedIn ?? false,
-            HideLoggedOut = oldItem.HideLoggedOut ?? false,
+            HideLoggedIn = hidden || (oldItem.HideLoggedIn ?? false),
+            HideLoggedOut = hidden || (oldItem.HideLoggedOut ?? false),
             Noopener = (oldItem.Noopener ?? false).ToString(),
             Noreferrer = (oldItem.Noreferrer ?? false).ToString(),
             IncludeChildNodes = oldItem.IncludeChildNodes ?? false,
@@ -331,7 +577,10 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
             Key = existingType.Key,
             ParentId = existingType.ParentId,
             EditorUiAlias = dataEditor.Alias,
-            ConfigurationData = existingType.ConfigurationData,
+            // Meganav's configuration (item types, max items) has nothing in common with UmbNav's.
+            ConfigurationData = MeganavEditorAliases.Contains(existingType.EditorAlias)
+                ? new Dictionary<string, object>()
+                : existingType.ConfigurationData,
             CreateDate = existingType.CreateDate,
             UpdateDate = _timeProvider.GetLocalNow().DateTime
         };
@@ -347,6 +596,15 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
 
         [JsonPropertyName("key")]
         public Guid Key { get; set; }
+
+        // Meganav's V8 port could store only the picked node's int id.
+        [JsonPropertyName("id")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+        public int? Id { get; set; }
+
+        // Meganav: false hid the item from the rendered menu.
+        [JsonPropertyName("visible")]
+        public bool? Visible { get; set; }
 
         [JsonPropertyName("name")]
         public string? Name { get; set; }
@@ -396,8 +654,9 @@ internal sealed class UmbNavLegacyModelMigration : AsyncPackageMigrationBase
 
                 if (ItemTypeOriginal.IsNullOrWhiteSpace())
                 {
-                    // Oldest data carries no item type at all, so the udi is the only signal.
-                    if (hasContentUdi)
+                    // Oldest data (and Meganav) carries no item type at all, so the udi or the
+                    // node id is the only signal.
+                    if (hasContentUdi || Id > 0)
                     {
                         return OldUmbNavItemType.Content;
                     }
