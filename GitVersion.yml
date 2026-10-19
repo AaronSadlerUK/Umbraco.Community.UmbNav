@@ -44,6 +44,22 @@ branches:
     is-release-branch: false
     is-main-branch: false
     pre-release-weight: 0
+  # Fix branches are patch releases on the dev/vNN line they were cut from. Without this they
+  # match no branch above and inherit from whichever source config GitVersion picks, which on
+  # the v18 line was the built-in `develop` (Minor) and produced 5.1.0-... prereleases.
+  fix:
+    regex: ^(?<BranchName>fix(es)?[/-].+)$
+    mode: ContinuousDelivery
+    label: '{BranchName}'
+    increment: Patch
+    prevent-increment:
+      of-merged-branch: false
+    track-merge-target: false
+    source-branches: [ 'develop', 'dev-major', 'main' ]
+    tracks-release-branches: false
+    is-release-branch: false
+    is-main-branch: false
+    pre-release-weight: 30000
   rc:
     regex: ^rc$
     mode: ContinuousDelivery
