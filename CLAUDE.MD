@@ -233,10 +233,12 @@ UmbNavPackageMigrationPlan
 
 The migration runs automatically on first startup after upgrading and:
 
-1. **Detects legacy data types** using `AaronSadler.UmbNav` property editor alias
-2. **Finds all content** using those data types
-3. **Transforms JSON data** from old format to new format
+1. **Detects legacy data types** using `AaronSadler.UmbNav` or a Meganav alias (`Our.Umbraco.Meganav`, `AaronSadler.MegaNavV8`, `Meganav`, `Cogworks.Meganav`)
+2. **Finds all content** using those data types (or the current alias), walking Block List / Block Grid / RTE block values to reach nav properties on element types
+3. **Transforms JSON data** from old format to new format; items are detected by shape (`IsLegacyValue`), so items already in the v4 shape are kept and re-runs are safe
 4. **Updates data types** to use `Umbraco.Community.UmbNav` alias
+
+The plan registers the same migration twice (`786E9C82…` and `5D0C6E1A…`) so sites that ran the first step before block/Meganav support get it re-run.
 
 ### Key Transformations
 
