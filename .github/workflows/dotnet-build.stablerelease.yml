@@ -140,9 +140,12 @@ jobs:
           dotnet nuget push ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ env.NUGET_KEY }}
           dotnet nuget push ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg --skip-duplicate --source https://api.nuget.org/v3/index.json --api-key ${{ env.NUGET_KEY }}
 
+      # --target pins the new tag to the commit that was built. Without it gh tags the default
+      # branch (dev/v17), which put v18 tags on dev/v17 and skewed GitVersion.
       - name: Create Release
         run: |
           gh release create ${{steps.gitversion.outputs.majorMinorPatch}} \
+            --target ${{ github.sha }} \
             ./build.out/Umbraco.Community.UmbNav.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg \
             ./build.out/Umbraco.Community.UmbNav.Core.${{steps.gitversion.outputs.majorMinorPatch}}.nupkg \
             --title "${{steps.gitversion.outputs.majorMinorPatch}}" \
